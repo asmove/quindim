@@ -8,4 +8,5 @@ function M = mass_matrix(sys)
     
     eqdyns_u = subs(sys.eqdyns, qpp, u);
     M = equationsToMatrix(eqdyns_u, u);
+    M = simplify(M);
 end

@@ -28,6 +28,7 @@ function sys = eqdyns(sys)
 
         % F derivative of L respective to t
         Fu = subs(sys.F, qpi, u);
+        
         dF_dqip = diff(Fu, u);
         dF_dqip = subs(dF_dqip, u, qpi);
         

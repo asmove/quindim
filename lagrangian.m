@@ -14,12 +14,12 @@ function sys = lagrangian(sys)
         U_ = [U_, sys.bodies{i}.U];
         F_ = [F_, sys.bodies{i}.F];
     end
-       
-    K = K_(1);
-    U = U_(2);
-    F = F_(3);
+    
+    K = 0;
+    U = 0;
+    F = 0;
 
-    for i = 2:length(sys.bodies)
+    for i = 1:length(sys.bodies)
         K = K + K_(i);
         U = U + U_(i);
         F = F + F_(i);
