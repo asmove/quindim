@@ -11,7 +11,7 @@ function sys = eqdyns(sys)
         qi = formula(sys.q{i});
         qpi = formula(sys.qp{i});
         Fqi = sys.Fq{i};
-              
+        
         % L derivative of L respective to q
         Lu = subs(sys.L, qi, u);
         dL_dqi = diff(Lu, u);

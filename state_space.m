@@ -1,11 +1,12 @@
-function sys = state_space(sys)
+function f = state_space(sys)
     qps = [];
     for i = 1:length(sys.qp)
        qps = [qps; sys.qp{i}];
     end
     
-    Minv = simplify(sys.mass_matrix\eye(size(sys.mass_matrix)));
-    qpps = simplify(Minv*(-sys.coriolis - sys.gravitational + sys.reqdyns));
+	identity = eye(size(sys.mass_matrix));
+    Minv = simplify(sys.mass_matrix\identity);
+    qpps = simplify(Minv*(sys.reqdyns - sys.coriolis - sys.gravitational));
     
-    sys.f = [qps; qpps];
+    f = [qps; qpps];
 end
