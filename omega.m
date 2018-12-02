@@ -11,7 +11,7 @@ function omega = omega(T, vars, diffs)
     Somega = Rp*R.';
     Somega = formula(Somega);
 
-    omega = [-Somega(2, 3); Somega(1, 3); -Somega(1, 2)];
+    omega = unskew(Somega);
 
     omega = simplify(omega);
 end

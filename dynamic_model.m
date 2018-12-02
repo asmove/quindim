@@ -1,5 +1,6 @@
-function sys = dynamic_model(sys)
-    sys = eqdyns(sys);
+function sys = dynamic_model(sys, method)
+    
+    sys = eqdyns(sys, method);
     sys.mass_matrix = mass_matrix(sys);
     sys.gravitational = gravitational(sys);
     sys.friction = friction(sys);
