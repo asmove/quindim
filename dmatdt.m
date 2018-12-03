@@ -1,8 +1,8 @@
 function dAdt = dmatdt(A, q, qp)
-    [m, n] = size(A);
+    [~, n] = size(A);
     
-    dAdt = zeros(m, n);    
+    dAdt = [];    
     for i = 1:n
-        dAdt(:, i) = dvecdt(A(:, i), q, qp)*qp.';
+        dAdt = [dAdt, dvecdt(A(:, i), q, qp)];
     end
 end

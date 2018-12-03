@@ -1,3 +1,3 @@
-function dvdt = ddt(v, q, qp) 
-    dv = jacobian(v, q)*qp.';
+function dvdt = dvecdt(vec, q, qp)
+    dvdt = jacobian(vec, q)*qp.';
 end
