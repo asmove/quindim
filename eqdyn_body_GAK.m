@@ -1,12 +1,7 @@
 function eqdyn = eqdyn_body_GAK(body)
     Uf = [];
     Um = [];
-
-    grav_vec = [];
-    if(isfield(body, 'gravity'))
-        grav_vec = body.gravity;
-    end
-    
+   
     % Dimensionality
     cardinality = length(body.params.cg);
 
@@ -52,7 +47,7 @@ function eqdyn = eqdyn_body_GAK(body)
     Lp = J*wpi_N + skew(w_i)*J*w_i;
 
     M = m*eye(cardinality, cardinality);
-    g = m*grav_vec;
+    g = m*body.gravity;
     
     p_bullet = p;
     p_circ = [simplify(vcg_N); simplify(w_i)];
@@ -92,8 +87,7 @@ function eqdyn = eqdyn_body_GAK(body)
     leqdyn_ = dp_circ_dp_bullet.'*[M*acg_N - g; Lp];
     
     % Gravitational term
-    grav = symvar(grav_vec);
-    eqdyn.g = simplify(equationsToMatrix(leqdyn_, grav));
+    eqdyn.g = dp_circ_dp_bullet.'*[g; zeros(size(Lp))];
     
     % Mass matrix
     eqdyn.M = simplify(equationsToMatrix(leqdyn_, pp));

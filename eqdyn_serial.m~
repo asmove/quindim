@@ -115,7 +115,7 @@ function eqdyn = eqdyn_serial(serial)
     leqdyn_ = dp_circ_dp_bullet.'*[M*acg - g; Lp];
     
     % Gravitational term
-    eqdyn.g = -dp_circ_dp_bullet.'*[g; zeros(size(Lp))];
+    eqdyn.g = dp_circ_dp_bullet.'*[g; zeros(size(Lp))];
     
     % Mass matrix
     eqdyn.M = simplify(equationsToMatrix(leqdyn_, pp));
