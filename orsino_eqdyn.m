@@ -28,6 +28,7 @@ function eqdyn = orsino_eqdyn(mechanism)
         q_circ = [q_circ, q];
         qp_circ = [qp_circ, qp];
         p_circ = [p_circ, p];
+        pp_circ = [pp_circ, pp];
     
         % p = D*qp
         D =  equationsToMatrix(qp, p);
@@ -113,7 +114,9 @@ function eqdyn = orsino_eqdyn(mechanism)
     eqdyn.qp_circ= qp_circ;
     eqdyn.pp_circ = pp_circ;
 
+    [~, Dp_circ] = pp2qpp(D_circ, q_circ, qp_circ, pp_circ);
     eqdyn.D_circ = vpa(D_circ);
+    eqdyn.Dp_circ = vpa(Dp_circ);
     
     % Main jacobians
     eqdyn.Jac_circ = vpa(Jac_circ);
