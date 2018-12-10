@@ -1,4 +1,4 @@
-function [A, C] = coupling_matrixC(mechanism, q)
+function [A, C, C_hat] = coupling_matrixC(mechanism, q)
     n_bullet = length(mechanism.eqdyn.q_bullet);
     n_circ = length(mechanism.eqdyn.q_circ);
     

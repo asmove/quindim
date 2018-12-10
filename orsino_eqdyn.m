@@ -75,8 +75,10 @@ function eqdyn = orsino_eqdyn(mechanism)
     if(any(any(eqdyn_e.U)))
         U_tilde = blkdiag(eqdyn_e.U, U_tilde);
     else
-        U_e = zeros(size(eqdyn_e.U));
-        U_tilde = [U_e, U_tilde];
+        [~, n] = size(U_tilde);
+        [m, ~] = size(eqdyn_e.U);
+        U_e = zeros(m, n);
+        U_tilde = [U_e; U_tilde];
     end        
     
     % Generalized variables and their derivatives

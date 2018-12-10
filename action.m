@@ -21,7 +21,7 @@ function u = action(mechanism, q_bullet, qp_bullet, qpp_bullet)
     % Indepedent acceleration
     pp_bullet = D_bullet*qpp_bullet.' + Dp_bullet*qp_bullet.';
     pp_bullet = pp_bullet.';
-      
+    
     % Main evaluation matrices
     C = mechanism.C;
     M = C.'*mechanism.eqdyn.M_uncoupled;
