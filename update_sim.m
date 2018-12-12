@@ -1,3 +1,4 @@
+
 function sim = update_sim(i, sim, mechanism, trajectory)
 % Update trajectory simulation parameters e.g.matrix C, 
 % M, nu, g, generalized coordinates and speeds
@@ -9,20 +10,24 @@ function sim = update_sim(i, sim, mechanism, trajectory)
                      'curr_t', trajectory.t(2));
                  
         % Generalized variables for Cp 
-        q_bullet0 = trajectory.q(3, :);
-        qp_bullet0 = trajectory.qp(3, :);
-        qpp_bullet0 = trajectory.qpp(3, :);
+        q_bullet0 = trajectory.q(4, :);
+        qp_bullet0 = trajectory.qp(4, :);
+        qpp_bullet0 = trajectory.qpp(4, :);
              
         % Generalized variables - Instant k-1
-        q_bullet_1 = trajectory.q(2, :);
-        qp_bullet_1 = trajectory.qp(2, :);
-        qpp_bullet_1 = trajectory.qp(2, :);
-        
+        q_bullet_1 = trajectory.q(3, :);
+        qp_bullet_1 = trajectory.qp(3, :);
+        qpp_bullet_1 = trajectory.qp(3, :);
 
         % Generalized variables - Instant k-2
-        q_bullet_2 = trajectory.q(1, :);
-        qp_bullet_2 = trajectory.qp(1, :);
-        qpp_bullet_2 = trajectory.qp(1, :);
+        q_bullet_2 = trajectory.q(2, :);
+        qp_bullet_2 = trajectory.qp(2, :);
+        qpp_bullet_2 = trajectory.qp(2, :);
+        
+        % Generalized variables - Instant k-2
+        q_bullet_3 = trajectory.q(1, :);
+        qp_bullet_3 = trajectory.qp(1, :);
+        qpp_bullet_3 = trajectory.qp(1, :);
         
         q0_circ = zeros(1, 6);
     else
@@ -45,6 +50,11 @@ function sim = update_sim(i, sim, mechanism, trajectory)
         qp_bullet_2 = trajectory.qp(i-2, :);
         qpp_bullet_2 = trajectory.qp(i-2, :);
         
+        % Generalized variables
+        q_bullet_3 = trajectory.q(i-3, :);
+        qp_bullet_3 = trajectory.qp(i-3, :);
+        qpp_bullet_3 = trajectory.qp(i-3, :);
+        
         idx_q_circ = length(q_bullet0)+1;
         q0_circ = sim.q(idx_q_circ:end);
     end
@@ -55,41 +65,44 @@ function sim = update_sim(i, sim, mechanism, trajectory)
     
     % Evaluated variables
     [q0, ~, p0] = q_qp_p(mechanism, ...
-                            q0_circ, ...
-                            q_bullet0, ...
-                            qp_bullet0, ...
-                            qpp_bullet0);
+                         q0_circ, ...
+                         q_bullet0, ...
+                         qp_bullet0, ...
+                         qpp_bullet0);
                         
     [q_1, ~, ~] = q_qp_p(mechanism, ...
-                                 q0_circ, ...
-                                 q_bullet_1, ...
-                                 qp_bullet_1, ...
-                                 qpp_bullet_1);
+                         q0_circ, ...
+                         q_bullet_1, ...
+                         qp_bullet_1, ...
+                         qpp_bullet_1);
                              
     [q_2, ~, ~] = q_qp_p(mechanism, ...
-                           q0_circ, ...
-                           q_bullet_2, ...
-                           qp_bullet_2, ...
-                           qpp_bullet_2);
-    
+                         q0_circ, ...
+                         q_bullet_2, ...
+                         qp_bullet_2, ...
+                         qpp_bullet_2);
+
+    [q_3, ~, ~] = q_qp_p(mechanism, ...
+                         q0_circ, ...
+                         q_bullet_3, ...
+                         qp_bullet_3, ...
+                         qpp_bullet_3);
+                     
     % Cp - Backward approximation O(h^3)
     [~, C0, ~] = coupling_matrixC(mechanism, q0);
     [~, C_1, ~] = coupling_matrixC(mechanism, q_1);
     [~, C_2, ~] = coupling_matrixC(mechanism, q_2);
-    
-    sim.C0 = C0;
-    sim.C_1 = C_1;
-    sim.C_2 = C_2;
+    [~, C_3, ~] = coupling_matrixC(mechanism, q_3);
     
     delta_t = sim.curr_t - sim.prev_t;
-    Cp = (1.5*C0 - 2*C_1 + 0.5*C_2)/delta_t;
+    Cp = ((-11/6)*C0 + 3*C_1 + (-1.5)*C_2 + (1/3)*C_3)/delta_t;
     sim.Cp = Cp;
     
     [q_i, ~, p_i] = q_qp_p(mechanism, ...
-                         q0_circ, ...
-                         q_bullet_i, ...
-                         qp_bullet_i, ...
-                         qpp_bullet_i);
+                           q0_circ, ...
+                           q_bullet_i, ...
+                           qp_bullet_i, ...
+                           qpp_bullet_i);
     
     sim.ti = trajectory.t(i);
                      
