@@ -51,7 +51,7 @@ function eqdyn = orsino_eqdyn(mechanism)
         nu_i = eqdyn_s.nu;
         g_i = eqdyn_s.g;
         U_i = eqdyn_s.U;
-        
+                
         M_tilde = blkdiag(M_tilde, M_i);
         nu_tilde = [nu_tilde; nu_i];
         g_tilde = [g_tilde; g_i];
@@ -75,9 +75,12 @@ function eqdyn = orsino_eqdyn(mechanism)
     if(any(any(eqdyn_e.U)))
         U_tilde = blkdiag(eqdyn_e.U, U_tilde);
     else
-        U_e = zeros(size(eqdyn_e.U));
-        U_tilde = [U_e, U_tilde];
-    end        
+        [~, n] = size(U_tilde);
+        [m, ~] = size(eqdyn_e.U);
+        
+        U_e = zeros(m, n);
+        U_tilde = [U_e; U_tilde];
+    end
     
     % Generalized variables and their derivatives
     q_bullet = mechanism.endeffector.generalized.q;
@@ -121,6 +124,8 @@ function eqdyn = orsino_eqdyn(mechanism)
     % Main jacobians
     eqdyn.Jac_circ = vpa(Jac_circ);
     eqdyn.Jac_bullet = vpa(Jac_bullet);
+    eqdyn.Jacp_circ = vpa(dmatdt(Jac_circ, q, qp));
+    eqdyn.Jacp_bullet = vpa(dmatdt(Jac_bullet, q, qp));
     
     % Main matrices of thee dynamic equation  
     eqdyn.M_decoupled = vpa(M_tilde);

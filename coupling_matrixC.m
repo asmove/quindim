@@ -1,4 +1,4 @@
-function [A, C] = coupling_matrixC(mechanism, q)
+function [A, C, Chat] = coupling_matrixC(mechanism, q)
     n_bullet = length(mechanism.eqdyn.q_bullet);
     n_circ = length(mechanism.eqdyn.q_circ);
     
@@ -21,8 +21,8 @@ function [A, C] = coupling_matrixC(mechanism, q)
                   mechanism.eqdyn.q_circ, q(n_bullet+1:end)));
     
     % Coupling matrix
-    C_hat = -(D_circ\Jac_circ)*Jac_bullet*pinv(D_bullet);
+    Chat = -(D_circ\Jac_circ)*Jac_bullet*pinv(D_bullet);
 
-    C = [eye(n_bullet); C_hat];   
+    C = [eye(n_bullet); Chat];
     A = [Jac_bullet*pinv(D_bullet), Jac_circ*pinv(D_circ)];
 end
