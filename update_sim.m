@@ -22,7 +22,7 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
         q_bullet_2 = trajectory.q(2, :);
         qp_bullet_2 = trajectory.qp(2, :);
         qpp_bullet_2 = trajectory.qp(2, :);
-                
+        
         q0_circ = zeros(1, n_circ);
     else
         % Instants
@@ -106,8 +106,6 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     q_num = q;
     qp_num = qp;
     p_num = p;
-    
-    fieldnames(sim)
     
     % First iteration
     if(isempty(fieldnames(sim)))
