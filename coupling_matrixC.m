@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+function [A, C, C_hat] = coupling_matrixC(mechanism, q)
+=======
 function [A, C, Chat] = coupling_matrixC(mechanism, q)
+>>>>>>> 7c70559cb71243c91bd5d9fc8e8791e53a3a6a0c
     n_bullet = length(mechanism.eqdyn.q_bullet);
     n_circ = length(mechanism.eqdyn.q_circ);
     

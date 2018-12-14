@@ -25,6 +25,7 @@ function [q, qp, p, pp, is_workspace] = q_qp_p(mechanism, q0_circ, q_bullet, qp_
     % Dependent speeds
     [~, ~, Chat] = coupling_matrixC(mechanism, [q_bullet, q_circ_]);
     p_circ_ = Chat*p_bullet.';
+
     p_circ_ = p_circ_.';
 
     % Speed to derivative coordinates conversion

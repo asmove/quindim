@@ -19,10 +19,6 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
         qpp_bullet_1 = trajectory.qp(1, :);
         
         % Generalized variables
-        q_bullet_2 = trajectory.q(2, :);
-        qp_bullet_2 = trajectory.qp(2, :);
-        qpp_bullet_2 = trajectory.qp(2, :);
-        
         q0_circ = zeros(1, n_circ);
     else
         % Instants
@@ -151,4 +147,3 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     u = double(pinv(Z)*(H*pp_bullet_.' + h));
     [sim_(:).u] = deal(u);
 end
-
