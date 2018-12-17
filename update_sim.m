@@ -7,16 +7,16 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
         % Instants
         [sim_(:).prev_t] = deal(trajectory.t(1));
         [sim_(:).curr_t] = deal(trajectory.t(2));
-                 
-        % Generalized variables
-        q_bullet_0 = trajectory.q(2, :);
-        qp_bullet_0 = trajectory.qp(2, :);
-        qpp_bullet_0 = trajectory.qpp(2, :);
-             
-        % Generalized variables
-        q_bullet_1 = trajectory.q(1, :);
-        qp_bullet_1 = trajectory.qp(1, :);
-        qpp_bullet_1 = trajectory.qp(1, :);
+
+%         % Generalized variables
+%         q_bullet_0 = trajectory.q(2, :);
+%         qp_bullet_0 = trajectory.qp(2, :);
+%         qpp_bullet_0 = trajectory.qpp(2, :);
+%              
+%         % Generalized variables
+%         q_bullet_1 = trajectory.q(1, :);
+%         qp_bullet_1 = trajectory.qp(1, :);
+%         qpp_bullet_1 = trajectory.qp(1, :);
         
         % Generalized variables
         q0_circ = zeros(1, n_circ);
@@ -25,22 +25,22 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
         [sim_(:).prev_t] = deal(trajectory.t(i-1));
         [sim_(:).curr_t] = deal(trajectory.t(i));
         
-        % Generalized variables
-        q_bullet_0 = trajectory.q(i, :);
-        qp_bullet_0 = trajectory.qp(i, :);
-        qpp_bullet_0 = trajectory.qpp(i, :);
-             
-        % Generalized variables
-        q_bullet_1 = trajectory.q(i-1, :);
-        qp_bullet_1 = trajectory.qp(i-1, :);
-        qpp_bullet_1 = trajectory.qp(i-1, :);
+%         % Generalized variables
+%         q_bullet_0 = trajectory.q(i, :);
+%         qp_bullet_0 = trajectory.qp(i, :);
+%         qpp_bullet_0 = trajectory.qpp(i, :);
+%              
+%         % Generalized variables
+%         q_bullet_1 = trajectory.q(i-1, :);
+%         qp_bullet_1 = trajectory.qp(i-1, :);
+%         qpp_bullet_1 = trajectory.qp(i-1, :);
+%         
+%         % Generalized variables
+%         q_bullet_2 = trajectory.q(i-2, :);
+%         qp_bullet_2 = trajectory.qp(i-2, :);
+%         qpp_bullet_2 = trajectory.qp(i-2, :);
         
-        % Generalized variables
-        q_bullet_2 = trajectory.q(i-2, :);
-        qp_bullet_2 = trajectory.qp(i-2, :);
-        qpp_bullet_2 = trajectory.qp(i-2, :);
-        
-        q0_circ = sim.q(length(q_bullet_0)+1:end);
+        q0_circ = sim.q(n_bullet+1:end);
     end
     
     % Current bullet
@@ -59,42 +59,7 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     [sim_(:).qp] = deal(qp);
     [sim_(:).p] = deal(p);
     [sim_(:).pp] = deal(pp);
-    
-        % Evaluated variables
-    [q_2, ~, ~, ~, ~] = q_qp_p(mechanism, ...
-                               q0_circ, ...
-                               q_bullet_2, ...
-                               qp_bullet_2, ...
-                               qpp_bullet_2);
-    
-    [q_1, ~, ~, ~, ~] = q_qp_p(mechanism, ...
-                               q0_circ, ...
-                               q_bullet_1, ...
-                               qp_bullet_1, ...
-                               qpp_bullet_1);
-    
-    [q_0, ~, ~, ~, ~] = q_qp_p(mechanism, ...
-                               q0_circ, ...
-                               q_bullet_0, ...
-                               qp_bullet_0, ...
-                               qpp_bullet_0);
-    
-    % Cp - Euler approximation
-    [~, C_2, ~] = coupling_matrixC(mechanism, q_2);
-    [~, C_1, ~] = coupling_matrixC(mechanism, q_1);
-    [~, C_0, ~] = coupling_matrixC(mechanism, q_0);
-    
-    [~, C, ~] = coupling_matrixC(mechanism, q_0);
-    
-    delta_t = sim_.curr_t - sim_.prev_t;
-    Cp = (1.5*C_2 - 2*C_1 + 0.5*C_0)/delta_t;
 
-    [sim_(:).C] = deal(C);
-    [sim_(:).Cp] = deal(Cp);
-    
-    % Main points of mechanism
-    sim_.points = eval_points(mechanism, q);
-    
     q_sym = [mechanism.eqdyn.q_circ, mechanism.eqdyn.q_bullet];
     qp_sym = [mechanism.eqdyn.qp_circ, mechanism.eqdyn.qp_bullet];
     p_sym = [mechanism.eqdyn.p_circ, mechanism.eqdyn.p_bullet];
@@ -102,7 +67,60 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     q_num = q;
     qp_num = qp;
     p_num = p;
+
     
+%     % Evaluated variables
+%     [q_2, ~, ~, ~, ~] = q_qp_p(mechanism, ...
+%                                q0_circ, ...
+%                                q_bullet_2, ...
+%                                qp_bullet_2, ...
+%                                qpp_bullet_2);
+%     
+%     [q_1, ~, ~, ~, ~] = q_qp_p(mechanism, ...
+%                                q0_circ, ...
+%                                q_bullet_1, ...
+%                                qp_bullet_1, ...
+%                                qpp_bullet_1);
+%     
+%     [q_0, ~, ~, ~, ~] = q_qp_p(mechanism, ...
+%                                q0_circ, ...
+%                                q_bullet_0, ...
+%                                qp_bullet_0, ...
+%                                qpp_bullet_0);
+    
+%     % Cp - Euler approximation
+%     [~, C_2, ~] = coupling_matrixC(mechanism, q_2);
+%     [~, C_1, ~] = coupling_matrixC(mechanism, q_1);
+%     [~, C_0, ~] = coupling_matrixC(mechanism, q_0);
+% 
+%     delta_t = sim_.curr_t - sim_.prev_t;
+%     Cp = (1.5*C_2 - 2*C_1 + 0.5*C_0)/delta_t;
+
+    [~, C, ~] = coupling_matrixC(mechanism, q);
+    
+    Jac_bullet = double(subs(mechanism.eqdyn.Jac_bullet, q_sym, q_num));
+    Jacp_bullet = double(subs(mechanism.eqdyn.Jacp_bullet, ...
+                         [q_sym, p_sym], [q_num, p_num]));
+    Jac_circ = double(subs(mechanism.eqdyn.Jac_circ, q_sym, q_num));
+    Jacp_circ = double(subs(mechanism.eqdyn.Jacp_circ, ...
+                       [q_sym, p_sym], [q_num, p_num]));
+    D_bullet = double(subs(mechanism.eqdyn.D_bullet, ....
+                           q_sym, q_num));
+    Dp_bullet = double(subs(mechanism.eqdyn.Dp_bullet, ....
+                            [q_sym, p_sym], [q_num, p_num]));
+    D_circ = double(subs(mechanism.eqdyn.D_circ, q_sym, q_num));
+    Dp_circ = double(subs(mechanism.eqdyn.Dp_circ, ...
+                          [q_sym, p_sym], [q_num, p_num]));   
+    
+    
+    Cp = zeros(size(C));
+    
+    [sim_(:).C] = deal(C);
+    [sim_(:).Cp] = deal(Cp);
+    
+    % Main points of mechanism
+    sim_.points = eval_points(mechanism, q);
+        
     % First iteration
     if(isempty(fieldnames(sim)))
         [sim_(:).q_error] = deal(0);
@@ -141,7 +159,7 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     % Main action variables
     H = double(C.'*M*C);
     Z = double(C.'*U);
-    
+        
     h = double(C.'*(M*Cp*p_bullet_.' + nu - g));
     
     u = double(pinv(Z)*(H*pp_bullet_.' + h));
