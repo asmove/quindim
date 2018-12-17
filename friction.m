@@ -8,6 +8,6 @@ function friction = friction(sys)
         end
     end
     
-    friction_component = equationsToMatrix(sys.eqdyns, fric_coeffs);
+    friction_component = equationsToMatrix(sys.l_r, fric_coeffs);
     friction = friction_component*fric_coeffs;
 end

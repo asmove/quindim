@@ -1,9 +1,11 @@
 function sys = dynamic_model(sys, method)
     
+    % Default method: Lagrange
+    switch nargin
+        case 1
+            method = 'lagrange';    
+    end
+
     sys = eqdyns(sys, method);
-    sys.mass_matrix = mass_matrix(sys);
-    sys.gravitational = gravitational(sys);
-    sys.friction = friction(sys);
-    sys.coriolis = simplify(sys.leqdyns - sys.mass_matrix*sys.qpp ...
-                          - sys.gravitational - sys.friction);
+    [sys.M, sys.g, sys.f, sys.nu] =  main_dyn_matrices(sys);
 end
