@@ -1,6 +1,6 @@
 function sys = eqdyns(sys, method)
     % sys:
-    %   Documentation   required
+    %   Documentation required
     % method:
     %   Lagrange [char]: Methodology developed by Lagrange on XIX century
     %   for the development of mechanical systems dynamic equations
@@ -11,17 +11,18 @@ function sys = eqdyns(sys, method)
     % Default method: Lagrange
     switch nargin
         case 1
-            method = 'Lagrange';    
+            method = 'lagrange';    
     end
     
     % Dynamic equations by chosen method
     switch method
-        case 'Lagrange'
-            [~, sys] = lagrange_eqdyn(sys);
+        case 'lagrange'
+            sys = lagrange_eqdyn(sys);
        
-        case 'Orsino'
-            [~, sys] = lagrange_eqdyn(sys);
+        case 'orsino'
+            sys = orsino_eqdyn(sys);
+    
+        otherwise
             % Add further methods futurely
     end
-    
 end
