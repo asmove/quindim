@@ -1,5 +1,4 @@
 function eqdyn = orsino_eqdyn(mechanism)
-    
     % Number of subsystems
     num_subsystems = length(mechanism.serials);
     
@@ -17,41 +16,19 @@ function eqdyn = orsino_eqdyn(mechanism)
     
     % Respective to serial systems
     for i = 1:num_subsystems
+        mechanism.serials{i} = build_dynserial(mechanism.serials{i});
+        
         serial = mechanism.serials{i};
-        
-        q = serial.generalized.q;
-        qp = serial.generalized.qp;
-        p = serial.generalized.p;
-        pp = serial.generalized.pp;
-        
+               
         % Redundant variables for the closed mechanism
-        q_circ = [q_circ, q];
-        qp_circ = [qp_circ, qp];
-        p_circ = [p_circ, p];
-        pp_circ = [pp_circ, pp];
+        q_circ = [q_circ, serial.q];
+        qp_circ = [qp_circ, serial.qp];
+        p_circ = [p_circ, serial.p];
+        pp_circ = [pp_circ, serial.pp];
     
         % p = D*qp
-        D =  equationsToMatrix(qp, p);
-        mechanism.serial_sytems{i}.D = D;
-        D_circ = blkdiag(D_circ, D);
-        
-        % dD/dt = Dp
-        [qpp, Dp] = pp2qpp(D, q, qp, pp);
-        mechanism.serial_sytems{i}.Dp = Dp;
-        
-        % p = D*qp <=> pp = Dp*qp + D*qpp <=> qpp = pinv(D)*(pp - Dp*qp)
-        mechanism.serials{i}.qpp = qpp;
-    
-        % Serial dynamic equations               
-        eqdyn_s = eqdyn_serial(serial);
-        mechanism.serial_sytems{i}.eqdyn = eqdyn_s;
-   
-        % Serial systems unified representation
-        M_i = eqdyn_s.M;
-        nu_i = eqdyn_s.nu;
-        g_i = eqdyn_s.g;
-        U_i = eqdyn_s.U;
-                
+        D_circ = blkdiag(D_circ, serial.D);
+                   
         M_tilde = blkdiag(M_tilde, M_i);
         nu_tilde = [nu_tilde; nu_i];
         g_tilde = [g_tilde; g_i];
@@ -61,10 +38,10 @@ function eqdyn = orsino_eqdyn(mechanism)
         else
             U_i = zeros(size(U_i));
             U_tilde = [U_tilde; U_i];
-        end        
+        end
     end
     
-    % End-effector dynamic equation
+    % End-effector dynamic equation - Newton's equation
     eqdyn_e = eqdyn_body_GAK(mechanism.endeffector);
     
     % Uncoupled multi-body system
@@ -109,6 +86,8 @@ function eqdyn = orsino_eqdyn(mechanism)
     [~, Dp_bullet] = pp2qpp(D_bullet, q_bullet, qp_bullet, pp_bullet);
     mechanism.serial_sytems{i}.Dp = Dp;
     
+    n_bullet = length(q_bullet);
+    
     eqdyn.D_bullet = vpa(D_bullet);
     eqdyn.Dp_bullet = vpa(Dp_bullet);
     
@@ -121,13 +100,29 @@ function eqdyn = orsino_eqdyn(mechanism)
     eqdyn.D_circ = vpa(D_circ);
     eqdyn.Dp_circ = vpa(Dp_circ);
     
-    % Main jacobians
+    n_circ = length(q_circ);
+    
+    % Main jacobians and their derivatives
     eqdyn.Jac_circ = vpa(Jac_circ);
     eqdyn.Jac_bullet = vpa(Jac_bullet);
+    
     eqdyn.Jacp_circ = vpa(dmatdt(Jac_circ, q, qp));
     eqdyn.Jacp_bullet = vpa(dmatdt(Jac_bullet, q, qp));
     
-    % Main matrices of thee dynamic equation  
+    % Matrix of velocity coupling - Maggi
+    eqdyn.A = [eqdyn.Jac_bullet/eqdyn.D_bullet, ...
+               eqdyn.Jac_circ/eqdyn.D_circ];
+           
+    eqdyn.Ap = [eqdyn.Jacp_bullet/eqdyn.D_bullet + ...
+                eqdyn.Jac_bullet/eqdyn.Dp_bullet, ...
+                eqdyn.Jacp_circ/eqdyn.D_circ + ...
+                eqdyn.Jac_circ/eqdyn.Dp_circ];
+    
+    % Useful matrices for Cp computation
+    eqdyn.Q_bullet = [eye(n_bullet); zeros(n_circ, n_bullet)];
+    eqdyn.Q_circ = [zeros(n_bullet, n_circ); eye(n_circ)];
+    
+    % Main matrices of the dynamic equation  
     eqdyn.M_decoupled = vpa(M_tilde);
     eqdyn.g_decoupled = vpa(g_tilde);
     eqdyn.nu_decoupled = vpa(nu_tilde);
