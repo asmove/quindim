@@ -1,4 +1,4 @@
-function [M, g, f, nu, U] = main_dyn_matrices(sys)
+function [M, g, f, nu, U] = dyn_matrices(sys)
     qpp = sys.qpp;
     u = sys.u;
     M = mass_matrix(sys);

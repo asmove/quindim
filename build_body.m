@@ -1,7 +1,6 @@
-function body = build_body(m, inertia, b, Ts, p_cg, q, qp, qpp, ...
-                           fric_is_linear)
-    syms t;
-       
+function body = build_body(m, inertia, b, Ts, p_cg, ...
+                           q, qp, qpp, ...
+                           fric_is_linear, previous)
     body.m = m;
     body.I = inertia;
 
@@ -9,7 +8,10 @@ function body = build_body(m, inertia, b, Ts, p_cg, q, qp, qpp, ...
     body.q = q;
     body.qp = qp;
     body.qpp = qpp;
-       
+    
+    % Previous body 
+    body.previous_body = previous;
+    
     % Body position transformations
     body.T = eye(4, 4);
     u = sym('u', size(q));

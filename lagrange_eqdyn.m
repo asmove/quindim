@@ -59,4 +59,5 @@ function sys = lagrange_eqdyn(sys)
     sys.l_r = leqdyns - reqdyns;
     sys.leqdyns = leqdyns;
     sys.reqdyns = reqdyns;
+    sys.eqdyns = leqdyns == reqdyns;
 end
