@@ -1,10 +1,6 @@
 % Minimal example
 % @Author: Bruno Peixoto
 
-% This line is  necessary if you do not added the 
-% 
-addpath('../')
-
 % The 'real' statement on end is important
 % for inner simplifications
 syms F x xp xpp m b g real;
@@ -49,3 +45,5 @@ sys.states = [x; xp];
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
+
+sys

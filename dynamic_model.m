@@ -7,5 +7,6 @@ function sys = dynamic_model(sys, method)
     end
 
     sys = eqdyns(sys, method);
-    [sys.M, sys.g, sys.friction, sys.nu] =  dyn_matrices(sys);
+    [sys.M, sys.g, sys.friction, sys.nu, ...
+     sys.H, sys.h, sys.Z] =  dyn_matrices(sys);
 end
