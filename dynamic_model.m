@@ -5,8 +5,17 @@ function sys = dynamic_model(sys, method)
         case 1
             method = 'lagrange';    
     end
-
+    
+    % Dynamic equations
     sys = eqdyns(sys, method);
-    [sys.M, sys.g, sys.friction, sys.nu, ...
+    
+    % Main matrices
+    [sys.M, sys.g, sys.friction, sys.nu, sys.U, ...
      sys.H, sys.h, sys.Z] =  dyn_matrices(sys);
+ 
+    % Sytem behaviour
+    qpps = sys.H\(sys.Z*sys.u - sys.h);
+    qps = sys.qp;
+
+    sys.f = [qps; qpps];
 end

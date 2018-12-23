@@ -1,8 +1,10 @@
 function sys = kinematic_model(sys)
     x = [sys.q; sys.qp];
     xp = [sys.qp; sys.qpp];
-        
-    for i = 1:length(sys.bodies)
+    
+    n_bodies = length(sys.bodies);
+    
+    for i = 1:n_bodies
         body = sys.bodies{i};
         
         % Center of mass position
@@ -16,5 +18,10 @@ function sys = kinematic_model(sys)
         % Body angular velocity
         R = body.T(1:3, 1:3);
         sys.bodies{i}.omega = omega(R, x, xp);
+        
+        if(i ~= n_bodies)
+            sys.bodies{i+1}.previous_body = sys.bodies{i}; 
+        end
     end
+    
 end

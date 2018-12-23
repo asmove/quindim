@@ -7,7 +7,7 @@ function [M, g, f, nu, U, H, h, Z] = dyn_matrices(sys)
     g = gravitational(sys);
     f = friction(sys);
     U = -jacobian(sys.l_r, u);
-    nu = sys.l_r - M*qpp - g - f + U*u;
+    nu = simplify(sys.l_r - M*qpp) - g - f + U*u;
     
     % Control dynamic matrices
     H = M;

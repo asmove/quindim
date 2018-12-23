@@ -5,27 +5,30 @@ function sys = lagrange_eqdyn(sys)
     
     % System energy componentes
     sys.K = 0;
-    sys.U = 0;
+    sys.P = 0;
     sys.L = 0;
     sys.F = 0;
-      
+        
     % Kinetic, Potential, Lagrangian and Rayleigh of the bodies
-    for i = 1:n       
-       [L, K, U] = lagrangian(sys.bodies{i}, sys.gravity);
+    for i = 1:n
+       [L, K, P] = lagrangian(bodies{i}, sys.gravity);
        F = rayleigh_energy(bodies{i});
               
        % Required energy components
        sys.bodies{i}.L = L;
        sys.bodies{i}.K = K;
-       sys.bodies{i}.U = U;
+       sys.bodies{i}.P = P;
        sys.bodies{i}.F = F;
        
        % System energy components
        sys.K = sys.K + K;
-       sys.U = sys.U + U;
+       sys.P = sys.P + P;
        sys.L = sys.L + L;
        sys.F = sys.F + F;
     end
+
+    % Total system energy
+    sys.total_energy = sys.K + sys.P - sys.F;
     
     % Dynamic equations of the system   
     L = sys.L;

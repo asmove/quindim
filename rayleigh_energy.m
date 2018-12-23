@@ -10,8 +10,8 @@ function F = rayleigh_energy(body)
         end
     else
         if(isfield(body.previous_body, 'omega'))
-            F = (1/2)*body.b*(body.omega - body.previous_body.omega).'*...
-                 (body.omega - body.previous_body.omega);
+            delta_omega = body.omega - body.previous_body.omega;
+            F = (1/2)*body.b*delta_omega.'*delta_omega;
         else
             F = (1/2)*body.b*body.omega.'*body.omega;            
         end
