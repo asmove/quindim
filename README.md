@@ -10,9 +10,9 @@ If you are willing to use it, follow the instructions:
 2) Before calling the functions, type on MATLAB shell 
 
 ```
->> addpath('$ROB4FUN_PATH')
->> addpath(genpath('$ROB4FUN_PATH'))
->> savepath
+addpath('$ROB4FUN_PATH')
+addpath(genpath('$ROB4FUN_PATH'))
+savepath
 ``` 
 
 where ```$ROB4FUN_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$ROB4FUN_PATH```.
