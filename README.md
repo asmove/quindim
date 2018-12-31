@@ -1,6 +1,6 @@
 # Robotics4fun
 
-This is a homemade robotics library made using well-known literature on Robotics with thustworthy literature. Don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :)
+This is a homemade robotics library made using well-known literature on Robotics with trustworthy literature. Don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :)
 
 # Installation
 
