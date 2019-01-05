@@ -9,7 +9,7 @@ function eqdyn = orsino_eqdyn(mechanism)
     U_tilde = [];
     D_circ = [];
     
-    q_circ = [];
+    q_circ_ = [];
     qp_circ = [];
     p_circ = [];
     pp_circ = [];
@@ -21,23 +21,23 @@ function eqdyn = orsino_eqdyn(mechanism)
         serial = mechanism.serials{i};
                
         % Redundant variables for the closed mechanism
-        q_circ = [q_circ, serial.q];
-        qp_circ = [qp_circ, serial.qp];
-        p_circ = [p_circ, serial.p];
-        pp_circ = [pp_circ, serial.pp];
+        q_circ_ = [q_circ_; serial.q];
+        qp_circ = [qp_circ; serial.qp];
+        p_circ = [p_circ; serial.p];
+        pp_circ = [pp_circ; serial.pp];
     
         % p = D*qp
         D_circ = blkdiag(D_circ, serial.D);
                    
-        M_tilde = blkdiag(M_tilde, M_i);
-        nu_tilde = [nu_tilde; nu_i];
-        g_tilde = [g_tilde; g_i];
+        M_tilde = blkdiag(M_tilde, serial.M_i);
+        nu_tilde = [nu_tilde; serial.nu_i];
+        g_tilde = [g_tilde; serial.g_i];
         
-        if(any(any(U_i)))
-            U_tilde = blkdiag(U_tilde, U_i);
+        if(any(any(serial.U_i)))
+            U_tilde = blkdiag(U_tilde, serial.U_i);
         else
-            U_i = zeros(size(U_i));
-            U_tilde = [U_tilde; U_i];
+            U_i = zeros(size(serial.U_i));
+            U_tilde = [U_tilde; serial.U_i];
         end
     end
     
@@ -74,7 +74,7 @@ function eqdyn = orsino_eqdyn(mechanism)
     end
         
     % Jacobians
-    Jac_circ = simplify(jacobian(constraints, q_circ));
+    Jac_circ = simplify(jacobian(constraints, q_circ_));
     Jac_bullet = simplify(jacobian(constraints, q_bullet));   
     
     % Independent and redundant variables
@@ -84,27 +84,30 @@ function eqdyn = orsino_eqdyn(mechanism)
     eqdyn.pp_bullet = pp_bullet;
 
     [~, Dp_bullet] = pp2qpp(D_bullet, q_bullet, qp_bullet, pp_bullet);
-    mechanism.serial_sytems{i}.Dp = Dp;
+    mechanism.serial_sytems{i}.Dp = Dp_bullet;
     
     n_bullet = length(q_bullet);
     
     eqdyn.D_bullet = vpa(D_bullet);
     eqdyn.Dp_bullet = vpa(Dp_bullet);
     
-    eqdyn.q_circ = q_circ;
+    eqdyn.q_circ = q_circ_;
     eqdyn.p_circ = p_circ;
     eqdyn.qp_circ= qp_circ;
     eqdyn.pp_circ = pp_circ;
 
-    [~, Dp_circ] = pp2qpp(D_circ, q_circ, qp_circ, pp_circ);
+    [~, Dp_circ] = pp2qpp(D_circ, q_circ_, qp_circ, pp_circ);
     eqdyn.D_circ = vpa(D_circ);
     eqdyn.Dp_circ = vpa(Dp_circ);
     
-    n_circ = length(q_circ);
+    n_circ = length(q_circ_);
     
     % Main jacobians and their derivatives
     eqdyn.Jac_circ = vpa(Jac_circ);
     eqdyn.Jac_bullet = vpa(Jac_bullet);
+    
+    q = [q_bullet; q_circ_];
+    qp = [q_bullet; qp_circ];
     
     eqdyn.Jacp_circ = vpa(dmatdt(Jac_circ, q, qp));
     eqdyn.Jacp_bullet = vpa(dmatdt(Jac_bullet, q, qp));

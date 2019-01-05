@@ -43,7 +43,7 @@ function eqdyn = eqdyn_serial(serial)
         Dp = dmatdt(D, q, qp);
         
         % p = D*qp <=> pp = Dp*qp + D*qpp <=> qpp = pinv(D)*(pp - Dp*qp)
-        qpp = simplify(pinv(D)*(pp.' - Dp*qp.')).';
+        qpp = simplify(pinv(D)*(pp - Dp*qp));
         
         % Center of mass position
         pcg_N = point(T, body.params.cg);
@@ -53,7 +53,8 @@ function eqdyn = eqdyn_serial(serial)
         vcg_i = R.'*vcg_N;
         
         % Center of mass acceleration
-        acg_N = dvecdt(vcg_N, [q, qp], [qp, qpp]);
+        
+        acg_N = dvecdt(vcg_N, [q; qp], [qp; qpp]);
         acg_i = simplify(R.'*acg_N);
         acg = [acg; acg_i];
         
@@ -63,7 +64,7 @@ function eqdyn = eqdyn_serial(serial)
         w_i = simplify(R.'*w_N);
         
         % Angular acceleration
-        wpi_N = dvecdt(w_N, [q, qp], [qp, qpp]);
+        wpi_N = dvecdt(w_N, [q; qp], [qp; qpp]);
         
         % Angular momentum
         J = body.params.J;
@@ -121,7 +122,7 @@ function eqdyn = eqdyn_serial(serial)
     eqdyn.M = simplify(equationsToMatrix(leqdyn_, pp));
     
     % Coriolis vector
-    eqdyn.nu = simplify(leqdyn_ - eqdyn.M*pp.' - eqdyn.g);
+    eqdyn.nu = simplify(leqdyn_ - eqdyn.M*pp - eqdyn.g);
 
     % Actuation vector
     eqdyn.U = simplify(dp_circ_dp_bullet.'*U);
