@@ -53,7 +53,6 @@ function eqdyn = eqdyn_serial(serial)
         vcg_i = R.'*vcg_N;
         
         % Center of mass acceleration
-        
         acg_N = dvecdt(vcg_N, [q; qp], [qp; qpp]);
         acg_i = simplify(R.'*acg_N);
         acg = [acg; acg_i];

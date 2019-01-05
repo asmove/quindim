@@ -5,8 +5,8 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     % First iteration
     if(i == 1)
         % Instants
-        prev_t = deal(trajectory.t(1));
-        curr_t = deal(trajectory.t(2));
+        [sim_(:).prev_t] = deal(trajectory.t(1));
+        [sim_(:).curr_t] = deal(trajectory.t(2));
 
 %         % Generalized variables
 %         q_bullet_0 = trajectory.q(2, :);
@@ -22,8 +22,8 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
         q0_circ = zeros(n_circ, 1);
     else
         % Instants
-        prev_t = deal(trajectory.t(i-1));
-        curr_t = deal(trajectory.t(i));
+        [sim_(:).prev_t] = deal(trajectory.t(i-1));
+        [sim_(:).curr_t] = deal(trajectory.t(i));
         
 %         % Generalized variables
 %         q_bullet_0 = trajectory.q(i, :);
@@ -53,9 +53,17 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
                                q_bullet, ...
                                qp_bullet, ...
                                qpp_bullet);
+    
+	% Recalculate for assure values
+    if(i == 1)
+        [q, qp, p, pp, ~] = q_qp_p(mechanism, ...
+                                   q(n_bullet+1:end), ...
+                                   q_bullet, ...
+                                   qp_bullet, ...
+                                   qpp_bullet);
+    end
                            
     % Main generalized variables
-    [sim_(:).t] = trajectory.t(i);
     [sim_(:).q] = deal(q);
     [sim_(:).qp] = deal(qp);
     [sim_(:).p] = deal(p);
@@ -114,7 +122,7 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     % Constraints error
     n = length(mechanism.constraints);
 
-    consts = sym(zeros(n, 1));
+    consts = zeros(n, 1);
     for j = 1:n
         consts(i) = mechanism.constraints{j};
     end

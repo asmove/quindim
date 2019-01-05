@@ -33,7 +33,7 @@ function eqdyn = eqdyn_body_GAK(body)
 
     % Center of mass acceleration
     acg_N = dvecdt(vcg_N, [q; qp], [qp; qpp]);
-    
+
     % Body rotation
     Rp = dmatdt(R, q, qp);
     w_N = simplify(unskew(Rp*R.'));

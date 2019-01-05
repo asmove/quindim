@@ -11,7 +11,8 @@ function serial = build_dynserial(serial)
     
     % p = D*qp
     serial.D = equationsToMatrix(qp, p);
-
+    D = serial.D;
+    
     % dD/dt = Dp
     % p = D*qp <=> pp = Dp*qp + D*qpp <=> qpp = pinv(D)*(pp - Dp*qp)
     [serial.qpp, serial.Dp] = pp2qpp(serial.D, serial.q, ...
@@ -21,8 +22,9 @@ function serial = build_dynserial(serial)
     serial.eqdyn = eqdyn_serial(serial);
 
     % Serial systems unified representation
-    serial.M_i = serial.eqdyn.M;
-    serial.nu_i = serial.eqdyn.nu;
-    serial.g_i = serial.eqdyn.g;
-    serial.U_i = serial.eqdyn.U;
+    serial.M = serial.eqdyn.M;
+    serial.nu = serial.eqdyn.nu;
+    serial.g = serial.eqdyn.g;
+    serial.U = serial.eqdyn.U;
+
 end
