@@ -1,10 +1,10 @@
-function draw_points(sim)   
+function draw_points(mechanism, sim)
     n = length(sim.points);
 
     for i = 1:n
-       coords = sim.points{i}.coords;
-       marker = sim.points{i}.marker;
-       color = sim.points{i}.color;
+       coords = sim.points{i};
+       marker = mechanism.points{i}.marker;
+       color = mechanism.points{i}.color;
        
        % Principal dots
        plot(coords(1), coords(2), strcat(color, marker))

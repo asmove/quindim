@@ -32,7 +32,7 @@ function eqdyn = eqdyn_body_GAK(body)
     vcg_N = dvecdt(pcg_N, q, qp);
 
     % Center of mass acceleration
-    acg_N = dvecdt(vcg_N, [q, qp], [qp, qpp]);
+    acg_N = dvecdt(vcg_N, [q; qp], [qp; qpp]);
 
     % Body rotation
     Rp = dmatdt(R, q, qp);
@@ -40,7 +40,7 @@ function eqdyn = eqdyn_body_GAK(body)
     w_i = R.'*w_N;
     
     % Angular acceleration
-    wpi_N = dvecdt(w_N, [q, qp], [qp, qpp]);
+    wpi_N = dvecdt(w_N, [q; qp], [qp; qpp]);
 
     % Angular momentum
     J = body.params.J;
@@ -93,7 +93,7 @@ function eqdyn = eqdyn_body_GAK(body)
     eqdyn.M = simplify(equationsToMatrix(leqdyn_, pp));
     
     % Coriolis vector
-    eqdyn.nu = simplify(leqdyn_ - eqdyn.M*pp.' - eqdyn.g);
+    eqdyn.nu = simplify(leqdyn_ - eqdyn.M*pp - eqdyn.g);
 
     % Actuation vector
     eqdyn.U = simplify(dp_circ_dp_bullet.'*U);

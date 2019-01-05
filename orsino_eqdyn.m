@@ -21,22 +21,22 @@ function eqdyn = orsino_eqdyn(mechanism)
         serial = mechanism.serials{i};
                
         % Redundant variables for the closed mechanism
-        q_circ = [q_circ, serial.q];
-        qp_circ = [qp_circ, serial.qp];
-        p_circ = [p_circ, serial.p];
-        pp_circ = [pp_circ, serial.pp];
+        q_circ = [q_circ; serial.q];
+        qp_circ = [qp_circ; serial.qp];
+        p_circ = [p_circ; serial.p];
+        pp_circ = [pp_circ; serial.pp];
     
         % p = D*qp
         D_circ = blkdiag(D_circ, serial.D);
-                   
-        M_tilde = blkdiag(M_tilde, M_i);
-        nu_tilde = [nu_tilde; nu_i];
-        g_tilde = [g_tilde; g_i];
         
-        if(any(any(U_i)))
-            U_tilde = blkdiag(U_tilde, U_i);
+        M_tilde = blkdiag(M_tilde, serial.M);
+        nu_tilde = [nu_tilde; serial.nu];
+        g_tilde = [g_tilde; serial.g];
+        
+        if(any(any(serial.U)))
+            U_tilde = blkdiag(U_tilde, serial.U);
         else
-            U_i = zeros(size(U_i));
+            U_i = zeros(size(serial.U));
             U_tilde = [U_tilde; U_i];
         end
     end
@@ -80,11 +80,11 @@ function eqdyn = orsino_eqdyn(mechanism)
     % Independent and redundant variables
     eqdyn.q_bullet = q_bullet;
     eqdyn.p_bullet = p_bullet;
-    eqdyn.qp_bullet = pp_bullet;
+    eqdyn.qp_bullet = qp_bullet;
     eqdyn.pp_bullet = pp_bullet;
 
     [~, Dp_bullet] = pp2qpp(D_bullet, q_bullet, qp_bullet, pp_bullet);
-    mechanism.serial_sytems{i}.Dp = Dp;
+    mechanism.serial_sytems{i}.Dp = Dp_bullet;
     
     n_bullet = length(q_bullet);
     
@@ -106,18 +106,29 @@ function eqdyn = orsino_eqdyn(mechanism)
     eqdyn.Jac_circ = vpa(Jac_circ);
     eqdyn.Jac_bullet = vpa(Jac_bullet);
     
-    eqdyn.Jacp_circ = vpa(dmatdt(Jac_circ, q, qp));
-    eqdyn.Jacp_bullet = vpa(dmatdt(Jac_bullet, q, qp));
+    eqdyn.Jacp_circ = vpa(dmatdt(Jac_circ, q_circ, qp_circ));
+    eqdyn.Jacp_bullet = vpa(dmatdt(Jac_bullet, q_bullet, qp_bullet));
     
     % Matrix of velocity coupling - Maggi
     eqdyn.A = [eqdyn.Jac_bullet/eqdyn.D_bullet, ...
                eqdyn.Jac_circ/eqdyn.D_circ];
-           
-    eqdyn.Ap = [eqdyn.Jacp_bullet/eqdyn.D_bullet + ...
-                eqdyn.Jac_bullet/eqdyn.Dp_bullet, ...
-                eqdyn.Jacp_circ/eqdyn.D_circ + ...
-                eqdyn.Jac_circ/eqdyn.Dp_circ];
     
+    % D matrix is commonly constant
+    eqdyn.Ap = [];
+    if(det(eqdyn.Dp_bullet))
+        eqdyn.Ap = [eqdyn.Ap, eqdyn.Jacp_bullet/eqdyn.D_bullet + ... 
+                              eqdyn.Jac_bullet/eqdyn.Dp_bullet];
+    else
+        eqdyn.Ap = [eqdyn.Ap, eqdyn.Jacp_bullet/eqdyn.D_bullet];
+    end
+    
+    if(det(eqdyn.Dp_circ))
+        eqdyn.Ap = [eqdyn.Ap, eqdyn.Jacp_circ/eqdyn.D_circ + ... 
+                              eqdyn.Jac_circ/eqdyn.Dp_circ];
+    else
+        eqdyn.Ap = [eqdyn.Ap, eqdyn.Jacp_circ/eqdyn.D_circ];
+    end
+                          
     % Useful matrices for Cp computation
     eqdyn.Q_bullet = [eye(n_bullet); zeros(n_circ, n_bullet)];
     eqdyn.Q_circ = [zeros(n_bullet, n_circ); eye(n_circ)];

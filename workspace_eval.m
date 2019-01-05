@@ -14,7 +14,7 @@ function [work_points, sing_points] = workspace_eval(mechanism)
 
     % Initial workspace 'volume'
     quad = generate_quadrature(n_bullet, L0, deps);
-    [work_points, ~] = eval_quadrature(mechanism, quad, n_circ);
+    [work_points, ~] = eval_quadrature(mechanism, quad);
     
     [~, n_work] = size(work_points);
     
