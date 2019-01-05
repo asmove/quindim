@@ -116,20 +116,17 @@ function eqdyn = orsino_eqdyn(mechanism)
     eqdyn.A = [eqdyn.Jac_bullet/eqdyn.D_bullet, ...
                eqdyn.Jac_circ/eqdyn.D_circ];
     
-    % A time derivative
-    [m, n] = size(eqdyn.Jacp_bullet);           
-    [r, s] = size(eqdyn.Jacp_circ);
-    
     eqdyn.Ap = [eqdyn.Jacp_bullet/eqdyn.D_bullet, ...
                 eqdyn.Jacp_circ/eqdyn.D_circ];
+     + eqdyn.Jac_bullet/eqdyn.Dp_bullet
+     + eqdyn.Jac_circ/eqdyn.Dp_circ
     if(any(any(eqdyn.Dp_bullet)))
-        eqdyn.Ap = eqdyn.Ap + [eqdyn.Jac_bullet/eqdyn.Dp_bullet, ...
-                               zeros(m, n)];
+    
+        
     end
     
     if(any(any(eqdyn.Dp_circ)))
-        eqdyn.Ap = eqdyn.Ap + [zeros(r, s), ...
-                               eqdyn.Jac_bullet/eqdyn.Dp_bullet];
+        
     end
     
     % Useful matrices for Cp computation
