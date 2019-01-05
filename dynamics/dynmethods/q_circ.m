@@ -1,7 +1,9 @@
-function [q_circ_, is_workspace] = q_circ(mechanism, q0_circ, q_bullet)
+function [q_circ_, is_ws] = q_circ(mechanism, q0_circ, q_bullet)
     % User-provided q_circ calculation
-    if(isfield(mechanism) == 'q_circ')
-        [q_circ_, is_workspace] = mechanism.q_circ(q_circ);
+    if((isfield(mechanism) == 'q_circ') && ...
+        (isfield(mechanism) == 'is_ws'))
+        q_circ_ = mechanism.q_circ(q_circ);
+        is_ws = mechanism.is_ws(q_circ);
         return;
     end
 
@@ -20,12 +22,7 @@ function [q_circ_, is_workspace] = q_circ(mechanism, q0_circ, q_bullet)
 
     tol = 1e-3;
     evals = 500;
-    % options = optimoptions(@fsolve, ...
-    %     'Display', 'iter-detailed', ...
-    %     'Algorithm', 'levenberg-marquardt', ...
-    %     'TolFun', tol, 'TolX', tol, ...
-    %     'MaxFunEvals', evals);
-    % 
+
     options = optimoptions(@fsolve, ...
         'Display', 'iter-detailed', ...
         'TolFun', tol, 'TolX', tol, ...
@@ -35,5 +32,5 @@ function [q_circ_, is_workspace] = q_circ(mechanism, q0_circ, q_bullet)
 
     % The most solutions converged within 100 iterations. When not, then
     % the tolerance surpassed the stipulated value.
-    is_workspace = objval <= tol;
+    is_ws = objval <= tol;
 end
