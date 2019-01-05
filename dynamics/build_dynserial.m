@@ -15,7 +15,8 @@ function serial = build_dynserial(serial)
     
     % dD/dt = Dp
     % p = D*qp <=> pp = Dp*qp + D*qpp <=> qpp = pinv(D)*(pp - Dp*qp)
-    [serial.qpp, serial.Dp] = pp2qpp(D, q, qp, pp);
+    [serial.qpp, serial.Dp] = pp2qpp(serial.D, serial.q, ...
+                                     serial.qp, serial.pp);
 
     % Serial dynamic equations               
     serial.eqdyn = eqdyn_serial(serial);
@@ -25,4 +26,5 @@ function serial = build_dynserial(serial)
     serial.nu = serial.eqdyn.nu;
     serial.g = serial.eqdyn.g;
     serial.U = serial.eqdyn.U;
+
 end

@@ -9,7 +9,7 @@ function eqdyn = orsino_eqdyn(mechanism)
     U_tilde = [];
     D_circ = [];
     
-    q_circ = [];
+    q_circ_ = [];
     qp_circ = [];
     p_circ = [];
     pp_circ = [];
@@ -21,13 +21,15 @@ function eqdyn = orsino_eqdyn(mechanism)
         serial = mechanism.serials{i};
                
         % Redundant variables for the closed mechanism
-        q_circ = [q_circ; serial.q];
+        q_circ_ = [q_circ_; serial.q];
+
         qp_circ = [qp_circ; serial.qp];
         p_circ = [p_circ; serial.p];
         pp_circ = [pp_circ; serial.pp];
     
         % p = D*qp
         D_circ = blkdiag(D_circ, serial.D);
+
         
         M_tilde = blkdiag(M_tilde, serial.M);
         nu_tilde = [nu_tilde; serial.nu];
@@ -74,7 +76,7 @@ function eqdyn = orsino_eqdyn(mechanism)
     end
         
     % Jacobians
-    Jac_circ = simplify(jacobian(constraints, q_circ));
+    Jac_circ = simplify(jacobian(constraints, q_circ_));
     Jac_bullet = simplify(jacobian(constraints, q_bullet));   
     
     % Independent and redundant variables
@@ -91,16 +93,16 @@ function eqdyn = orsino_eqdyn(mechanism)
     eqdyn.D_bullet = vpa(D_bullet);
     eqdyn.Dp_bullet = vpa(Dp_bullet);
     
-    eqdyn.q_circ = q_circ;
+    eqdyn.q_circ = q_circ_;
     eqdyn.p_circ = p_circ;
     eqdyn.qp_circ= qp_circ;
     eqdyn.pp_circ = pp_circ;
 
-    [~, Dp_circ] = pp2qpp(D_circ, q_circ, qp_circ, pp_circ);
+    [~, Dp_circ] = pp2qpp(D_circ, q_circ_, qp_circ, pp_circ);
     eqdyn.D_circ = vpa(D_circ);
     eqdyn.Dp_circ = vpa(Dp_circ);
     
-    n_circ = length(q_circ);
+    n_circ = length(q_circ_);
     
     % Main jacobians and their derivatives
     eqdyn.Jac_circ = vpa(Jac_circ);
@@ -111,7 +113,8 @@ function eqdyn = orsino_eqdyn(mechanism)
     
     % Matrix of velocity coupling - Maggi
     eqdyn.A = [eqdyn.Jac_bullet/eqdyn.D_bullet, ...
-               eqdyn.Jac_circ/eqdyn.D_circ];
+
+    eqdyn.Jac_circ/eqdyn.D_circ];
     
     % D matrix is commonly constant
     eqdyn.Ap = [];

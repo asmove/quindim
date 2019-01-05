@@ -1,13 +1,23 @@
 # Robotics4fun
 
-This is a homemade robotics library made using well-known literature on Robotics with thustworthy literature. Don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :)
+This is a homemade robotics library made using well-known literature on Robotics with trustworthy literature. Don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :)
 
-# How to
+# Installation
 
 If you are willing to use it, follow the instructions:
 
 1) Open Matlab up to the version 2015x, x = a, b;
-2) Before calling the functions, type on MATLAB shell ```addpath('$ROB4FUN_PATH')``` where ```$ROB4FUN_PATH``` stands for the path where you cloned the repository.
+2) Before calling the functions, type on MATLAB shell 
+
+```
+addpath('$ROB4FUN_PATH')
+addpath(genpath('$ROB4FUN_PATH'))
+savepath
+``` 
+
+where ```$ROB4FUN_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$ROB4FUN_PATH```.
+
+
 3) Have fun and may the force be with you.
 
 # Documentation
