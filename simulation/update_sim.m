@@ -7,16 +7,6 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
         % Instants
         prev_t = deal(trajectory.t(1));
         curr_t = deal(trajectory.t(2));
-
-%         % Generalized variables
-%         q_bullet_0 = trajectory.q(2, :);
-%         qp_bullet_0 = trajectory.qp(2, :);
-%         qpp_bullet_0 = trajectory.qpp(2, :);
-%              
-%         % Generalized variables
-%         q_bullet_1 = trajectory.q(1, :);
-%         qp_bullet_1 = trajectory.qp(1, :);
-%         qpp_bullet_1 = trajectory.qp(1, :);
         
         % Generalized variables
         q0_circ = zeros(n_circ, 1);
@@ -24,21 +14,6 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
         % Instants
         prev_t = deal(trajectory.t(i-1));
         curr_t = deal(trajectory.t(i));
-        
-%         % Generalized variables
-%         q_bullet_0 = trajectory.q(i, :);
-%         qp_bullet_0 = trajectory.qp(i, :);
-%         qpp_bullet_0 = trajectory.qpp(i, :);
-%              
-%         % Generalized variables
-%         q_bullet_1 = trajectory.q(i-1, :);
-%         qp_bullet_1 = trajectory.qp(i-1, :);
-%         qpp_bullet_1 = trajectory.qp(i-1, :);
-%         
-%         % Generalized variables
-%         q_bullet_2 = trajectory.q(i-2, :);
-%         qp_bullet_2 = trajectory.qp(i-2, :);
-%         qpp_bullet_2 = trajectory.qp(i-2, :);
         
         q0_circ = sim.q(n_bullet+1:end);
     end
@@ -55,47 +30,20 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
                                qpp_bullet);
                            
     % Main generalized variables
-    [sim_(:).t] = trajectory.t(i);
-    [sim_(:).q] = deal(q);
-    [sim_(:).qp] = deal(qp);
-    [sim_(:).p] = deal(p);
-    [sim_(:).pp] = deal(pp);
+    sim_.t = trajectory.t(i);
+    sim_.q = q;
+    sim_.qp = qp;
+    sim_.p = p;
+    sim_.pp = pp;
 
-    q_sym = [mechanism.eqdyn.q_circ; mechanism.eqdyn.q_bullet];
-    qp_sym = [mechanism.eqdyn.qp_circ; mechanism.eqdyn.qp_bullet];
-    p_sym = [mechanism.eqdyn.p_circ; mechanism.eqdyn.p_bullet];
+    q_sym = [mechanism.eqdyn.q_bullet; mechanism.eqdyn.q_circ];
+    qp_sym = [mechanism.eqdyn.qp_bullet; mechanism.eqdyn.qp_circ];
+    p_sym = [mechanism.eqdyn.p_bullet; mechanism.eqdyn.p_circ];
     
     q_num = q;
     qp_num = qp;
     p_num = p;
-    
-%     % Evaluated variables
-%     [q_2, ~, ~, ~, ~] = q_qp_p(mechanism, ...
-%                                q0_circ, ...
-%                                q_bullet_2, ...
-%                                qp_bullet_2, ...
-%                                qpp_bullet_2);
-%     
-%     [q_1, ~, ~, ~, ~] = q_qp_p(mechanism, ...
-%                                q0_circ, ...
-%                                q_bullet_1, ...
-%                                qp_bullet_1, ...
-%                                qpp_bullet_1);
-%     
-%     [q_0, ~, ~, ~, ~] = q_qp_p(mechanism, ...
-%                                q0_circ, ...
-%                                q_bullet_0, ...
-%                                qp_bullet_0, ...
-%                                qpp_bullet_0);
-    
-%     % Cp - Euler approximation
-%     [~, C_2, ~] = coupling_matrixC(mechanism, q_2);
-%     [~, C_1, ~] = coupling_matrixC(mechanism, q_1);
-%     [~, C_0, ~] = coupling_matrixC(mechanism, q_0);
-% 
-%     delta_t = sim_.curr_t - sim_.prev_t;
-%     Cp = (1.5*C_2 - 2*C_1 + 0.5*C_0)/delta_t;
-    
+        
     [C, ~, Cp] = coupling_matrixC(mechanism, q, qp);
     
     [sim_(:).C] = deal(C);
@@ -108,7 +56,8 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     if(isempty(fieldnames(sim)))
         [sim_(:).q_error] = deal(0);
     else
-        sim_.q_error = deal(norm(sim.q - sim_.q));
+        inf_norm_error = max(abs(sim.q - sim_.q));
+        sim_.q_error = deal(inf_norm_error);
     end
 
     % Constraints error
@@ -116,10 +65,12 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
 
     consts = sym(zeros(n, 1));
     for j = 1:n
-        consts(i) = mechanism.constraints{j};
+        consts(j) = mechanism.constraints{j};
     end
     
-    [sim_(:).constraints_error] = deal(norm(double(subs(consts, q_sym, q_num))));
+    inf_norm_const = max(abs(double(subs(consts, q_sym, q_num))));
+    [sim_(:).constraints_error] = deal(inf_norm_const);
+    sim_.constraints = consts;
     
     % Actions of actuators
     Mtilde = double(subs(mechanism.eqdyn.M_decoupled, q_sym, q_num));

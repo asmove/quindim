@@ -1,6 +1,4 @@
-function draw_mechanism(mechanism, sim)
-    clf;
-       
+function draw_mechanism(mechanism, sim)       
     % End-effector
     mechanism.draw_endeffector(sim, mechanism)
     hold on;
@@ -9,5 +7,5 @@ function draw_mechanism(mechanism, sim)
     draw_bars(mechanism, sim);
     hold off;
     
-    axis equal;
+    axis square;
 end

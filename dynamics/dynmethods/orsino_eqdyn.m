@@ -108,7 +108,7 @@ function eqdyn = orsino_eqdyn(mechanism)
     eqdyn.Jac_circ = vpa(Jac_circ);
     eqdyn.Jac_bullet = vpa(Jac_bullet);
     
-    eqdyn.Jacp_circ = vpa(dmatdt(Jac_circ, q_circ, qp_circ));
+    eqdyn.Jacp_circ = vpa(dmatdt(Jac_circ, q_circ_, qp_circ));
     eqdyn.Jacp_bullet = vpa(dmatdt(Jac_bullet, q_bullet, qp_bullet));
     
     % Matrix of velocity coupling - Maggi

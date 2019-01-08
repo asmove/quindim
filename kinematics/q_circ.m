@@ -1,12 +1,11 @@
 function [q_circ_, is_ws] = q_circ(mechanism, q0_circ, q_bullet)
     % User-provided q_circ calculation
-    if((isfield(mechanism) == 'q_circ') && ...
-        (isfield(mechanism) == 'is_ws'))
-        q_circ_ = mechanism.q_circ(q_circ);
-        is_ws = mechanism.is_ws(q_circ);
+    if(isfield(mechanism, 'q_circ_fun') && isfield(mechanism, 'is_ws_fun'))
+        q_circ_ = mechanism.q_circ_fun(q_bullet);
+        is_ws = mechanism.is_ws_fun(q_bullet);
         return;
     end
-
+    
     % Constraints
     constraints = [];
     for i = 1:length(mechanism.constraints)
@@ -19,9 +18,8 @@ function [q_circ_, is_ws] = q_circ(mechanism, q0_circ, q_bullet)
     error = @(q_circ) double(subs(lconstraints, mechanism.eqdyn.q_circ, q_circ));
     objective_fun = @(q_circ) error(q_circ).'*error(q_circ);
 
-
-    tol = 1e-3;
-    evals = 500;
+    tol = 1e-7;
+    evals = 3000;
 
     options = optimoptions(@fsolve, ...
         'Display', 'iter-detailed', ...

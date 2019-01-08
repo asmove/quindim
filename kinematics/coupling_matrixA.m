@@ -9,6 +9,6 @@ function [A, Ap] = coupling_matrixA(mechanism, q, qp)
     q_sym = [mechanism.eqdyn.q_bullet; mechanism.eqdyn.q_circ];
     qp_sym = [mechanism.eqdyn.qp_bullet; mechanism.eqdyn.qp_circ];
     
-    Ap = double(subs(mechanism.eqdyn.Ap, [q; qp], [q_sym; qp_sym]));
-    A = double(subs(mechanism.eqdyn.Ap, [q; qp], [q_sym; qp_sym]));
+    Ap = double(subs(mechanism.eqdyn.Ap, [q_sym; qp_sym], [q; qp]));
+    A = double(subs(mechanism.eqdyn.A, q_sym, q));
 end
