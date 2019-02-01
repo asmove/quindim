@@ -4,8 +4,8 @@ function simulate(sims, mechanism, dt, ax, fname)
     % Draw mechanism movement
     for i = 1:n
          clf;
-         draw_mechanism(mechanism, sims{i});
          axis(ax);
+         draw_mechanism(mechanism, i, sims);
          frames(i) = getframe(gcf);
          pause(dt);
     end
