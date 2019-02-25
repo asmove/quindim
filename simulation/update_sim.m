@@ -21,7 +21,7 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     % Current bullet
     q_bullet = trajectory.q(i, :).';
     qp_bullet = trajectory.qp(i, :).';
-    qpp_bullet = trajectory.qp(i, :).';
+    qpp_bullet = trajectory.qpp(i, :).';
     
     [q, qp, p, pp, ~] = q_qp_p(mechanism, ...
                                q0_circ, ...
@@ -95,5 +95,6 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     h = double(C.'*(M*Cp*p_bullet_ + nu - g));
     
     u = double(pinv(Z)*(H*pp_bullet_ + h));
+    
     [sim_(:).u] = deal(u);
 end
