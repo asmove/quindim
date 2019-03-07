@@ -4,5 +4,6 @@ function R = rot3d(theta, rotvec)
     
     % Rotation matrix by quaternion 
     R = rot_quaternion(q);
+    R = simplify(R);
 end
     
