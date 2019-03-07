@@ -13,7 +13,7 @@ function R = rot_quaternion(q)
     
     % Rotation matrix
     R = [1 - 2*s*(qy^.2 + qz.^2),     2*s*(qx*qy - qz*qr),     2*s*(qx*qz + qy*qr); ...
-             2*s*(qx*qy + qz*qr), 1 - 2*s*(qx^.2 + qz.^2),     2*s*(qx*qz + qy*qr);  ...
-             2*s*(qx*qz + qy*qr),     2*s*(qy*qz + qx*qr), 1 - 2*s*(qx^.2 + qy.^2)];
+             2*s*(qx*qy + qz*qr), 1 - 2*s*(qx^.2 + qz.^2),     2*s*(qy*qz - qx*qr);  ...
+             2*s*(qx*qz - qy*qr),     2*s*(qy*qz + qx*qr), 1 - 2*s*(qx^.2 + qy.^2)];
          
 end
