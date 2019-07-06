@@ -5,7 +5,7 @@ clc;
 t0 = tic;
 
 % Closed chain
-mechanism = load_mechanism('num');
+mechanism = load_mechanism('sym');
 
 % Implicit attributes for 
 mechanism.eqdyn = orsino_eqdyn(mechanism); 

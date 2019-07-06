@@ -14,11 +14,12 @@ function body = build_body(m, inertia, b, Ts, p_cg, ...
     
     % Body position transformations
     body.T = eye(4, 4);
-    u = sym('u', size(q));
+    u = sym('u', size(formula(q)));
     assume(u, 'real');
-    
+
     for T = Ts
-        T_ = subs(T{1}, q, u);
+        T_ = T{1};
+        T_ = subs(T_, q, u);
         body.T = simplify(body.T*T_);
         body.T = subs(body.T, u, q);
     end

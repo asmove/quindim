@@ -1,4 +1,5 @@
-function eqdyn = eqdyn_body_GAK(body)
+function eqdyn = eqdyn_gibbs_appel_cg(body)
+
     Uf = [];
     Um = [];
    
