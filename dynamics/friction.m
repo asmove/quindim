@@ -1,10 +1,10 @@
 function friction = friction(sys)
     fric_coeffs = [];
     for body = sys.bodies
-        if isempty(symvar(body{1}.b))
+        if isempty(symvar(body(1).b))
             continue;
         else
-            fric_coeffs = [fric_coeffs; body{1}.b];
+            fric_coeffs = [fric_coeffs; body(1).b];
         end
     end
     

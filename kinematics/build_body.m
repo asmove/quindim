@@ -18,6 +18,7 @@ function body = build_body(m, inertia, b, Ts, p_cg, ...
     assume(u, 'real');
     
     for T = Ts
+        T
         T_ = subs(T{1}, q, u);
         body.T = simplify(body.T*T_);
         body.T = subs(body.T, u, q);
