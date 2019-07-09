@@ -1,8 +1,8 @@
 function f = state_space(sys)
-	identity = eye(size(sys.mass_matrix));
-    Minv = sys.mass_matrix\identity;
-    qpp = Minv*(sys.reqdyns - sys.coriolis - sys.gravitational);
-    qp = sys.qp;
+	identity = eye(size(sys.H));
+    Hinv = sys.H\identity;
+    qp = sys.C*sys.p;
+    pp = Hinv*(-sys.h + sys.Z*sys.u);
     
-    f = [qp; qpp];
+    f = [qp; pp];
 end
