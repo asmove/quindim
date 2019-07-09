@@ -1,6 +1,6 @@
 function body = build_body(m, inertia, b, Ts, p_cg, ...
                            q, qp, qpp, ...
-                           fric_is_linear, previous)
+                           fric_is_linear, previous, params)
     body.m = m;
     body.I = inertia;
 
@@ -18,7 +18,6 @@ function body = build_body(m, inertia, b, Ts, p_cg, ...
     assume(u, 'real');
     
     for T = Ts
-        T
         T_ = subs(T{1}, q, u);
         body.T = simplify(body.T*T_);
         body.T = subs(body.T, u, q);
@@ -29,4 +28,6 @@ function body = build_body(m, inertia, b, Ts, p_cg, ...
     % Friction information
     body.b = b;
     body.fric_is_linear = fric_is_linear;
+    
+    body.params = params;
 end
