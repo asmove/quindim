@@ -1,18 +1,17 @@
-function [M, g, f, nu, U, H, h, Z, W] = dyn_matrices(sys)
-    qpp = sys.qpp;
+function sys = dyn_matrices(sys)
     u = sys.u;
     
     % Dynamic matriced of a mechanical system
-    M = mass_matrix(sys);
-    g = gravitational(sys);
-    f = friction(sys);
-    U = -jacobian(sys.l_r, u);
-    nu = simplify(sys.l_r - M*qpp) - g - f + U*u;
+    sys.M = mass_matrix(sys);
+    sys.g = gravitational(sys);
+    sys.f = friction(sys);
+    sys.U = -jacobian(sys.l_r, u);
+    
+    sys.nu = simplify(simplify(sys.l_r - sys.M*sys.pp) - sys.g - sys.f + sys.U*sys.u);
     
     % Control dynamic matrices
-    H = M;
-    h = nu + g + f;
-    Z = U;
+    sys.H = sys.M;
+    sys.h = sys.nu + sys.g + sys.f;
+    sys.Z = sys.U;
     
-    W = chol(H, 'lower');
 end

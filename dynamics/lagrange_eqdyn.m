@@ -51,16 +51,64 @@ function sys = lagrange_eqdyn(sys)
 
     % Derivative of F respective to qp
     dF_dqp = jacobian(F, qp).';
-
-    % Left side of dynamic equation
-    leqdyns = ddt_dL_dqp - dL_dq + dF_dqp;
+        
+    is_holonomic = isfield(sys, {'hol_constraints'});
+    is_unholonomic = isfield(sys, {'unhol_constraints'});
     
-    % Right side of dynamic equation
-    reqdyns = Fq;
+    % Unholonomic constraitns
+    if(is_unholonomic && ~is_holonomic)
+        constraints = sys.unhol_constraints;
+        A = jacobian(constraints, sys.qp);
+        C = simplify(null(A));
+        
+    % Holonomic constraitns
+    elseif(is_holonomic && ~is_unholonomic)
+        constraints = sys.hol_constraints;
+        A = jacobian(constraints, sys.q);
+        C = simplify(null(A));
+        
+    % Both
+    elseif(is_holonomic && is_unholonomic)
+        constraints = sys.hol_constraints;
+        A_hol = jacobian(constraints, sys.q);
+        A_unhol = jacobian(constraints, sys.qp);
+        
+        A = [A_hol; A_unhol];
+        C = simplify(null(A));
 
+    else
+        A = [];
+        C = eye(length(sys.q));
+        warning('When neither holonomic nor unholonomic, it presents unexpected behaviour.');
+    end
+    
+    % Constraint velocity matrix and its complementary
+    sys.A = A;
+    sys.C = C;
+
+    % Constraint velocity matrix and its complementary
+    sys.Cp = dmatdt(sys.C, sys.q, sys.qp);
+    
+    % Left hand side of dynamic equation
+    leqdyns = C.'*(ddt_dL_dqp - dL_dq + dF_dqp);
+    
+    % Right hand side of dynamic equation
+    reqdyns = C.'*Fq;
+    
+    qp = sys.C*sys.p;
+    sys.Cp = dmatdt(C, sys.q, qp);
+    
+    qpp = sys.C*sys.pp + sys.Cp*sys.p;
+    
+    leqdyns = subs(leqdyns, sys.qpp, qpp);
+    
     % Dynamic equation respective to generalized coordinate qi
     sys.l_r = leqdyns - reqdyns;
     sys.leqdyns = leqdyns;
     sys.reqdyns = reqdyns;
     sys.eqdyns = leqdyns == reqdyns;
+    
+    % Main matrices
+    sys =  dyn_matrices(sys);
+    
 end
