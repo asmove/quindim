@@ -1,4 +1,4 @@
-function draw_mec_system(sys, i, sims)       
+function draw_system(sys, i, sims)       
     % End-effector
     sys.draw_bodies(sims{i}, mechanism);
     hold on;
