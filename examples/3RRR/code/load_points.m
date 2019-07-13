@@ -2,7 +2,6 @@ function mechanism = load_points(mechanism)
     mechanism.endeffector.Be = {};
 
     mechanism.points = {};
-    mechanism.bars = {};
     
     for i = 1:3
         serial = mechanism.serials{i};
@@ -47,28 +46,6 @@ function mechanism = load_points(mechanism)
         mechanism.points{end+1} = A;
         mechanism.points{end+1} = B;
         
-        scaler = 10;
-        
-        % Motor bar
-        bar1.begin = Oi;
-        bar1.end = Ai;
-        bar1.color = 'k';
-        bar1.width = scaler*mechanism.serials{i}.bodies{1}.params.W1;
-        
-        % End-effector bar
-        bar2.begin = Ai;
-        bar2.end = Bi;
-        bar2.color = 'k';
-        bar2.width = scaler*mechanism.serials{i}.bodies{2}.params.W2;
-        
-        mechanism.bars{end+1} = bar1; 
-        mechanism.bars{end+1} = bar2;
-        
-        mechanism.draw_endeffector = @(sim, mec) draw_endeffector(sim, mec);
+        scaler = 10;              
     end
-end
-
-function draw_endeffector(sim, mechanism)
-    viscircles(double([sim.q(1), sim.q(2)]), ...
-               mechanism.endeffector.params.Le1); 
 end

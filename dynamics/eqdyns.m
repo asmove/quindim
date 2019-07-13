@@ -26,5 +26,5 @@ function sys = eqdyns(sys, method)
             % Add further methods futurely
     end
     
-    f = state_space(sys)
+    [sys.f, sys.g] = state_space(sys);
 end
