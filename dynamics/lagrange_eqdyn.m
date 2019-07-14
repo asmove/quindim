@@ -52,16 +52,72 @@ function sys = lagrange_eqdyn(sys)
 
     % Derivative of F respective to qp
     dF_dqp = jacobian(F, qp).';
-
-    % Left side of dynamic equation
-    leqdyns = ddt_dL_dqp - dL_dq + dF_dqp;
     
-    % Right side of dynamic equation
-    reqdyns = Fq;
+    is_contrained = sys.is_constrained;
+    is_holonomic = isfield(sys, {'hol_constraints'});
+    is_unholonomic = isfield(sys, {'unhol_constraints'});
+    
+    % Unholonomic constraitns
+    if(is_contrained)
+        if(is_unholonomic)
+            constraints = sys.unhol_constraints;
+            A = jacobian(constraints, sys.qp);
+            C = simplify(null(A));
 
+        % Holonomic constraitns
+        elseif(is_holonomic)
+            constraints = sys.hol_constraints;
+            A = jacobian(constraints, sys.q);
+            C = simplify(null(A));
+
+        % Both
+        elseif(is_holonomic && is_unholonomic)
+            constraints = sys.hol_constraints;
+            A_hol = jacobian(constraints, sys.q);
+            A_unhol = jacobian(constraints, sys.qp);
+
+            A = [A_hol; A_unhol];
+            C = simplify(null(A));
+
+        else
+            error('When constrained, the fields hol_constraints and unhol_constraints cannot be presented');
+        end
+    else
+        A = [];
+        C = eye(length(sys.q));
+        if(is_holonomic || is_unholonomic)
+            error('When unconstrained, the fields hol_constraints and unhol_constraints cannot be presented.');
+        end
+    end
+
+    
+    % Constraint velocity matrix and its complementary
+    sys.A = A;
+    sys.C = C;
+
+    % Constraint velocity matrix and its complementary
+    sys.Cp = dmatdt(sys.C, sys.q, sys.qp);
+    
+    % Left hand side of dynamic equation
+    leqdyns = C.'*(ddt_dL_dqp - dL_dq + dF_dqp);
+    
+    % Right hand side of dynamic equation
+    reqdyns = C.'*Fq;
+    
+    qp = sys.C*sys.p;
+    sys.Cp = dmatdt(C, sys.q, qp);
+    
+    qpp = sys.C*sys.pp + sys.Cp*sys.p;
+    
+    leqdyns = subs(leqdyns, sys.qpp, qpp);
+    
     % Dynamic equation respective to generalized coordinate qi
     sys.l_r = leqdyns - reqdyns;
     sys.leqdyns = leqdyns;
     sys.reqdyns = reqdyns;
     sys.eqdyns = leqdyns == reqdyns;
+    
+    % Main matrices
+    sys =  dyn_matrices(sys);
+    
 end

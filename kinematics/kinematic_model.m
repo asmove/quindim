@@ -1,4 +1,22 @@
 function sys = kinematic_model(sys)
+% Requirements:
+% Input:
+%     - [struct]: Multibody characteristics
+%     bodies: [3×1 struct] : m I q qp qpp previous_body T p_cg b 
+%     fric_is_linear params
+%           q: [5×1 sym]   : generalized coordinates
+%          qp: [5×1 sym]   : generalized velocities
+%         qpp: [5×1 sym]   : generalized accelerations
+%     gravity: [3×1 sym]   : Gravity vector
+%           g: [1×1 sym]   : gravity symbol
+%      states: [10×1 sym]  : States
+%          Fq: [5×1 sym]   : Generalized forces 
+%           u: [2×1 sym]   : External active forces 
+%           y: [2×1 sym]   : Sensor readings of the system
+% Output: 
+%    - [struct]: Multibody characteristics (Same as input) plus
+%       bodies: p_cg0 v_cg omega
+
     x = [sys.q; sys.qp];
     xp = [sys.qp; sys.qpp];
     
@@ -10,19 +28,14 @@ function sys = kinematic_model(sys)
         % Center of mass position
         p_cg = point(body.T, body.p_cg);
         sys.bodies(i).p_cg0 = p_cg;
-        
-        u = sym('u', size(formula(x)));
-        assume(u, 'real');
-        
-        % Center of mass velocity - Quick hack
-        p_cg_u = subs(p_cg, x, u);
-        v_cg = jacobian(p_cg_u, u)*xp;
-        v_cg = subs(v_cg, u, x);
+
+        % Center of mass velocity
+        v_cg = jacobian(p_cg, x.')*xp;
         sys.bodies(i).v_cg = v_cg;
         
         % Body angular velocity
-        T = formula(body.T);
-        R = T(1:3, 1:3);
+        R = body.T(1:3, 1:3);
+
         sys.bodies(i).omega = omega(R, x, xp);
         
         if(i ~= n_bodies)

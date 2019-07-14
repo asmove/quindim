@@ -1,15 +1,14 @@
 function bodies = build_bodies(bodies_descrip)
-    
     bodies = [];
-    i = 1;
+
     for body_descrip = bodies_descrip
-        body_descrip = body_descrip{1};
         body = build_body(body_descrip.m, body_descrip.inertia, ...
                           body_descrip.b, body_descrip.Ts, ...
                           body_descrip.p_cg, body_descrip.q, ...
                           body_descrip.qp,  body_descrip.qpp, ...
                           body_descrip.fric_is_linear, ...
-                          body_descrip.previous_body);
-        bodies = [bodies, body];
+                          body_descrip.previous_body, ...
+                          body_descrip.params);
+        bodies = [bodies; body];
     end
 end

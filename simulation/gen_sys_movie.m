@@ -1,11 +1,11 @@
-function simulate(sims, mechanism, dt, ax, fname)
+function gen_sys_movie(sims, sys, dt, ax, fname)
     n = length(sims);
     
     % Draw mechanism movement
     for i = 1:n
          clf;
          axis(ax);
-         draw_mechanism(mechanism, i, sims);
+         draw_system(sys, sims{i});
          frames(i) = getframe(gcf);
          pause(dt);
     end
