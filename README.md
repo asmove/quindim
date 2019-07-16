@@ -29,4 +29,4 @@ It is still small, but take a look at wiki: https://github.com/brunolnetto/Robot
 - Slotine classes: http://web.mit.edu/nsl/www/videos/lectures.html 
 - SLOTINE, J. J.; LI, W.; "Applied nonlinear control", Prentice Hall, 1st Ed., 1991.
 - Alberto Isidori. 1995. Nonlinear Control Systems (3rd ed.). M. Thoma, E. D. Sontag, B. W. Dickinson, A. Fettweis, J. L. Massey, and J. W. Modestino (Eds.). Springer-Verlag, Berlin, Heidelberg.
- 
+- Baruh, Haim. Analytical dynamics. Boston: WCB/McGraw-Hill, 1999. 
