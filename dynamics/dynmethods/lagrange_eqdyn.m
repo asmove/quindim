@@ -66,16 +66,16 @@ function sys = lagrange_eqdyn(sys)
     ddt_dL_dqp = dvecdt(dL_dqp, x, xp);
     
     % Left hand side of dynamic equation
-    m_term = simplify(ddt_dL_dqp - dL_dq + dF_dqp, 'Seconds', 5);
-    leqdyns = simplify(C.'*m_term, 'Seconds', 5);
+    m_term = simplify_(ddt_dL_dqp - dL_dq + dF_dqp, 10);
+    leqdyns = simplify_(C.'*m_term, 10);
     
     % Right hand side of dynamic equation
-    reqdyns = simplify(C.'*Fq, 'Seconds', 5);
+    reqdyns = simplify_(C.'*Fq, 10);
     
     % Dynamic equation respective to generalized coordinate qi
-    sys.dyn.l_r = simplify(leqdyns - reqdyns, 'Seconds', 5);
-    sys.dyn.leqdyns = leqdyns;
-    sys.dyn.reqdyns = reqdyns;
+    sys.dyn.l_r = simplify_(leqdyns - reqdyns, 10);
+    sys.dyn.leqdyns = simplify_(leqdyns, 10);
+    sys.dyn.reqdyns = simplify_(reqdyns, 10);
     sys.dyn.eqdyns = leqdyns == reqdyns;
     
     % Main matrices
@@ -92,13 +92,13 @@ function [A, C] = constraint_matrices(sys)
         if(is_unholonomic)
             constraints = sys.unhol_constraints;
             A = jacobian(constraints, sys.qp);
-            C = simplify(null(A));
+            C = simplify_(null(A));
 
         % Holonomic constraitns
         elseif(is_holonomic)
             constraints = sys.hol_constraints;
             A = jacobian(constraints, sys.q);
-            C = simplify(null(A));
+            C = simplify_(null(A));
 
         % Both
         elseif(is_holonomic && is_unholonomic)
@@ -107,7 +107,7 @@ function [A, C] = constraint_matrices(sys)
             A_unhol = jacobian(constraints, sys.qp);
 
             A = [A_hol; A_unhol];
-            C = simplify(null(A));
+            C = simplify_(null(A));
 
         else
             error('When constrained, the fields hol_constraints and unhol_constraints cannot be presented');

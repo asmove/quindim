@@ -12,7 +12,7 @@ function sys = dyn_matrices(sys)
     
     % Control dynamic matrices
     sys.dyn.H = sys.dyn.M;
-    sys.dyn.h = sys.dyn.nu + sys.dyn.g + sys.dyn.f;
+    sys.dyn.h = simplify(sys.dyn.nu + sys.dyn.g + sys.dyn.f, 'Seconds', 10);
     sys.dyn.Z = sys.dyn.U;
     
     sys.dyn.W = chol(sys.dyn.H, 'lower', 'nocheck');

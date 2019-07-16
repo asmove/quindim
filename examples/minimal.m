@@ -1,10 +1,6 @@
 % Minimal example
 % @Author: Bruno Peixoto
 
-% This line is  necessary if you do not added $ROB4FUN_PATH to Matlab
-% folder
-addpath('..')
-
 % The 'real' statement on end is important
 % for inner simplifications
 syms F x xp xpp m b g real;
@@ -23,9 +19,9 @@ T = {T3d(0, [0, 0, 1].', [x; 0; 0])};
 
 block = build_body(m, I, b, T, L, ... 
                    x, xp, xpp, ...
-                   true, struct(''));
+                   true, struct(''), []);
 
-sys.bodies = {block};
+sys.bodies = block;
 
 % Gravity utilities
 sys.gravity = [0; 0; -g];
@@ -34,11 +30,18 @@ sys.g = g;
 % Generalized coordinates
 sys.q = x;
 sys.qp = xp;
-sys.qpp = xpp;               
+sys.qpp = xpp;
+
+% Generalized coordinates
+sys.p = xp;
+sys.pp = xpp;
 
 % External excitations
 sys.Fq = F;
 sys.u = F;
+
+% Constraint condition
+sys.is_constrained = false;
 
 % Sensors
 sys.y = x;

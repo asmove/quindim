@@ -1,3 +1,7 @@
+close all
+clear all
+clc
+
 % The 'real' statement on end is important for inner simplifications
 syms T m g Lg real;
 syms th thp thpp real;
@@ -21,5 +25,5 @@ is_friction_linear = true;
 previous = struct('');
 
 pendulum = build_body(m, I, sym(0), Ts, L, th, thp, thpp, ...
-                      is_friction_linear, previous);
+                      is_friction_linear, previous, []);
 
