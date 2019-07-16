@@ -12,7 +12,7 @@ function [deltas, transformations, phis, Delta] = nreldegs(f, G, y, x)
     % Coupling matrix
     Delta = sym([]);
     
-    % Coordinate transformation 
+    
     transformations = sym([]);
     
     for i = 1:p
@@ -23,7 +23,6 @@ function [deltas, transformations, phis, Delta] = nreldegs(f, G, y, x)
         % i-th Lie derivative for h respective to f
         lie_i_f_hi = hi;
         
-        % Search for relative degree
         while(is_equal_zero)
             % Lie of (i-th Lie derivative of hi respective f) respective to G
             lie_G = sym([]);
