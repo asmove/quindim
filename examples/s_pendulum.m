@@ -24,6 +24,8 @@ is_friction_linear = true;
 % Previous body - Inertial, in this case
 previous = struct('');
 
+params = [];
+
 pendulum = build_body(m, I, sym(0), Ts, L, th, thp, thpp, ...
-                      is_friction_linear, previous, []);
+                      is_friction_linear, previous, params);
 
