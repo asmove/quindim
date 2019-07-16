@@ -2,18 +2,18 @@ function sys = dyn_matrices(sys)
     u = sys.u;
     
     % Dynamic matrices of a mechanical system
-    sys.M = mass_matrix(sys);
-    sys.g = gravitational(sys);
-    sys.f = friction(sys);
-    sys.U = -jacobian(sys.l_r, u);
+    sys.dyn.M = mass_matrix(sys);
+    sys.dyn.g = gravitational(sys);
+    sys.dyn.f = friction(sys);
+    sys.dyn.U = -jacobian(sys.dyn.l_r, u);
 
-    sys.nu = simplify(sys.l_r - sys.M*sys.pp, 'Seconds', 10) - ...
-             sys.g - sys.f + sys.U*sys.u;
+    sys.dyn.nu = simplify(sys.dyn.l_r - sys.dyn.M*sys.pp, 'Seconds', 10) - ...
+                          sys.dyn.g - sys.dyn.f + sys.dyn.U*sys.u;
     
     % Control dynamic matrices
-    sys.H = sys.M;
-    sys.h = sys.nu + sys.g + sys.f;
-    sys.Z = sys.U;
+    sys.dyn.H = sys.dyn.M;
+    sys.dyn.h = sys.dyn.nu + sys.dyn.g + sys.dyn.f;
+    sys.dyn.Z = sys.dyn.U;
     
-    sys.W = chol(sys.H, 'lower', 'nocheck');
+    sys.dyn.W = chol(sys.dyn.H, 'lower', 'nocheck');
 end

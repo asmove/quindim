@@ -1,4 +1,4 @@
 function G = gravitational(sys)
-    G = sys.g*equationsToMatrix(sys.l_r, sys.g);
-    G = simplify(G, 'Seconds', 30);
+    G = sys.g*equationsToMatrix(sys.dyn.l_r, sys.g);
+    G = simplify(G, 'Seconds', 5);
 end

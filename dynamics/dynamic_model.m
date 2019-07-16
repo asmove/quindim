@@ -7,6 +7,7 @@ function sys = dynamic_model(sys)
 %   Gibbs-Appel [char]: Methodology developed by Gibbs and Appel, 
 % appropriate for constrained mechanical systems
     
+    % TOFIX: Allow Gibbs-appel and Lagrange
     method = 'lagrange';
 
     % Dynamic equations
