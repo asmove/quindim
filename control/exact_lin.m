@@ -1,5 +1,23 @@
 function [u, v, Delta, phis, deltas, ...
           z, poles, A_delta, B_delta] = exact_lin(f, G, y, x)
+% Description: Exact linearization algorithm
+% https://www.overleaf.com/read/sgxkhqvfhpyz
+% Input:
+%     - [sym]: Characteristic matrix of the system
+%     - [sym]: Input matrix of the system
+%     - [sym]: Output matrix of the system
+%     - [sym]: states
+% Output:
+%     - [sym]: Output of the system
+%     - [sym]: New output
+%     - [sym]: 
+%     - [sym]: Coupling matrix
+%     - [vector]: Relative degrees of each output
+%     - [sym]: Coordinate change
+%     - [cell]: Exact linearization poles
+%     - [matrix]: Exact linearization characteristic matrix
+%     - [matrix]: Exact linearization input matrix 
+      
     % Dimensions
     [~, m] = size(G);
     
@@ -22,7 +40,6 @@ function [u, v, Delta, phis, deltas, ...
 
     i = 1;
     for poles_ = poles
-        poles_
         poles_ = poles_{1};
         coeffs = ctrb_coeffs(poles_);
         
@@ -50,13 +67,4 @@ function [u, v, Delta, phis, deltas, ...
     
     Delta = simplify_(Delta);
     u = Delta\(-A_delta*z - phis + B_delta*v);
-end
-
-function poles = request_poles_deltas(deltas)
-    % Request user poles 
-    poles = {};
-    for delta = deltas
-        pole = request_poles(delta);
-        poles{end+1} = pole;
-    end
 end

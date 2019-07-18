@@ -1,4 +1,10 @@
 function poles = request_poles(delta)
+% Description: Request the poles according to delta vector
+% Input:
+%     - [vector]: Relative degrees of each ooutput
+% Output:
+%     - [cell]: poles for each output on exact linearization
+
     is_valid = true;
     while(is_valid)
         msg = sprintf('Provide %d poles (necessarily lesser than 0)', delta);
@@ -11,5 +17,4 @@ function poles = request_poles(delta)
             break;
         end
     end
-    poles
 end

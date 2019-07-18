@@ -16,13 +16,21 @@ function sys = kinematic_model(sys)
 % Output: 
 %    - [struct]: Multibody characteristics (Same as input) plus
 %       bodies: p_cg0 v_cg omega
-
+    
+    % System jacobian
+    Jv = [];
+    Jw = [];
+    
+    % States and its derivatives
+    q = sys.q;
+    qp = sys.qp;
     x = [sys.q; sys.qp];
     xp = [sys.qp; sys.qpp];
     
     n_bodies = length(sys.bodies);
     
     for i = 1:n_bodies
+        
         body = sys.bodies(i);
         
         % Center of mass position
@@ -36,11 +44,27 @@ function sys = kinematic_model(sys)
         % Body angular velocity
         R = body.T(1:3, 1:3);
 
-        sys.bodies(i).omega = omega(R, x, xp);
+        omega_ = omega(R, x, xp);
+        sys.bodies(i).omega = omega_;
         
         if(i ~= n_bodies)
             sys.bodies(i+1).previous_body = sys.bodies(i); 
         end
+        
+        % Jacobians for each body
+        Jvi = equationsToMatrix(v_cg, qp);
+        Jwi = equationsToMatrix(omega_, qp);
+        
+        sys.bodies(i).Jv = Jvi;
+        sys.bodies(i).Jw = Jwi;
+        
+        % System jacobian
+        Jv = [Jv; Jvi];
+        Jw = [Jw; Jwi];
     end
+    
+    % System jacobian
+    sys.dyn.Jv = Jv;
+    sys.dyn.Jw = Jw;
     
 end
