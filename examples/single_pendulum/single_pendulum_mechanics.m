@@ -1,28 +1,27 @@
-function sys = double_pendulum_mechanics()
+function sys = single_pendulum_mechanics()
     % --- Plant parameters ---
     % Inertial
-    syms m0 m1 m2 real;
+    syms m0 m1 real;
     I0 = zeros(3, 3);
-    I1 = inertia_tensor(1);
-    I2 = inertia_tensor(2);   
-    
+    I1 = sym('I1_%d%d', [3, 3]);
+   
     % Viscuous friction
-    syms b0 b1 b2 real;
+    syms b0 b1 real;
           
     % Gravity
     syms g;
     gravity = [0; -g; 0];
     
     % Dimensional
-    syms L1 L2 L1_cg L2_cg real; 
+    syms L1 L1_cg real; 
     
     % Extern excitations
     syms F;
 
     % Generalized variables
-    syms x th1 th2 real;
-    syms xp  th1p th2p real;
-    syms xpp th1pp th2pp real;
+    syms x th1 real;
+    syms xp  th1p real;
+    syms xpp th1pp real;
     
     % Bodies
     % Car
@@ -42,31 +41,21 @@ function sys = double_pendulum_mechanics()
     bar1 = build_body(m1, I1, b1, T1, L1cg, ...
                       th1, th1p, th1p, false, car, []);
 
-    % Bar 2
-    T21 = bar1.T;
-    T22 = T3d(0, [0, 0, 1].', [L1; 0; 0]);
-    T23 = T3d(th2, [0, 0, 1].', [0; 0; 0]);
-    T2 = {T21, T22, T23};
-    
-    L2cg = [L2_cg; 0; 0];
-    
-    bar2 = build_body(m2, I2, b2, T2, L2cg, ...
-                      th2, th2p, th2pp, false, bar1, []);
-
     % System
-    sys.bodies = [car, bar1, bar2];
+    sys.bodies = [car, bar1];
     sys.gravity = gravity;
     sys.g = g;
 
-    sys.q = [x; th1; th2];
-    sys.qp = [xp; th1p; th2p];
-    sys.p = [xp; th1p; th2p];
-    sys.qpp = [xpp; th1pp; th2pp];
-    sys.pp = [xpp; th1pp; th2pp];
+    sys.q = [x; th1];
+    sys.qp = [xp; th1p];
+    sys.qpp = [xpp; th1pp];
     
-    sys.Fq = [F; 0; 0];
+    sys.p = [xp; th1p];
+    sys.pp = [xpp; th1pp];
+    
+    sys.Fq = [F; 0];
     sys.u = F;
-    sys.y = [x; th1; th2];
+    sys.y = [x; th1];
     
     sys.states = [sys.q; sys.qp];
     
@@ -76,7 +65,6 @@ function sys = double_pendulum_mechanics()
     sys.syms = [g];
     sys.syms = [sys.syms, m0, b0];
     sys.syms = [sys.syms, m1, I1(3, 3), b1, L1, L1_cg];
-    sys.syms = [sys.syms, m2, I2(3, 3), b2, L2, L2_cg]; 
     
     % Movement formalism
     sys = kinematic_model(sys);

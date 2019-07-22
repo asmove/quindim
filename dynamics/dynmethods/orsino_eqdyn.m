@@ -1,4 +1,4 @@
-function eqdyn = gibbs_appel_eqdyn(mechanism)
+function eqdyn = orsino_eqdyn(mechanism)
     % Number of subsystems
     num_subsystems = length(mechanism.serials);
     

@@ -27,7 +27,11 @@ function mechanism = load_bodies(mechanism)
     mechanism.draw_bodies = @draw_bodies;
 end
 
-
+function draw_bodies(mechanism, sim, q)
+    for body = mechanism.bodies 
+        draw_body(body, sim, q);
+    end
+end
 
 function draw_body(body, sim, q)
    % Bars characteristics
