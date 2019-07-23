@@ -1,4 +1,4 @@
-function eqdyn = gibbs_appel_eqdyn(mechanism)
+function eqdyn = orsino_eqdyn(mechanism)
     % Number of subsystems
     num_subsystems = length(mechanism.serials);
     
@@ -44,8 +44,8 @@ function eqdyn = gibbs_appel_eqdyn(mechanism)
     end
     
     % End-effector dynamic equation - Newton's equation
-    eqdyn_e = eqdyn_body_GAK(mechanism.endeffector);
-    
+    eqdyn_e = eqdyn_gibbs_appel_cg(mechanism.endeffector);
+
     % Uncoupled multi-body system
     M_tilde = blkdiag(eqdyn_e.M, M_tilde);
     nu_tilde = [eqdyn_e.nu; nu_tilde];

@@ -1,10 +1,10 @@
 function linsys =  lin_sys(sys, x_WP, u_WP, Ts, ndelay)
     linvars = [sys.dyn.states; sys.u];
     WP = [x_WP; u_WP];
-    
+    sys.dyn
     linsys.x_WP = x_WP;
     linsys.u_WP = u_WP;
-    linsys.y_WP = subs(sys.g, linvars, WP);
+    linsys.y_WP = subs(sys.dyn.y, linvars, WP);
     
     % Matrices A, B, C and D for each working-point
     linsys.linvars = sym('u%d', size(sys.dyn.states));

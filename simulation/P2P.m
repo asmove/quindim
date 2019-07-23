@@ -1,20 +1,21 @@
-function [t, tf, q, qp, qpp] = P2P(P0, P1, A_max, alpha)    
-    if((alpha > 1) || (alpha < 0))
-       error('Alpha MUST be between 0 and 1!'); 
+function [t, tf, q, qp, qpp] = P2P(P0, P1, A_max, delta)
+    
+    if((delta > 1) || (delta < 0))
+       error('alpha MUST be between 0 and 1!'); 
     end
     
     if(nargin == 3)
-        alpha = 0.25;
+        delta = 0.25;
     end
     
     n_versor = (P1-P0)/norm(P1-P0);
-    beta = (1 - alpha)/2;
+    beta = (1 - delta)/2;
     
     % End time [s]
     t0 = sqrt((2/A_max)*pinv(n_versor)*(beta*(P1 - P0)));
     
     v0 = A_max*n_versor*t0;
-    t1 = pinv(v0)*alpha*(P1 - P0);  
+    t1 = pinv(v0)*delta*(P1 - P0);  
     tf = 2*t0 + t1;
     
     % Time vector
@@ -41,7 +42,7 @@ function [t, tf, q, qp, qpp] = P2P(P0, P1, A_max, alpha)
             t_ = t0 + t1;
             a0 = -A_max*n_versor;
             V0 = A_max*n_versor*t0;
-            S0 = P0 + (alpha + beta)*(P1 - P0);
+            S0 = P0 + (delta + beta)*(P1 - P0);
         end
 
         S = a0*(t - t_)^2/2 + V0*(t - t_) + S0;

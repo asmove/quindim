@@ -67,5 +67,4 @@ function sys = kinematic_model(sys)
     % System jacobian
     sys.dyn.Jv = Jv;
     sys.dyn.Jw = Jw;
-    
 end
