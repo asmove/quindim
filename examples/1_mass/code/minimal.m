@@ -7,13 +7,14 @@ clc
 
 % The 'real' statement on end is important
 % for inner simplifications
-syms F x xp xpp m b g real;
+syms F x xp xpp real;
+syms m b k g real;
 
 % Paramater symbolics of the system
-sys.syms = [m, b, g];
+sys.syms = [m, b, k, g];
 
 % Paramater symbolics of the system
-sys.model_params = [1, 0.1, 9.8];
+sys.model_params = [1, 0, 9, 9.8];
 
 % Gravity utilities
 sys.gravity = [0; 0; -g];
@@ -28,9 +29,10 @@ L = zeros(3, 1);
 % Bodies definition
 T = {T3d(0, [0, 0, 1].', [x; 0; 0])};
 
-block = build_body(m, I, b, T, L, ... 
-                   x, xp, xpp, ...
-                   true, struct(''), []);
+damper = build_damper(b, [0; 0; 0], [xp; 0; 0]);
+spring = build_spring(k, [0; 0; 0], [x; 0; 0]);
+block = build_body(m, I, T, L, damper, spring, ...
+                   x, xp, xpp, struct(''), []);
 
 sys.bodies = block;
 
@@ -65,13 +67,9 @@ m_num = sys.model_params(1);
 b_num = sys.model_params(2);
 T = m_num/b_num;
 
-% n time constants decay
-n = 3;
-decay_percentual = 1 - exp(-n);
-
 % Time [s]
 dt = 0.01;
-tf = -T*log(1 - decay_percentual);
+tf = 5;
 t = 0:dt:tf; 
 
 % Initia conditions [m; m/s]
@@ -87,5 +85,13 @@ titles = {'$x$', '$\dot x$'};
 xlabels = {'$t$ [s]', '$t$ [s]'};
 ylabels = {'$x$ [m]', '$\dot x$ [m/s]'};
 
-plot_states(x, y, titles, xlabels, ylabels)
+hfigs_states = plot_states(x, y, titles, xlabels, ylabels);
+hfig_energies = plot_energies(sys, x, y);
+
+% Energies
+saveas(hfig_energies, '../images/energies.eps', 'epsc');
+
+for i = 1:length(hfigs_states)
+   saveas(hfigs_states(i), ['../images/states', num2str(i), '.eps'], 'epsc'); 
+end
 

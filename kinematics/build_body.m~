@@ -28,10 +28,12 @@ function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
     
     % Body position transformations
     body.T = eye(4, 4);
-
-    for i = 1:length(Ts)
-        T = Ts{i};
-        body.T = simplify(body.T*T);
+    u = sym('u', size(formula(q)));
+    assume(u, 'real');
+    for T = Ts
+        T
+        T_ = T{1};
+        body.T = simplify(body.T*T_);
     end
     
     body.dampers = dampers;

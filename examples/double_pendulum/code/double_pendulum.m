@@ -39,23 +39,18 @@ function sys = double_pendulum(Ts, ndelay)
     sys.g = symvar(sys_m.gravity);
     
     % Dynamics matrices
-<<<<<<< HEAD:examples/Double_Pendulum/double_pendulum.m
-    sys.W = sys_m.dyn.W;
-    sys.H = jacobian(sys.l_r, sys.qpp);
-    sys.Z = -jacobian(sys.l_r, sys.u);
-    sys.h = sys.l_r - sys.H*sys.qpp + sys.Z*sys.u;
-=======
     sys.dyn.H = jacobian(sys.dyn.l_r, sys.pp);
     sys.dyn.Z = -jacobian(sys.dyn.l_r, sys.u);
     sys.dyn.h = simplify_(sys.dyn.l_r - sys.dyn.H*sys.pp + sys.dyn.Z*sys.u);
->>>>>>> af9bc85da7d10306becc70aa4533fc8349371e61:examples/double_pendulum/double_pendulum.m
     
     % Sytem behaviour and sensoring
     qpps = sys.dyn.H\(sys.dyn.Z*sys.u - sys.dyn.h);
     qps = sys.qp;
     
-    sys.dyn.f = [qps; qpps];
-    sys.dyn.g = [sys_m.q(1); sys_m.q(2); sys_m.q(3)];
+    xp = [qps; qpps];
+    sys.dyn.G = equationsToMatrix(xp, sys.u);
+    sys.dyn.f = simplify_(xp - sys.dyn.G*sys.u);
+    sys.dyn.y = [sys_m.q(1); sys_m.q(2); sys_m.q(3)];
     
     % Subssystem of the whole system
     sys.subsystems = {sys_m, sys_e, sys_p};

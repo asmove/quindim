@@ -29,6 +29,8 @@ function sys = double_pendulum_mechanics()
     T0 = {T3d(0, [0, 0, 1].', [x; 0; 0])};
     L0cg = [0; 0; 0];
     
+    damper1 = build_damper(b1, is_linear, head, tail);
+    spring1 = build_spring(k, is_linear, head, tail);
     car = build_body(m0, I0, b0, T0, L0cg, ...
                      x, xp, xpp, true, struct(''), []);
 
