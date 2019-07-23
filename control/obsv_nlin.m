@@ -4,9 +4,10 @@ function d_obsv = obsv_nlin(f, h, x)
     lie_1 = h;
     
     for i = 1:n
-        obsv_ = [obsv_; lie_diff(f, lie_1, x)];
-        lie_1 = obsv_(end-1);
+        lie = simplify_(lie_diff(f, lie_1, x));
+        obsv_ = [obsv_; lie];
+        lie_1 = lie;
     end
     
-    d_obsv = jacobian(obsv_, x);
+    dobsv = jacobian(obsv_, x);
 end

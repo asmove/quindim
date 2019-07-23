@@ -7,7 +7,7 @@ function dq = df(t, q, sys)
     dq_sym = subs(sys.f_subs, sys.syms, sys.model_params);
     dq_sym = vpa(dq_sym);
     
-    dq_ = vpa(subs(dq_sym, sys.dyn.states, q));
+    dq_ = vpa(subs(dq_sym, sys.states, q));
     
     dq = double(dq_);
 end

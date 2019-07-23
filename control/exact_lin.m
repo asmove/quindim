@@ -19,7 +19,7 @@ function [u, v, Delta, phis, deltas, ...
 %     - [matrix]: Exact linearization input matrix 
       
     % Dimensions
-    [~, m] = size(G);
+    [n, m] = size(G);
     
     % Transformed inputs
     v = sym('v', [m, 1]);
@@ -65,6 +65,6 @@ function [u, v, Delta, phis, deltas, ...
         Bs = [Bs; Bi];
     end
     
-    Delta = simplify_(Delta);
-    u = Delta\(-A_delta*z - phis + B_delta*v);
+    Delta_inv = Delta\eye(length(Delta));
+    u = Delta_inv*(-A_delta*z - phis + B_delta*v);
 end

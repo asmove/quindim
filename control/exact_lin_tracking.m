@@ -42,8 +42,8 @@ function [u, v] = exact_lin_tracking(f, G, y, y_ref, x)
     % Request user poles 
     poles = {};
     for delta = deltas
-        poles = request_poles(delta);
-        poles{end+1} = poles;
+        poles_ = request_poles(delta);
+        poles{end+1} = poles_;
     end
     
     % Linear dynamic
@@ -51,8 +51,9 @@ function [u, v] = exact_lin_tracking(f, G, y, y_ref, x)
     
     i = 1;
     for poles_ = poles 
+        poles_ = poles_{1};
         coeffs = ctrb_coeffs(poles_);
-        A_delta_tilde = direct_sum(A_delta_tilde, coeffs);
+        A_delta_tilde = direct_sum({A_delta_tilde, coeffs});
     end
     
     Delta_Delta_tilde = simplify_(Delta*simplify_(inv(Delta_tilde)));
@@ -66,8 +67,8 @@ function [u, v] = exact_lin_tracking(f, G, y, y_ref, x)
         y_tilde_kappa = [y_tilde_kappa; sym(var_name)];
     end
     
-    aux1 = simplify_(A_delta_tilde*error_ - phis_tilde + y_tilde_kappa);
-    aux2 = simplify_(Delta_Delta_tilde*aux1);
-    p = simplify_(phis + A_delta*z + aux1);
-    v = simplify_(pinv(B_delta)*p);
+    aux1 = A_delta_tilde*error_ - phis_tilde + y_tilde_kappa;
+    aux2 = Delta_Delta_tilde*aux1;
+    p = phis + A_delta*z + aux2;
+    v = pinv(B_delta)*p;
 end

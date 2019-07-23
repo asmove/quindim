@@ -16,7 +16,7 @@ function [deltas, transformations, phis, Delta] = nreldegs(f, G, y, x)
     transformations = sym([]);
     
     for i = 1:p
-        j = 0;
+        j = 1;
         is_equal_zero = true;
         hi = y(i);
         
@@ -25,11 +25,13 @@ function [deltas, transformations, phis, Delta] = nreldegs(f, G, y, x)
         
         % Search for relative degree
         while(is_equal_zero)
+            transformations = [transformations; lie_i_f_hi];
+            
             % Lie of (i-th Lie derivative of hi respective f) respective to G
             lie_G = sym([]);
             for k = 1:m
                 gk = G(:, k);
-                lie_gk = lie_diff(gk, lie_i_f_hi, x);
+                lie_gk = simplify_(lie_diff(gk, lie_i_f_hi, x));
                 lie_G(end+1) = lie_gk;
             end
             
@@ -41,8 +43,7 @@ function [deltas, transformations, phis, Delta] = nreldegs(f, G, y, x)
                 break; 
             end
             
-            transformations = [transformations; lie_i_f_hi];
-            lie_i_f_hi = lie_diff(f, lie_i_f_hi, x);
+            lie_i_f_hi = simplify_(lie_diff(f, lie_i_f_hi, x));
                         
             j = j + 1;
         end
@@ -52,6 +53,6 @@ function [deltas, transformations, phis, Delta] = nreldegs(f, G, y, x)
         phis = [phis; lie_delta_f_hi];
     end
     
-    Delta = simplify(Delta, 'Seconds', 5);
-    phis = simplify(phis, 'Seconds', 5);
+    Delta = simplify_(Delta);
+    phis = simplify_(phis);
 end

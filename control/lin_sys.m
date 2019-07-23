@@ -1,5 +1,5 @@
 function linsys =  lin_sys(sys, x_WP, u_WP, Ts, ndelay)
-    linvars = [sys.states; sys.u];
+    linvars = [sys.dyn.states; sys.u];
     WP = [x_WP; u_WP];
     
     linsys.x_WP = x_WP;
@@ -7,12 +7,12 @@ function linsys =  lin_sys(sys, x_WP, u_WP, Ts, ndelay)
     linsys.y_WP = subs(sys.g, linvars, WP);
     
     % Matrices A, B, C and D for each working-point
-    linsys.linvars = sym('u%d', size(sys.states));
+    linsys.linvars = sym('u%d', size(sys.dyn.states));
     
-    linsys.A0 = jacobian(sys.f, sys.states);
-    linsys.B0 = jacobian(sys.f, sys.u);
-    linsys.C0 = jacobian(sys.g, sys.states);
-    linsys.D0 = jacobian(sys.g, sys.u);
+    linsys.A0 = jacobian(sys.dyn.f, sys.dyn.states);
+    linsys.B0 = jacobian(sys.dyn.f, sys.u);
+    linsys.C0 = jacobian(sys.dyn.y, sys.dyn.states);
+    linsys.D0 = jacobian(sys.dyn.y, sys.u);
         
     % Matrices on the provided working-point
     A = subs(linsys.A0, linvars, WP);

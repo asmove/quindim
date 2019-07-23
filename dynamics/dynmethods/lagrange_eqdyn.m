@@ -110,13 +110,18 @@ function [A, C] = constraint_matrices(sys)
             C = simplify_(null(A));
 
         else
-            error('When constrained, the fields hol_constraints and unhol_constraints cannot be presented');
+            msg = 'When constrained, the fields hol_constraints' +...
+                   'and unhol_constraints cannot be presented';
+            error(msg);
         end
     else
         A = [];
         C = eye(length(sys.q));
+        
         if(is_holonomic || is_unholonomic)
-            error('When unconstrained, the fields hol_constraints and unhol_constraints cannot be presented.');
+            msg = 'When unconstrained, the fields hol_constraints' + ...
+                  'and unhol_constraints cannot be presented.';
+            error(msg);
         end
     end
 end

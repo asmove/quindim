@@ -34,6 +34,7 @@ function sys = double_pendulum(Ts, ndelay)
     sys.g = symvar(sys_m.gravity);
     
     % Dynamics matrices
+    sys.W = sys_m.dyn.W;
     sys.H = jacobian(sys.l_r, sys.qpp);
     sys.Z = -jacobian(sys.l_r, sys.u);
     sys.h = sys.l_r - sys.H*sys.qpp + sys.Z*sys.u;
