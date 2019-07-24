@@ -1,6 +1,14 @@
 # Robotics4fun
 
-This is a homemade robotics library made using trustworthy literature on Robotics. However, don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :)
+This is a homemade robotics library made using trustworthy literature on Robotics. However, don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
+
+If the reader is already with github, skip the next steps. To clone this repository, type the following commands:
+
+```
+mkdir ~/rob4fun 
+cd ~/rob4fun
+git clone git@github.com:brunolnetto/Robotics4fun.git 
+```
 
 # Installation
 
@@ -15,7 +23,7 @@ addpath(genpath('$ROB4FUN_PATH'))
 savepath
 ``` 
 
-where ```$ROB4FUN_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$ROB4FUN_PATH```.
+where ```$ROB4FUN_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$ROB4FUN_PATH```. If the reader followed the steps from previous section, the ```ROB4FUN_PATH``` corresponds to ```~/rob4fun```
 
 
 3) Have fun and may the force be with you.
