@@ -1,6 +1,6 @@
 # Robotics4fun
 
-This is a homemade robotics library made using trustworthy literature on Robotics. However, don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
+This is a homemade robotics library made using trustworthy literature on Robotics. However, it is a WIP, though already advanced, and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
 
 If the reader is already familiar with github, skip the next steps. To clone this repository, type the following commands on linux:
 
