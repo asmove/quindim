@@ -2,7 +2,7 @@
 
 This is a homemade robotics library made using trustworthy literature on Robotics. However, don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
 
-If the reader is already familiar with github, skip the next steps. To clone this repository, type the following commands:
+If the reader is already familiar with github, skip the next steps. To clone this repository, type the following commands on linux:
 
 ```
 mkdir ~/rob4fun 
@@ -10,9 +10,11 @@ cd ~/rob4fun
 git clone git@github.com:brunolnetto/Robotics4fun.git 
 ```
 
+Most likely, the reader may use Windows. For such, the author recommends either the Git Bash or Tortoise Git as source management software.
+
 # Installation
 
-If you are willing to use it, follow the instructions:
+If you wish to use it, follow the instructions:
 
 1) Open Matlab up to the version 2015x, x = a, b;
 2) Before calling the functions, type on MATLAB shell 
