@@ -2,7 +2,7 @@
 
 This is a homemade robotics library made using trustworthy literature on Robotics. However, don't trust it much, it is a WIP and contributions are welcome. In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
 
-If the reader is already with github, skip the next steps. To clone this repository, type the following commands:
+If the reader is already familiar with github, skip the next steps. To clone this repository, type the following commands:
 
 ```
 mkdir ~/rob4fun 
