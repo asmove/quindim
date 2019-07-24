@@ -19,7 +19,7 @@ function [params, params_str] = load_params()
     b1 = 0.01;
     b2 = 0.01;
     
-    % Spring constants
+    % Spring constatnt
     k0 = 1;
     k1 = 1;
     k2 = 1;
@@ -46,9 +46,9 @@ function [params, params_str] = load_params()
     D = 2*0.0226;
 
     % Model parameters
-    params = [g, m0, b0, k0, ...
-              m1, k1, I1, b1, L1, L1_cg, ...
-              m2, k2, I2, b2, L2, L2_cg, ...
+    params = [g, m0, b0, ...
+              m1, I1, b1, L1, L1_cg, ...
+              m2, I2, b2, L2, L2_cg, ...
               Kt, Ke, Ra, Vcc, D];
     
     eps_ = 10*pi/180;

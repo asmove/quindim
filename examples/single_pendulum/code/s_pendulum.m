@@ -1,3 +1,6 @@
+% Double Single example
+% @Author: Bruno Peixoto
+
 close all
 clear all
 clc
@@ -15,7 +18,7 @@ I(3, 3) = m*Lg^2;
 L = [Lg; 0; 0];
 
 % Bodies transformations
-Ts = {T3d(-pi/2, [0; 0; 1], [0; 0; 0]),
+Ts = {T3d(-pi/2, [0; 0; 1], [0; 0; 0]), ...
       T3d(th, [0; 0; 1], [0; 0; 0])};
 
 % Previous body - Inertial, in this case
@@ -30,10 +33,11 @@ spring = build_spring(k, [0; 0; 0], [th; 0; 0]);
 pendulum = build_body(m, I, Ts, L, damper, spring, ...
                       th, thp, thpp, previous, params);
 
+% Without spring and damping
 sys.syms = [m, b, k, g, Lg];
-sys.model_params = [1, 0.1, 9, 9.8 1];
+sys.model_params = [1, 0, 0, 9.8, 1];
 
-sys.gravity = [0; 0; -g];
+sys.gravity = [0; -g; 0];
 sys.g = g;
 
 sys.bodies = pendulum;
@@ -80,7 +84,7 @@ y = sol.y.';
 
 titles = {'$\theta$', '$\dot \theta$'};
 xlabels = {'$t$ [s]', '$t$ [s]'};
-ylabels = {'$\theta$ $[m]$', '$\dot \theta$ $[rad/s]$'};
+ylabels = {'$\theta$ $[rad]$', '$\dot \theta$ $[rad/s]$'};
 
 % States and energies plot
 hfigs_states = plot_states(x, y, titles, xlabels, ylabels);

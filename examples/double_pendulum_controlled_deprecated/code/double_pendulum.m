@@ -1,4 +1,4 @@
-function sys = double_pendulum()
+function sys = double_pendulum(Ts, ndelay)
     % Mechanical part
     sys_m = double_pendulum_mechanics();
         
@@ -64,14 +64,18 @@ function sys = double_pendulum()
     
     % System symbolics
     sys.syms = [sys_m.syms, sys_e.syms, sys_p.syms];
-    
-    sys.dyn.K = sys_m.dyn.K;
-    sys.dyn.P = sys_m.dyn.P;
-    sys.dyn.F = sys_m.dyn.F;
-    sys.dyn.total_energy = sys_m.dyn.total_energy;
-    
+
     % Parameters of the plant
     [sys.model_params, sys.params_str] = load_params();
     pars = load_mechanism_params();
     sys.subsystems{1}.model_params = pars;
+        
+    % Linearization point
+    sys.linearize = @(x0, u0) lin_sys(sys, x0, u0, Ts, ndelay);
+
+    % Working point
+    x_WP = [0; pi; pi; 0; 0; 0];
+    u_WP = 0;
+    
+    sys.lin_sys = sys.linearize(x_WP, u_WP);
 end

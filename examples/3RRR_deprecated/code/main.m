@@ -7,6 +7,7 @@ mechanism = load_mechanism('num');
 
 % Simulation
 L0 = 0.05;
+props.delta = 0.33;
 props.L0 = L0;
 props.A_max = 5;
 props.P0 = [L0; L0];

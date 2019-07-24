@@ -52,12 +52,12 @@ function hfigs = plot_states(t, x, titles, xlabels, ylabels)
     end
     
     for k = 1:remaind_n
-        subplot(n, 1, k);
+        subplot(remaind_n, 1, k);
         plot(t, xs(:, k));
         
-        title(titles{i-1+k}, 'interpreter', 'latex');
-        xlabel(xlabels{i-1+k}, 'interpreter', 'latex');
-        ylabel(ylabels{i-1+k}, 'interpreter', 'latex');
+        title(titles{i+k-1}, 'interpreter', 'latex');
+        xlabel(xlabels{i+k-1}, 'interpreter', 'latex');
+        ylabel(ylabels{i+k-1}, 'interpreter', 'latex');
         grid;
     end    
 end

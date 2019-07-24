@@ -27,12 +27,7 @@ function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
     body.previous_body = previous;
     
     % Body position transformations
-    body.T = eye(4, 4);
-
-    for i = 1:length(Ts)
-        T = Ts{i};
-        body.T = simplify(body.T*T);
-    end
+    body.T = collapse_transformations(Ts);
     
     body.dampers = dampers;
     body.springs = springs;
