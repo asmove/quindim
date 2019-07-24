@@ -1,63 +1,56 @@
-function hfigs = plot_states(t, x, titles, xlabels, ylabels)
+function hfigs = plot_states(t, x, plot_config)
     hfigs = [];
-
+    
+    titles = plot_config.titles;
+    xlabels = plot_config.xlabels;
+    ylabels = plot_config.ylabels;
+    nrows = plot_config.grid_size(1);
+    ncols = plot_config.grid_size(2);
+    
     [~, n] = size(x);
     
-    num_subplots = 4;
-    remaind_n = rem(n, num_subplots);
-    n_windows = (n - remaind_n)/num_subplots;
+    n_total = nrows*ncols;
+    
+    remaind_n = rem(n, n_total);
+    n_windows = (n - remaind_n)/n_total;
     
     i = 1;
     while(i <= n_windows)
         hfig = my_figure();
         
-        hfigs = [hfigs; hfig];
-        
-        subplot(2, 2, 1);
-        plot(t, x(:, i));
-        title(titles{i}, 'interpreter', 'latex');
-        xlabel(xlabels{i}, 'interpreter', 'latex');
-        ylabel(ylabels{i}, 'interpreter', 'latex');
-        grid;
-        
-        subplot(2, 2, 2);
-        plot(t, x(:, i+1));
-        title(titles{i+1}, 'interpreter', 'latex');
-        xlabel(xlabels{i+1}, 'interpreter', 'latex');
-        ylabel(ylabels{i+1}, 'interpreter', 'latex');
-        grid;
-        
-        subplot(2, 2, 3);
-        plot(t, x(:, i+2));
-        title(titles{i+2}, 'interpreter', 'latex');
-        xlabel(xlabels{i+2}, 'interpreter', 'latex');
-        ylabel(ylabels{i+2}, 'interpreter', 'latex');
-        grid;
-        
-        subplot(2, 2, 4);
-        plot(t, x(:, i+3));
-        title(titles{i+3}, 'interpreter', 'latex');
-        xlabel(xlabels{i+3}, 'interpreter', 'latex');
-        ylabel(ylabels{i+3}, 'interpreter', 'latex');
-        grid;
-        
-        i = i + num_subplots;
+        for j = 1:nrows*ncols
+            id_plot = ind2sub([nrows, ncols], j);
+
+            hfigs = [hfigs; hfig];
+            
+            idx = i+j-1;
+            
+            subplot(nrows, ncols, id_plot);
+            plot(t, x(:, idx));
+            title(titles{idx});
+            xlabel(xlabels{idx});
+            ylabel(ylabels{idx});
+            grid;
+        end        
+        i = i + nrows*ncols;
     end
     
-    % Plot 
-    xs = x(:, n_windows*num_subplots+1:end);
+    % Remainder plots
     if(remaind_n ~= 0)
-       hfig = my_figure();
-       hfigs = [hfigs; hfig];
+        xs = x(:, n_windows*num_subplots+1:end);
+        hfig = my_figure();
+        hfigs = [hfigs; hfig];
+    
+        for k = 1:remaind_n
+            subplot(remaind_n, 1, k);
+            plot(t, xs(:, k));
+
+            title(titles{i+k-1});
+            xlabel(xlabels{i+k-1});
+            ylabel(ylabels{i+k-1});
+            grid;
+        end    
     end
     
-    for k = 1:remaind_n
-        subplot(remaind_n, 1, k);
-        plot(t, xs(:, k));
-        
-        title(titles{i+k-1}, 'interpreter', 'latex');
-        xlabel(xlabels{i+k-1}, 'interpreter', 'latex');
-        ylabel(ylabels{i+k-1}, 'interpreter', 'latex');
-        grid;
-    end    
+
 end

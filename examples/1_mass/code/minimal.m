@@ -77,16 +77,22 @@ x0 = [0; 1];
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);
-
-x = sol.x;
-y = sol.y.';
+t = sol.x.';
+x = sol.y.';
 
 titles = {'$x$', '$\dot x$'};
 xlabels = {'$t$ [s]', '$t$ [s]'};
 ylabels = {'$x$ [m]', '$\dot x$ [m/s]'};
+grid_size = [2, 1];
 
-hfigs_states = plot_states(x, y, titles, xlabels, ylabels);
-hfig_energies = plot_energies(sys, x, y);
+% Plot properties
+plot_info.titles = titles;
+plot_info.xlabels = xlabels;
+plot_info.ylabels = ylabels;
+plot_info.grid_size = grid_size;
+
+hfigs_states = plot_states(t, x, plot_info);
+hfig_energies = plot_energies(sys, t, x);
 
 % Energies
 saveas(hfig_energies, '../images/energies.eps', 'epsc');
