@@ -82,12 +82,13 @@ sol = validate_model(sys, t, x0, 0);
 x = sol.x;
 y = sol.y.';
 
-titles = {'$\theta$', '$\dot \theta$'};
-xlabels = {'$t$ [s]', '$t$ [s]'};
-ylabels = {'$\theta$ $[rad]$', '$\dot \theta$ $[rad/s]$'};
+plot_info.titles = {'$\theta$', '$\dot \theta$'};
+plot_info.xlabels = {'$t$ [s]', '$t$ [s]'};
+plot_info.ylabels = {'$\theta$ $[rad]$', '$\dot \theta$ $[rad/s]$'};
+plot_info.grid_size = [2, 1];
 
 % States and energies plot
-hfigs_states = plot_states(x, y, titles, xlabels, ylabels);
+hfigs_states = plot_states(x, y, plot_info);
 hfig_energies = plot_energies(sys, x, y);
 
 % Energies

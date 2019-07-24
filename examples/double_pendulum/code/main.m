@@ -14,19 +14,24 @@ t = 0:dt:tf;
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);
-
 x = sol.x;
 y = sol.y.';
 
-titles = {'$x$', '$\theta_1$', '$\theta_2$', ...
-          '$\dot x$', '$\dot \theta_1$', '$\dot \theta_2$'};
-xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-ylabels = {'$x$ $[m]$', '$\theta_1$ $[rad]$', '$\theta_2$ $[rad]$', ...
-           '$\dot x$ $[m/s]$', '$\dot \theta_1$ $[rad/s]$', ...
-           '$\dot \theta_2$  $[rad/s]$'};
+% Little rearrangement for plot purposes
+y = [y(:, 1), y(:, 4),...
+     y(:, 2), y(:, 5), ...
+     y(:, 3), y(:, 6)];
 
+plot_config.titles = {'$x$', '$\dot x$', '$\theta_1$', ...
+           '$\dot \theta_1$', '$\theta_2$', '$\dot \theta_2$'};
+plot_config.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_config.ylabels = {'$x$ $[m]$', '$\dot x$ $[m/s]$', ...
+                     '$\theta_1$ $[rad]$', '$\dot \theta_1$ $[rad/s]$', ...
+                     '$\theta_2$ $[rad]$', '$\dot \theta_2$  $[rad/s]$'};
+plot_config.grid_size = [3, 2];
+       
 % States and energies plot
-hfigs_states = plot_states(x, y, titles, xlabels, ylabels);
+hfigs_states = plot_states(x, y, plot_config);
 hfig_energies = plot_energies(sys, x, y);
 
 % Energies
