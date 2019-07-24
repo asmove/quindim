@@ -20,8 +20,6 @@ function hfigs = plot_states(t, x, plot_config)
         
         for j = 1:nrows*ncols
             id_plot = ind2sub([nrows, ncols], j);
-
-            hfigs = [hfigs; hfig];
             
             idx = i+j-1;
             
@@ -31,7 +29,8 @@ function hfigs = plot_states(t, x, plot_config)
             xlabel(xlabels{idx});
             ylabel(ylabels{idx});
             grid;
-        end        
+        end
+        hfigs = [hfigs; hfig];
         i = i + nrows*ncols;
     end
     
