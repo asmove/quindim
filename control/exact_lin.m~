@@ -54,8 +54,9 @@ function out = exact_lin(f, G, y, x)
         Ai = ctrb_canon(poles_);
         
         bi = canon_Rn(m, i).';
+        zeros(delta_i-1, m)
         Bi = [zeros(delta_i-1, m); bi];
-        
+                
         while(~is_ctrb(Ai, Bi))
             bi = canon_Rn(n, i);
             Bi = [zeros(delta_i-1, m); bi];
@@ -69,8 +70,8 @@ function out = exact_lin(f, G, y, x)
     end
     
     Delta_inv = vpa(Delta\eye(length(Delta)));
-    u = simplify_(Delta_inv*(-A_delta*z - phis + B_delta*v));
-        
+    u = vpa(Delta_inv*(-A_delta*z - phis + B_delta*v));
+    
     % Exact linearization struct
     out.u = u; 
     out.v = v; 
@@ -82,6 +83,6 @@ function out = exact_lin(f, G, y, x)
     out.poles = poles; 
     out.As = As; 
     out.Bs = Bs;
-    out.A_delta = A_delta; 
-    out.B_delta = B_delta;
+    out.A_del = As; 
+    out.Bs = Bs;
 end

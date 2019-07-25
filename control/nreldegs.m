@@ -13,7 +13,7 @@ function reldeg_struct = nreldegs(f, G, y, x)
     Delta = sym([]);
     
     % Coordinate transformation 
-    transformations = sym([]);
+    transf = sym([]);
     
     for i = 1:p
         j = 0;
@@ -25,9 +25,10 @@ function reldeg_struct = nreldegs(f, G, y, x)
         
         % Search for relative degree
         while(is_equal_zero)
-            j = j + 1;
             
-            transformations = [transformations; lie_i_f_hi];
+            % Iteration relative degree
+            j = j + 1;
+            transf = [transf; lie_i_f_hi];
             
             % Lie of (i-th Lie derivative of hi respective f) respective to G
             lie_G = sym([]);
@@ -41,8 +42,16 @@ function reldeg_struct = nreldegs(f, G, y, x)
                 if(m == p)
                     Delta = [Delta; lie_G];
                 end
+                
                 deltas(end+1) = j;
-                break; 
+                break;
+            elseif(all(all(double(lie_G))))
+                if(m == p)
+                    Delta = [Delta; lie_G];
+                end
+                
+                deltas(end+1) = j;
+                break;
             end
             
             lie_i_f_hi = simplify_(lie_diff(f, lie_i_f_hi, x));
@@ -57,7 +66,7 @@ function reldeg_struct = nreldegs(f, G, y, x)
     phis = simplify_(phis);
 
     reldeg_struct.deltas = deltas;
-    reldeg_struct.transformations = transformations;
+    reldeg_struct.transf = transf;
     reldeg_struct.phis = phis;
     reldeg_struct.Delta = Delta;
 end
