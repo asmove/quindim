@@ -1,5 +1,4 @@
-function [u, v, Delta, phis, deltas, ...
-          z, poles, A_delta, B_delta] = exact_lin(f, G, y, x)
+function out = exact_lin(f, G, y, x)
 % Description: Exact linearization algorithm
 % https://www.overleaf.com/read/sgxkhqvfhpyz
 % Input:
@@ -25,7 +24,13 @@ function [u, v, Delta, phis, deltas, ...
     v = sym('v', [m, 1]);
     
     % Relative matrices
-    [deltas, transformations, phis, Delta] = nreldegs(f, G, y, x);
+    reldeg_struct = nreldegs(f, G, y, x);
+    
+    % Relative degree structure
+    deltas = reldeg_struct.deltas; 
+    transformations = reldeg_struct.transformations;
+    phis = reldeg_struct.phis;
+    Delta = reldeg_struct.Delta;
     
     % Coordinate transformations
     z = transformations;
@@ -47,12 +52,13 @@ function [u, v, Delta, phis, deltas, ...
         
         % Unitary matrices
         Ai = ctrb_canon(poles_);
-
+        
         bi = rand(1, m);
         Bi = [zeros(delta_i-1, m); bi];
         
         r = rank(B_delta);
         q = rank([B_delta; bi]);
+
         if(~is_ctrb(Ai, Bi) || q ~= r+1 )
             bi = rand(1, m);
             Bi = [zeros(delta_i-1, m); bi];
@@ -65,6 +71,17 @@ function [u, v, Delta, phis, deltas, ...
         Bs = [Bs; Bi];
     end
     
-    Delta_inv = Delta\eye(length(Delta));
-    u = Delta_inv*(-A_delta*z - phis + B_delta*v);
+    Delta_inv = vpa(Delta\eye(length(Delta)));
+    u = vpa(Delta_inv*(-A_delta*z - phis + B_delta*v));
+    
+    % Exact linearization struct
+    out.u = u; 
+    out.v = v; 
+    out.Delta = Delta; 
+    out.phis = phis; 
+    out.deltas = deltas;
+    out.z = z;
+    out.poles = poles; 
+    out.A_delta = A_delta; 
+    out.B_delta = B_delta;
 end

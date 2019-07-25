@@ -7,14 +7,13 @@ function poles = request_poles(delta)
 
     is_valid = true;
     while(is_valid)
-        msg = sprintf('Provide %d poles (necessarily lesser than 0)', delta);
+        msg = sprintf('Provide %d poles (between brackets and separated by commas)', delta);
         poles = input(msg);
 
         if(length(poles) ~= delta)
             warning('prog:input', 'Provide %d poles!', delta);
-            is_valid = false;
         else
-            break;
+            is_valid = false;
         end
     end
 end
