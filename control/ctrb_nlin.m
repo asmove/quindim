@@ -1,20 +1,14 @@
-function ctrb_ = ctrb_nlin(sys)
-    f = sys.f;
-    g = sys.g;
+function ctrb_ = ctrb_nlin(f, G, x)
     n = length(f);
-    [~, m] = size(g);
+    [~, m] = size(G);
     
-    ctrb_ = [sys.g];
-    brack_1 = sys.g;
+    ctrb_ = G;
+    brack_1 = G;
     for i = 1:n-1
         for j = 1:m
             brack_i_1 = brack_1(:, j);
-            brack_i =  bracket(sys.f, brack_i_1, sys.q);
+            brack_i =  lie_bracket(f, brack_i_1, x);
             ctrb_ = [ctrb_, brack_i];
         end
     end
-end
-
-function brack =  bracket(f, g, q)
-    brack = jacobian(g, q).'*f - jacobian(f, q).'*g;
 end

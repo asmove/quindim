@@ -29,6 +29,14 @@ function [u, v] = exact_lin_tracking(f, G, y, y_ref, x)
     end
  
     % Tracking law - Relative matrices
+    reldeg_struct = nreldegs(f, G, y_ref, x);
+    
+    % Relative degree structure
+    deltas = reldeg_struct.deltas; 
+    transfs = reldeg_struct.transfs;
+    phis = reldeg_struct.phis;
+    Delta = reldeg_struct.Delta;
+    
     [deltas_track, z_tilde, ...
      phis_tilde, Delta_tilde] = nreldegs(f, G, y_ref, x);
     

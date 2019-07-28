@@ -28,12 +28,12 @@ function out = exact_lin(f, G, y, x)
     
     % Relative degree structure
     deltas = reldeg_struct.deltas; 
-    transformations = reldeg_struct.transformations;
+    transfs = reldeg_struct.transfs;
     phis = reldeg_struct.phis;
     Delta = reldeg_struct.Delta;
     
     % Coordinate transformations
-    z = transformations;
+    z = transfs;
     
     poles = request_poles_deltas(deltas);
     
@@ -68,18 +68,36 @@ function out = exact_lin(f, G, y, x)
         Bs = [Bs; Bi];
     end
     
+    if(sum(deltas) == n)
+        zs = sym('z', [n, 1], 'real');
+        transfs_1 = solve(zs == transfs, x, 'ReturnConditions', true);
+    else
+        transfs_1 = [];
+    end
+    
     Delta_inv = vpa(Delta\eye(length(Delta)));
     u = simplify_(Delta_inv*(-A_delta*z - phis + B_delta*v));
         
     % Exact linearization struct
+    out.ctrb_matrix = ctrb_nlin(f, G, x);
+    out.obsv_matrix = obsv_nlin(f, y, x);
+    
     out.u = u; 
     out.v = v; 
+    
+    % Exact linearization 
     out.Delta = Delta; 
     out.phis = phis;
-    out.transformations = transformations;
+    
+    % Transformations forward and inverse for linearization
+    out.transfs = transfs;
+    out.transfs_1 = transfs_1;
+    
+    % 
     out.deltas = deltas;
-    out.z = z;
     out.poles = poles; 
+    
+    % 
     out.As = As; 
     out.Bs = Bs;
     out.A_delta = A_delta; 
