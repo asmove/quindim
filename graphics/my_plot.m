@@ -1,4 +1,4 @@
-function hfigs = plot_states(t, x, plot_config)
+function hfigs = my_plot(t, x, plot_config)
     hfigs = [];
     
     titles = plot_config.titles;
@@ -9,22 +9,23 @@ function hfigs = plot_states(t, x, plot_config)
     
     [~, n] = size(x);
     
-    n_total = nrows*ncols;
+    n_subplots = nrows*ncols;
     
-    remaind_n = rem(n, n_total);
-    n_windows = (n - remaind_n)/n_total;
+    remaind_n = rem(n, n_subplots);
+    n_windows = (n - remaind_n)/n_subplots;
     
     i = 1;
     while(i <= n_windows)
         hfig = my_figure();
-        
         for j = 1:nrows*ncols
             id_plot = ind2sub([nrows, ncols], j);
             
             idx = i+j-1;
             
             subplot(nrows, ncols, id_plot);
+            
             plot(t, x(:, idx));
+            
             title(titles{idx});
             xlabel(xlabels{idx});
             ylabel(ylabels{idx});
@@ -33,10 +34,10 @@ function hfigs = plot_states(t, x, plot_config)
         hfigs = [hfigs; hfig];
         i = i + nrows*ncols;
     end
-    
+
     % Remainder plots
     if(remaind_n ~= 0)
-        xs = x(:, n_windows*num_subplots+1:end);
+        xs = x(:, n_windows*n_subplots+1:end);
         hfig = my_figure();
         hfigs = [hfigs; hfig];
     
