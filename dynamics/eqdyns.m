@@ -25,4 +25,6 @@ function sys = eqdyns(sys, method)
         otherwise
             % Add further methods futurely
     end
+    
+    sys = state_space(sys);
 end

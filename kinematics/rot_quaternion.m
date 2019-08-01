@@ -1,7 +1,7 @@
 function R = rot_quaternion(q)
 
     % Norm of q
-    s = simplify(norm(q));
+    s = norm(q);
     
     
     % q = qr + qx*i + qy*j + qz*k

@@ -1,6 +1,20 @@
-function body = build_body(m, inertia, b, Ts, p_cg, ...
-                           q, qp, qpp, ...
-                           fric_is_linear, previous)
+function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
+                           q, qp, qpp, previous, params)
+    
+    if(nargin == 0)
+       body.m = 0;
+       body.I = eye(3);
+       body.q = [];
+       body.qp = [];
+       body.qpp = [];
+       body.springs = [];
+       body.dampers = [];
+       body.q = [];
+       body.qp = [];
+       body.qpp = [];
+       return;
+    end
+                       
     body.m = m;
     body.I = inertia;
 
@@ -13,6 +27,7 @@ function body = build_body(m, inertia, b, Ts, p_cg, ...
     body.previous_body = previous;
     
     % Body position transformations
+<<<<<<< HEAD
     body.T = eye(4, 4);
     u = sym('u', size(formula(q)));
     assume(u, 'real');
@@ -23,10 +38,15 @@ function body = build_body(m, inertia, b, Ts, p_cg, ...
         body.T = simplify(body.T*T_);
         body.T = subs(body.T, u, q);
     end
+=======
+    body.T = collapse_transformations(Ts);
     
+    body.dampers = dampers;
+    body.springs = springs;
+>>>>>>> 7ecfa11ac4f207662b7b27f4bae251d295c0a6bb
+    
+    % Center of mass
     body.p_cg = p_cg;
     
-    % Friction information
-    body.b = b;
-    body.fric_is_linear = fric_is_linear;
+    body.params = params;
 end

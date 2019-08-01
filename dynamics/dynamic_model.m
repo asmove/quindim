@@ -1,21 +1,15 @@
-function sys = dynamic_model(sys, method)
+function sys = dynamic_model(sys)
+% sys:
+%   Documentation required
+% method:
+%   Lagrange [char]: Methodology developed by Lagrange on XIX century
+%   for the development of mechanical systems dynamic equations
+%   Gibbs-Appel [char]: Methodology developed by Gibbs and Appel, 
+% appropriate for constrained mechanical systems
     
-    % Default method: Lagrange
-    switch nargin
-        case 1
-            method = 'lagrange';    
-    end
-    
+    % TOFIX: Allow Gibbs-appel and Lagrange
+    method = 'lagrange';
+
     % Dynamic equations
     sys = eqdyns(sys, method);
-    
-    % Main matrices
-    [sys.M, sys.g, sys.friction, sys.nu, sys.U, ...
-     sys.H, sys.h, sys.Z] =  dyn_matrices(sys);
- 
-    % Sytem behaviour
-    qpps = sys.H\(sys.Z*sys.u - sys.h);
-    qps = sys.qp;
-
-    sys.f = [qps; qpps];
 end
