@@ -73,31 +73,13 @@ function out = exact_lin(f, G, y, x)
     
     % System does not have zero dynamics
     if(sum(deltas) == n)
-        zs = sym('z', [n, 1], 'real');
-        
-        % Symbolic for zs
-        out.z_sym = zs;
-        
-        % Inverse transformations
-        transfs_1 = solve(zs == transfs, x, 'ReturnConditions', true);
-
-        transfs_1 = rmfield(transfs_1, 'parameters');
-        transfs_1 = rmfield(transfs_1, 'conditions');
-
-        transfs_1_values = sym([]);
-        fnames_t = fieldnames(transfs_1);
-
-        for i = 1:length(fnames_t)
-            transfs_1_values(end+1) = getfield(transfs_1, fnames_t{i});
-        end
-        
-        transfs_1_values = transfs_1_values.';
+        transfs_1_values = invfunc(transfs, x);
         
         out.zp_x = simplify_(jacobian(transfs, x)*(f + G*u));
         out.zp_z = simplify_(subs(out.zp_x, x, transfs_1_values));
 
     else
-        transfs_1 = [];
+        transfs_1_values = [];
     end
         
     % Exact linearization struct
