@@ -68,36 +68,61 @@ function out = exact_lin(f, G, y, x)
         Bs = [Bs; Bi];
     end
     
+    Delta_inv = vpa(Delta\eye(length(Delta)));
+    u = simplify_(Delta_inv*(-A_delta*z - phis + B_delta*v));
+    
+    % System does not have zero dynamics
     if(sum(deltas) == n)
         zs = sym('z', [n, 1], 'real');
+        
+        % Symbolic for zs
+        out.z_sym = zs;
+        
+        % Inverse transformations
         transfs_1 = solve(zs == transfs, x, 'ReturnConditions', true);
+
+        transfs_1 = rmfield(transfs_1, 'parameters');
+        transfs_1 = rmfield(transfs_1, 'conditions');
+
+        transfs_1_values = sym([]);
+        fnames_t = fieldnames(transfs_1);
+
+        for i = 1:length(fnames_t)
+            transfs_1_values(end+1) = getfield(transfs_1, fnames_t{i});
+        end
+        
+        transfs_1_values = transfs_1_values.';
+        
+        out.zp_x = simplify_(jacobian(transfs, x)*(f + G*u));
+        out.zp_z = simplify_(subs(out.zp_x, x, transfs_1_values));
+
     else
         transfs_1 = [];
     end
-    
-    Delta_inv = vpa(Delta\eye(length(Delta)));
-    u = simplify_(Delta_inv*(-A_delta*z - phis + B_delta*v));
         
     % Exact linearization struct
     out.ctrb_matrix = ctrb_nlin(f, G, x);
     out.obsv_matrix = obsv_nlin(f, y, x);
     
-    out.u = u; 
+    % Output function and new input
+    out.u = simplify_(u);
     out.v = v; 
     
     % Exact linearization 
-    out.Delta = Delta; 
-    out.phis = phis;
+    out.Delta = simplify_(Delta); 
+    out.phis = simplify_(phis);
     
     % Transformations forward and inverse for linearization
     out.transfs = transfs;
-    out.transfs_1 = transfs_1;
+    out.transfs_1 = transfs_1_values;
     
-    % 
+    % Relative degrees
     out.deltas = deltas;
+    
+    % Poles of closed loop
     out.poles = poles; 
     
-    % 
+    % Closed loop matrices
     out.As = As; 
     out.Bs = Bs;
     out.A_delta = A_delta; 
