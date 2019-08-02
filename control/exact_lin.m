@@ -97,7 +97,7 @@ function out = exact_lin(f, G, y, x)
         out.zp_z = simplify_(subs(out.zp_x, x, transfs_1_values));
 
     else
-        transfs_1 = [];
+        transfs_1_values = [];
     end
         
     % Exact linearization struct
