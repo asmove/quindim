@@ -1,6 +1,6 @@
 # Robotics4fun
 
-This is a homemade robotics library made using trustworthy literature on Robotics. However, it is a WIP, though already advanced, and contributions are welcome. In case you are interested on contributing with a comment, issue or pull request, report on the issue tab or make a pull request.
+This is a robotics library made using trustworthy literature on Robotics during the course "Multibody dynamics and its applications in Robotics and automobile Engineering". However, it is a WIP, though already advanced. Hence, contributions are welcome. In case you are interested on contributing with a comment, issue or pull request, report on the issue tab or make a pull request.
 
 In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
 
