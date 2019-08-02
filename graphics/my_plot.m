@@ -25,10 +25,9 @@ function hfigs = my_plot(t, x, plot_config)
             subplot(nrows, ncols, id_plot);
             
             plot(t, x(:, idx));
-            
-            title(titles{idx});
-            xlabel(xlabels{idx});
-            ylabel(ylabels{idx});
+            title(titles{idx}, 'interpreter', 'latex');
+            xlabel(xlabels{idx}, 'interpreter', 'latex');
+            ylabel(ylabels{idx}, 'interpreter', 'latex');
             grid;
         end
         hfigs = [hfigs; hfig];
@@ -45,9 +44,9 @@ function hfigs = my_plot(t, x, plot_config)
             subplot(remaind_n, 1, k);
             plot(t, xs(:, k));
 
-            title(titles{i+k-1});
-            xlabel(xlabels{i+k-1});
-            ylabel(ylabels{i+k-1});
+            title(titles{i+k-1}, 'interpreter', 'latex');
+            xlabel(xlabels{i+k-1}, 'interpreter', 'latex');
+            ylabel(ylabels{i+k-1}, 'interpreter', 'latex');
             grid;
         end    
     end
