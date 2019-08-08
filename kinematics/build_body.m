@@ -27,23 +27,10 @@ function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
     body.previous_body = previous;
     
     % Body position transformations
-<<<<<<< HEAD
-    body.T = eye(4, 4);
-    u = sym('u', size(formula(q)));
-    assume(u, 'real');
-    
-    % Quick hack to allow matrix simplifications
-    for T = Ts
-        T_ = subs(formula(T{1}), q, u);
-        body.T = simplify(body.T*T_);
-        body.T = subs(body.T, u, q);
-    end
-=======
     body.T = collapse_transformations(Ts);
     
     body.dampers = dampers;
     body.springs = springs;
->>>>>>> 7ecfa11ac4f207662b7b27f4bae251d295c0a6bb
     
     % Center of mass
     body.p_cg = p_cg;
