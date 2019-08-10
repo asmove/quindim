@@ -1,7 +1,7 @@
 function sys = state_space(sys)
 	identity = eye(size(sys.dyn.H));
     Hinv = sys.dyn.H\identity;
-    qp = sys.dyn.C*sys.p;
+    qp = sys.C*sys.p;
     pp = Hinv*(-sys.dyn.h + sys.dyn.Z*sys.u);
     
     sys.dyn.states = [sys.q; sys.p];

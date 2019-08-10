@@ -66,4 +66,15 @@ function sys = kinematic_model(sys)
     % System jacobian
     sys.dyn.Jv = Jv;
     sys.dyn.Jw = Jw;
+    
+        % Constraint velocity matrix and its complementary
+    [A, C] = constraint_matrices(sys);
+    
+    sys.A = A;
+    sys.C = C;
+    
+    [~, m] = size(C);
+    
+    sys.p = sym('p', [m, 1]);
+    sys.pp = sym('pp', [m, 1]);
 end

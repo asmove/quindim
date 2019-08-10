@@ -1,10 +1,11 @@
 function F = rayleigh_energy(body)
+    F = sym(0);
     for damper = body.dampers    
         curr = damper.head;
         prev = damper.tail;
         b = damper.b;
 
-        F = (1/2)*b*(curr - prev).'*(curr - prev);
+        F = F + (1/2)*b*(curr - prev).'*(curr - prev);
     end
     
 % % DOES NOT ERASE - Linear/angular friction handled

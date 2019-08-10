@@ -91,7 +91,7 @@ plot_info.xlabels = xlabels;
 plot_info.ylabels = ylabels;
 plot_info.grid_size = grid_size;
 
-hfigs_states = plot_states(t, x, plot_info);
+hfigs_states = my_plot(t, x, plot_info);
 hfig_energies = plot_energies(sys, t, x);
 
 % Energies

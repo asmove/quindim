@@ -12,16 +12,14 @@ function [hfig, K, P, F, T] = plot_energies(sys, time, states)
     
     for i = 1:n
         num_states_params = [states(i,:), sys.model_params];
-        
-        K(i) = subs(sys.dyn.K, sym_states_params, num_states_params);
-        P(i) = subs(sys.dyn.P, sym_states_params, num_states_params);
-        F(i) = subs(sys.dyn.F, sym_states_params, num_states_params);
-        T(i) = subs(sys.dyn.total_energy, sym_states_params, ...
-                                          num_states_params);
+        K(i) = vpa(subs(sys.dyn.K, sym_states_params, num_states_params));
+        P(i) = vpa(subs(sys.dyn.P, sym_states_params, num_states_params));
+        F(i) = vpa(subs(sys.dyn.F, sym_states_params, num_states_params));
+        T(i) = vpa(subs(sys.dyn.total_energy, sym_states_params, ...
+                                          num_states_params));
     end
 
     hfig = figure('units', 'normalized', 'outerposition',[0 0 1 1]);
-
     subplot(4, 1, 1);
     plot(time, K);
     title('$K(t)$', 'interpreter', 'latex')

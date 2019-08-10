@@ -3,13 +3,14 @@ function U = potential_energy(body, gravity)
     U = -body.m*body.p_cg0.'*gravity;
     
     % Springs
+    Pk = sym(0);
     for spring = body.springs
         curr = spring.head;
         prev = spring.tail;
         K = spring.k;
         
         % Elastic potential energy 
-        Pk = (1/2)*K*(curr - prev).'*(curr - prev);
+        Pk = Pk + (1/2)*K*(curr - prev).'*(curr - prev);
     end
     
     % Total potential energy
