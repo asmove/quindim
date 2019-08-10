@@ -54,6 +54,7 @@ function sys = lagrange_eqdyn(sys)
     
     sys.dyn.K = subs(sys.dyn.K, sys.qp, C*p);
     sys.dyn.F = subs(sys.dyn.K, sys.qp, C*p);
+    sys.dyn.total_energy = subs(sys.dyn.total_energy, sys.qp, C*p);
     
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.q, qp);
