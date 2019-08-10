@@ -110,7 +110,7 @@ plot_info.ylabels = {'$x_1$ $[m]$', '$\dot x_1$ $[m/s]$', '$x_2$ $[m]$', '$\dot 
 plot_info.grid_size = [2, 2];
 
 % States and energies plot
-hfigs_states = plot_states(x, y, plot_info);
+hfigs_states = my_plot(x, y, plot_info);
 hfig_energies = plot_energies(sys, x, y);
 
 % Energies

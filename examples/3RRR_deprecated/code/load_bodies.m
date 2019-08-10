@@ -34,6 +34,8 @@ function draw_bodies(mechanism, sim, q)
 end
 
 function draw_body(body, sim, q)
+    body = body{1};
+    
    % Bars characteristics
    width = body.width;
    color = body.color;

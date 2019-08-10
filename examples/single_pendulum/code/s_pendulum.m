@@ -88,7 +88,7 @@ plot_info.ylabels = {'$\theta$ $[rad]$', '$\dot \theta$ $[rad/s]$'};
 plot_info.grid_size = [2, 1];
 
 % States and energies plot
-hfigs_states = plot_states(x, y, plot_info);
+hfigs_states = my_plot(x, y, plot_info);
 hfig_energies = plot_energies(sys, x, y);
 
 % Energies

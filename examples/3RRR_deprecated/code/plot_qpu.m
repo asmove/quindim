@@ -46,7 +46,7 @@ function plot_qpu(sims)
         e_const = sims{i}.constraints_error;
         e_q = sims{i}.constraints_error;
     end
-    
+
     hfig_t = figure('units','normalized', 'outerposition', [0 0 1 1]);
     subplot(3, 1, 1);
     plot(t, u(:,1));
