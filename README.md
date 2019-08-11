@@ -38,7 +38,7 @@ It is still small, but take a look at wiki: https://github.com/brunolnetto/Robot
 # Reference
 
 - John J. Craig. 1989. Introduction to Robotics: Mechanics and Control (2nd ed.). Addison-Wesley Longman Publishing Co., Inc., Boston, MA, USA.
-- Slotine, J. J.; LI, W.; "Applied nonlinear control", Prentice Hall, 1st Ed., 1991.
-- Alberto Isidori. 1995. Nonlinear Control Systems (3rd ed.). M. Thoma, E. D. Sontag, B. W. Dickinson, A. Fettweis, J. L. Massey, and J. W. Modestino (Eds.). Springer-Verlag, Berlin, Heidelberg.
 - Baruh, Haim. Analytical dynamics. Boston: WCB/McGraw-Hill, 1999.
 - Bloch, A. M. (2003). Nonholonomic mechanics. In Nonholonomic mechanics and control (pp. 207-276). Springer, New York, NY.
+- Slotine, J. J.; LI, W.; "Applied nonlinear control", Prentice Hall, 1st Ed., 1991.
+- Alberto Isidori. 1995. Nonlinear Control Systems (3rd ed.). M. Thoma, E. D. Sontag, B. W. Dickinson, A. Fettweis, J. L. Massey, and J. W. Modestino (Eds.). Springer-Verlag, Berlin, Heidelberg.
