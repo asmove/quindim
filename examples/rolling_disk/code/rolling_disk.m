@@ -17,14 +17,10 @@ Is = sym('I', [3, 1], 'real');
 I = diag(Is);
 
 % Rotations to body
-T1 = T3d(0, [0; 0; 1], [x; y; 0]);
+T1 = T3d(0, [0; 0; 1], [x; y; R]);
 T2 = T3d(th, [0; 0; 1], [0; 0; 0]);
 T3 = T3d(phi, [0; -1; 0], [0; 0; 0]);
-T4 = T3d(0, [0; 0; 1], [0; 0; R]);
-Ts = {T1, T2, T3, T4};
-
-% Friction between current and previous body
-is_friction_linear1 = false;
+Ts = {T1, T2, T3};
 
 % CG position relative to body coordinate system
 L = [0; 0; 0];
@@ -74,7 +70,7 @@ sys.unhol_constraints = xp*sin(th) - yp*cos(th);
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 
-% Mere simplification due ill-formed column
+% Simplification due ill-formed column
 % It may appear depending of the system
 sys.C(:, 1) = sin(th)*sys.C(:, 1);
 
@@ -82,34 +78,28 @@ sys = dynamic_model(sys);
 
 % Time [s]
 dt = 0.1;
-tf = 5;
+tf = 1;
 t = 0:dt:tf; 
 
 % Initial conditions [m; m/s]
-x0 = ones(size(sys.dyn.f));
+% x = 1, y = 1, v = 1
+x0 = [1, 1, 0, 0, 1, 0, 0]';
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);
 
 x = sol.x.';
 y = sol.y.';
-y = [y(:, 1), y(:, 4), ...
-     y(:, 2), y(:, 5), ...
-     y(:, 3), y(:, 6)];
 
 % Plot configuration properties
-plot_info.titles = {'$x$', '$\dot x$', ...
-                    '$y$', '$\dot y$', ...
-                    '$\theta$', '$\dot \theta$', ...
-                    '$\phi$', '$\dot \phi$'};
+plot_info.titles = {'$x$', '$y$', '$\theta$', '$\phi$', ...
+                    '$v$', '$\omega_{\theta}$', '$\omega_{\phi}$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', ...
                      '$t$ [s]', '$t$ [s]', ...
-                     '$t$ [s]', '$t$ [s]'};
-plot_info.ylabels = {'$x$', '$\dot x$', ...
-                    '$y$', '$\dot y$', ...
-                    '$\theta$', '$\dot \theta$', ...
-                    '$\phi$', '$\dot \phi$'};
-plot_info.grid_size = [4, 2];
+                     '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$', ...
+                     '$v$', '$\omega_{\theta}$', '$\omega_{\phi}$'};
+plot_info.grid_size = [3, 2];
 
 % States and energies plot
 hfigs_states = my_plot(x, y, plot_info);
