@@ -113,8 +113,5 @@ hfig_consts = plot_constraints(sys, x, y);
 
 % Images
 saveas(hfig_energies, '../images/energies', 'epsc');
-saveas(hfig_consts, '../images/energies', 'epsc');
-
-for i = 1:length(hfigs_states)
-   saveas(hfigs_states(i), ['../images/states', num2str(i)], 'epsc'); 
-end
+saveas(hfig_consts, '../images/constraints', 'epsc');
+saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
