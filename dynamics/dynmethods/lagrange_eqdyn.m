@@ -48,12 +48,13 @@ function sys = lagrange_eqdyn(sys)
     % Derivative of F respective to qp
     dF_dqp = jacobian(F, qp).';
     
+    % Nummerical energies 
     C = sys.C;
     p = sys.p;
     pp = sys.pp;
     
     sys.dyn.K = subs(sys.dyn.K, sys.qp, C*p);
-    sys.dyn.F = subs(sys.dyn.K, sys.qp, C*p);
+    sys.dyn.F = subs(sys.dyn.F, sys.qp, C*p);
     sys.dyn.total_energy = subs(sys.dyn.total_energy, sys.qp, C*p);
     
     % qp and qpp in terms of quasi-velocities
