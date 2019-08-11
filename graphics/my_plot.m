@@ -33,7 +33,7 @@ function hfigs = my_plot(t, x, plot_config)
         hfigs = [hfigs; hfig];
         i = i + nrows*ncols;
     end
-
+    
     % Remainder plots
     if(remaind_n ~= 0)
         xs = x(:, n_windows*n_subplots+1:end);
@@ -41,12 +41,15 @@ function hfigs = my_plot(t, x, plot_config)
         hfigs = [hfigs; hfig];
     
         for k = 1:remaind_n
-            subplot(remaind_n, 1, k);
+            id_plot = ind2sub([nrows, ncols], k);
+            
+            subplot(nrows, ncols, id_plot);
+            
             plot(t, xs(:, k));
 
-            title(titles{i+k-1}, 'interpreter', 'latex');
-            xlabel(xlabels{i+k-1}, 'interpreter', 'latex');
-            ylabel(ylabels{i+k-1}, 'interpreter', 'latex');
+            title(titles{k+i-1}, 'interpreter', 'latex');
+            xlabel(xlabels{k+i-1}, 'interpreter', 'latex');
+            ylabel(ylabels{k+i-1}, 'interpreter', 'latex');
             grid;
         end    
     end

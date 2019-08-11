@@ -19,26 +19,12 @@ function [hfig, K, P, F, T] = plot_energies(sys, time, states)
                                           num_states_params));
     end
 
-    hfig = figure('units', 'normalized', 'outerposition',[0 0 1 1]);
-    subplot(4, 1, 1);
-    plot(time, K);
-    title('$K(t)$', 'interpreter', 'latex')
-    grid;
+    plot_info.titles = {'$K(t)$', '$U(t)$', '$F(t)$', '$T(t)$'};
+    plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+    plot_info.ylabels = {'$K(t)$', '$U(t)$', '$F(t)$', '$T(t)$'};
+    plot_info.grid_size = [2, 2];
     
-    subplot(4, 1, 2);
-    plot(time, P);
-    title('$U(t)$', 'interpreter', 'latex')
-    grid;
+    energies = [K, P, F, T];
     
-    subplot(4, 1, 3);
-    plot(time, F);
-    title('$F(t)$', 'interpreter', 'latex')
-    grid;
-    
-    subplot(4, 1, 4);
-    plot(time, T);
-    title('$T(t) = K(t) + U(t) - F(t)$', 'interpreter', 'latex')
-    grid;
-    
-    xlim([min(time), max(time)])
+    hfig = my_plot(time, energies, plot_info);
 end
