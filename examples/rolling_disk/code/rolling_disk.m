@@ -78,12 +78,12 @@ sys = dynamic_model(sys);
 
 % Time [s]
 dt = 0.1;
-tf = 1;
+tf = 5;
 t = 0:dt:tf; 
 
 % Initial conditions [m; m/s]
 % x = 1, y = 1, v = 1
-x0 = [1, 1, 0, 0, 1, 0, 0]';
+x0 = [1, 1, pi/4, 0, 1, 1, 1]';
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);
@@ -91,22 +91,29 @@ sol = validate_model(sys, t, x0, 0);
 x = sol.x.';
 y = sol.y.';
 
-% Plot configuration properties
-plot_info.titles = {'$x$', '$y$', '$\theta$', '$\phi$', ...
-                    '$v$', '$\omega_{\theta}$', '$\omega_{\phi}$'};
-plot_info.xlabels = {'$t$ [s]', '$t$ [s]', ...
-                     '$t$ [s]', '$t$ [s]', ...
-                     '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$', ...
-                     '$v$', '$\omega_{\theta}$', '$\omega_{\phi}$'};
-plot_info.grid_size = [3, 2];
+% Generalized coordinates
+plot_info_q.titles = {'$x$', '$y$', '$\theta$', '$\phi$'};
+plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
+plot_info_q.grid_size = [2, 2];
 
-% States and energies plot
-hfigs_states = my_plot(x, y, plot_info);
+hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
+
+plot_info_p.titles = {'$v$', '$\omega_{\theta}$', '$\omega_{\phi}$'};
+plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info_p.ylabels = {'$v$', '$\omega_{\theta}$', '$\omega_{\phi}$'};
+plot_info_p.grid_size = [3, 1];
+
+% States plot
+hfigs_states = my_plot(x, y(:, 5:7), plot_info_p);
+
+% Energies plot
 hfig_energies = plot_energies(sys, x, y);
+hfig_consts = plot_constraints(sys, x, y);
 
-% Energies
+% Images
 saveas(hfig_energies, '../images/energies', 'epsc');
+saveas(hfig_consts, '../images/energies', 'epsc');
 
 for i = 1:length(hfigs_states)
    saveas(hfigs_states(i), ['../images/states', num2str(i)], 'epsc'); 

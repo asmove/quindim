@@ -7,6 +7,14 @@ function hfigs = my_plot(t, x, plot_config)
     nrows = plot_config.grid_size(1);
     ncols = plot_config.grid_size(2);
     
+    MAX_ROWS_DIV = 4;
+    MAX_COLS_DIV = 4;
+    
+    if((nrows >= MAX_ROWS_DIV) || (ncols >= MAX_COLS_DIV))
+        msg = 'One recommends the maximum number of ';
+        warning(msg);
+    end
+        
     [~, n] = size(x);
     
     n_subplots = nrows*ncols;
@@ -34,6 +42,27 @@ function hfigs = my_plot(t, x, plot_config)
         i = i + nrows*ncols;
     end
     
+    % Unelegant but efficient way to divide the plot window
+    if(mod(remaind_n, 3) == 0)
+        new_ncols = remaind_n/3;
+        new_nrows = 3;
+    elseif((remaind_n == 2) || (remaind_n == 4))
+        new_ncols = remaind_n/2;
+        new_nrows = 2;
+    elseif((remaind_n == 5) || (remaind_n == 10))
+        new_ncols = remaind_n/5;
+        new_nrows = 5;
+    elseif(remaind_n == 1)
+        new_ncols = 1;
+        new_nrows = 1;
+    elseif(remaind_n == 7)
+        new_ncols = 4;
+        new_nrows = 2;
+    elseif(remaind_n == 11)
+        new_ncols = 6;
+        new_nrows = 2;
+    end
+    
     % Remainder plots
     if(remaind_n ~= 0)
         xs = x(:, n_windows*n_subplots+1:end);
@@ -41,10 +70,17 @@ function hfigs = my_plot(t, x, plot_config)
         hfigs = [hfigs; hfig];
     
         for k = 1:remaind_n
-            id_plot = ind2sub([nrows, ncols], k);
+            id_plot = ind2sub([new_nrows, new_ncols], k);
             
-            subplot(nrows, ncols, id_plot);
+            % HARDCODE: Plot in case of 7 or 11 remainder plots
+            if((remaind_n == 7) && (k == 7))
+                id_plot = [7, 8];
+            elseif((remaind_n == 11) && (k == 11))
+                id_plot = [7, 8];
+            end
             
+            subplot(new_ncols, new_nrows, id_plot);
+                
             plot(t, xs(:, k));
 
             title(titles{k+i-1}, 'interpreter', 'latex');
@@ -53,6 +89,4 @@ function hfigs = my_plot(t, x, plot_config)
             grid;
         end    
     end
-    
-
 end

@@ -15,7 +15,7 @@ function hfig = plot_constraints(sys, time, states)
     
     for i = 1:n_t
         q_n = q_num(i, :);
-        A_num = vpa(subs(sys.A*, q_sym, q_n));
+        A_num = vpa(subs(sys.A*sys.p, q_sym, q_n));
         unhol(i) = double(A_num);
     end
     
