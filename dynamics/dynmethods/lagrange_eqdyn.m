@@ -1,5 +1,8 @@
 function sys = lagrange_eqdyn(sys)
-    
+    % Generalized coordinates and velocities
+    q = sys.descrip.q;
+    qp = sys.descrip.qp;
+
     % Number of bodies in the system
     n = length(sys.bodies);
     bodies = sys.bodies;
@@ -15,17 +18,21 @@ function sys = lagrange_eqdyn(sys)
        [L, K, P] = lagrangian(bodies(i), sys.gravity);
        F = rayleigh_energy(bodies(i));
        
+       body_dyn = sys.descrip.bodies(i).dyn;
+       
        % Required energy components
-       sys.bodies(i).dyn.L = L;
-       sys.bodies(i).dyn.K = K;
-       sys.bodies(i).dyn.P = P;
-       sys.bodies(i).dyn.F = F;
+       body_dyn.L = L;
+       body_dyn.K = K;
+       body_dyn.P = P;
+       body_dyn.F = F;
        
        % System energy components
        sys.dyn.K = sys.dyn.K + K;
        sys.dyn.P = sys.dyn.P + P;
        sys.dyn.L = sys.dyn.L + L;
        sys.dyn.F = sys.dyn.F + F;
+       
+       sys.descrip.bodies(i).dyn = body_dyn;
     end
     
     % Total system energy
@@ -35,10 +42,7 @@ function sys = lagrange_eqdyn(sys)
     L = sys.dyn.L;
     F = sys.dyn.F;
     Fq = sys.Fq;
-    
-    q = sys.q;
-    qp = sys.qp;
-    
+        
     % Derivative of L respective to q
     dL_dq = jacobian(L, q).';
        
@@ -59,7 +63,6 @@ function sys = lagrange_eqdyn(sys)
     
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.q, qp);
-    
     sys.Cp = Cp;
     
     % Generalized velocities derivaives
@@ -69,7 +72,7 @@ function sys = lagrange_eqdyn(sys)
     
     qp = sys.qp;
     qpp = sys.qpp;
-        
+    
     % L derivative of dL/dqp respective to t
     ddt_dL_dqp = dvecdt(dL_dqp, [q; qp], [qp; qpp]);
     

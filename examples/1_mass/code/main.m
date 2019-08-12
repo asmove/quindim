@@ -11,14 +11,14 @@ syms F x xp xpp real;
 syms m b k g real;
 
 % Paramater symbolics of the system
-sys.syms = [m, b, k, g];
+sys.descrip.syms = [m, b, k, g];
 
 % Paramater symbolics of the system
-sys.model_params = [1, 0, 9, 9.8];
+sys.descrip.model_params = [1, 0, 9, 9.8];
 
 % Gravity utilities
-sys.gravity = [0; 0; -g];
-sys.g = g;
+sys.descrip.gravity = [0; 0; -g];
+sys.descrip.g = g;
 
 % Body inertia
 I = zeros(3, 3);
@@ -34,29 +34,29 @@ spring = build_spring(k, [0; 0; 0], [x; 0; 0]);
 block = build_body(m, I, T, L, damper, spring, ...
                    x, xp, xpp, struct(''), []);
 
-sys.bodies = block;
+sys.descrip.bodies = block;
 
 % Generalized coordinates
-sys.q = x;
-sys.qp = xp;
-sys.qpp = xpp;
+sys.descrip.q = x;
+sys.descrip.qp = xp;
+sys.descrip.qpp = xpp;
 
 % Generalized coordinates
-sys.p = xp;
-sys.pp = xpp;
+sys.descrip.p = xp;
+sys.descrip.pp = xpp;
 
 % External excitations
-sys.Fq = F;
-sys.u = F;
+sys.descrip.Fq = F;
+sys.descrip.u = F;
 
 % Constraint condition
-sys.is_constrained = false;
+sys.descrip.is_constrained = false;
 
 % Sensors
-sys.y = x;
+sys.descrip.y = x;
 
 % State space representation
-sys.states = [x; xp];
+sys.descrip.states = [x; xp];
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
