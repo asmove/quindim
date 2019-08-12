@@ -91,12 +91,12 @@ plot_info.xlabels = xlabels;
 plot_info.ylabels = ylabels;
 plot_info.grid_size = grid_size;
 
-hfigs_states = my_plot(t, x, plot_info);
-hfig_energies = plot_energies(sys, t, x);
+[hfigs_states, hfig_energies] = plot_sysprops(sys, t, x, plot_info);
 
 % Energies
 saveas(hfig_energies, '../images/energies.eps', 'epsc');
 
+% States
 for i = 1:length(hfigs_states)
    saveas(hfigs_states(i), ['../images/states', num2str(i), '.eps'], 'epsc'); 
 end
