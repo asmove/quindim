@@ -1,11 +1,12 @@
 function sys = state_space(sys)
 	identity = eye(size(sys.dyn.H));
     Hinv = sys.dyn.H\identity;
-    qp = sys.C*sys.p;
-    pp = Hinv*(-sys.dyn.h + sys.dyn.Z*sys.u);
+    qp = sys.kin.C*sys.kin.p;
+    pp = Hinv*(-sys.dyn.h + sys.dyn.Z*sys.descrip.u);
     
-    sys.dyn.states = [sys.q; sys.p];
+    sys.dyn.states = [sys.kin.q; sys.kin.p];
     dstates = [qp; pp];
-    sys.dyn.g = equationsToMatrix(dstates, sys.u);
-    sys.dyn.f = subs(dstates, sys.u, zeros(size(sys.u)));
+    sys.dyn.g = equationsToMatrix(dstates, sys.descrip.u);
+    sys.dyn.f = subs(dstates, sys.descrip.u, ...
+                     zeros(size(sys.descrip.u)));
 end

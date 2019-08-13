@@ -22,10 +22,10 @@ function sys = kinematic_model(sys)
     Jw = [];
     
     % States and its derivatives
-    q = sys.descrip.q;
-    qp = sys.descrip.qp;
-    x = [sys.descrip.q; sys.descrip.qp];
-    xp = [sys.descrip.qp; sys.descrip.qpp];
+    q = sys.kin.q;
+    qp = sys.kin.qp;
+    x = [sys.kin.q; sys.kin.qp];
+    xp = [sys.kin.qp; sys.kin.qpp];
     
     n_bodies = length(sys.descrip.bodies);
     
@@ -33,32 +33,31 @@ function sys = kinematic_model(sys)
         body_curr = sys.descrip.bodies(i);
         
         % Center of mass position
-        body_curr.p_cg0 = point(body_curr.T, body_curr.p_cg);
+        sys.descrip.bodies(i).p_cg0 = point(sys.descrip.bodies(i).T, ...
+                                            sys.descrip.bodies(i).p_cg);
         
         % Center of mass velocity
-        p_cg = body_curr.p_cg0;
-        body_curr.v_cg = jacobian(p_cg, x.')*xp;
+        p_cg = sys.descrip.bodies(i).p_cg0;
+        sys.descrip.bodies(i).v_cg = jacobian(p_cg, x.')*xp;
         
-        v_cg = body_curr.v_cg;
+        v_cg = sys.descrip.bodies(i).v_cg;
         
         % Body angular velocity
         R = body_curr.T(1:3, 1:3);
 
-        body_curr.omega = omega(R, x, xp);
-        omega_ = body_curr.omega;
+        omega_ = omega(R, x, xp);
+        sys.descrip.bodies(i).omega = omega_;
         
         if(i ~= n_bodies)
-            sys.descrip.bodies(i+1).previous_body = sys.bodies(i); 
+            sys.descrip.bodies(i+1).previous_body = sys.descrip.bodies(i); 
         end
         
         % Jacobians for each body
         Jvi = equationsToMatrix(v_cg, qp);
         Jwi = equationsToMatrix(omega_, qp);
         
-        body_curr.Jv = Jvi;
-        body_curr.Jw = Jwi;
-        
-        sys.descrip.bodies(i) = body_curr;
+        sys.descrip.bodies(i).Jv = Jvi;
+        sys.descrip.bodies(i).Jw = Jwi;
         
         % System jacobian
         Jv = [Jv; Jvi];

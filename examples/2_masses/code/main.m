@@ -48,53 +48,53 @@ body2 = build_body(m2, I2, T2s, L1, damper2, spring2,...
 
 syms g u;
 
-sys.syms = [m1, b1, k1, m2, b2, k2, g];
+sys.descrip.syms = [m1, b1, k1, m2, b2, k2, g];
 
 % Paramater symbolics of the system
-sys.model_params = [1, 0, 1, 1, 0, 1, 9.8];
+sys.descrip.model_params = [1, 0, 1, 1, 0, 1, 9.8];
 
-sys.bodies = [body1, body2];
+sys.descrip.bodies = [body1, body2];
 
 % Gravity utilities
-sys.gravity = [0; 0; -g];
-sys.g = g;
+sys.descrip.gravity = [0; 0; -g];
+sys.descrip.g = g;
 
 % Generalized coordinates
-sys.q = [x1; x2];
-sys.qp = [x1p; x2p];
-sys.qpp = [x1pp; x2pp];
+sys.kin.q = [x1; x2];
+sys.kin.qp = [x1p; x2p];
+sys.kin.qpp = [x1pp; x2pp];
 
 % Quasi-velocities
-sys.p = [x1p; x2p];
-sys.pp = [x1pp; x2pp];
+sys.kin.p = [x1p; x2p];
+sys.kin.pp = [x1pp; x2pp];
 
 % External excitations
-sys.Fq = [0; u];
-sys.u = u;
+sys.descrip.Fq = [0; u];
+sys.descrip.u = u;
 
 % Sensors
-sys.y = [x1; x2];
+sys.descrip.y = [x1; x2];
 
 % State space representation
-sys.states = [x1; x2; x1p; x2p];
+sys.dyn.states = [x1; x2; x1p; x2p];
 
 % Constraint condition
-sys.is_constrained = false;
+sys.descrip.is_constrained = false;
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Decay time
-m_num = sys.model_params(1);
-b_num = sys.model_params(2);
+m_num = sys.descrip.model_params(1);
+b_num = sys.descrip.model_params(2);
 T = m_num/b_num;
 
 % Initia conditions [m; m/s]
 x0 = [0; 1; 0; 1];
 
 % Time [s]
-dt = 0.001;
+dt = 0.01;
 tf = 20;
 t = 0:dt:tf; 
 

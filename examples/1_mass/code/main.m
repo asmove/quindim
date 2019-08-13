@@ -37,13 +37,9 @@ block = build_body(m, I, T, L, damper, spring, ...
 sys.descrip.bodies = block;
 
 % Generalized coordinates
-sys.descrip.q = x;
-sys.descrip.qp = xp;
-sys.descrip.qpp = xpp;
-
-% Generalized coordinates
-sys.descrip.p = xp;
-sys.descrip.pp = xpp;
+sys.kin.q = x;
+sys.kin.qp = xp;
+sys.kin.qpp = xpp;
 
 % External excitations
 sys.descrip.Fq = F;
@@ -63,8 +59,8 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Decay time
-m_num = sys.model_params(1);
-b_num = sys.model_params(2);
+m_num = sys.descrip.model_params(1);
+b_num = sys.descrip.model_params(2);
 T = m_num/b_num;
 
 % Time [s]

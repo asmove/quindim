@@ -26,53 +26,53 @@ Ts = {T1, T2, T3};
 L = [0; 0; 0];
 
 % Generalized coordinates
-sys.q = [x; y; th; phi];
-sys.qp = [xp; yp; thp; phip];
-sys.qpp = [xpp; ypp; thpp; phipp];
+sys.kin.q = [x; y; th; phi];
+sys.kin.qp = [xp; yp; thp; phip];
+sys.kin.qpp = [xpp; ypp; thpp; phipp];
 
 % Previous body
 previous = struct('');
 
 wheel = build_body(m, I, Ts, L, {}, {}, ...
-                   sys.q, sys.qp, sys.qpp, ...
+                   sys.kin.q, sys.kin.qp, sys.kin.qpp, ...
                    previous, []);
-sys.bodies = wheel;
+sys.descrip.bodies = wheel;
 
 % Gravity utilities
-sys.gravity = [0; 0; -g];
-sys.g = g;
+sys.descrip.gravity = [0; 0; -g];
+sys.descrip.g = g;
 
 % Paramater symbolics of the system
-sys.syms = [m, R, Is.', g];
+sys.descrip.syms = [m, R, Is.', g];
 
 % Penny data
 m_num = 2.5e-3;
 R_num = 9.75e-3;
-sys.model_params = [2.5e-3, 9.75e-3, ...
+sys.descrip.model_params = [2.5e-3, 9.75e-3, ...
                     m_num*R_num^2/2, ...
                     m_num*R_num^2/4, ...
                     m_num*R_num^2/2, ...
                     9.8];
 
 % External excitations
-sys.Fq = [0; 0; 0; 0];
-sys.u = u;
+sys.descrip.Fq = [0; 0; 0; 0];
+sys.descrip.u = u;
 
 % State space representation
-sys.states = [x; y; th; phi];
+sys.descrip.states = [x; y; th; phi];
 
 % Constraint condition
-sys.is_constrained = true;
+sys.descrip.is_constrained = true;
 
 % Nonholonomic constraints
-sys.unhol_constraints = xp*sin(th) - yp*cos(th);
+sys.descrip.unhol_constraints = xp*sin(th) - yp*cos(th);
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 
 % Simplification due ill-formed column
 % It may appear depending of the system
-sys.C(:, 1) = sin(th)*sys.C(:, 1);
+sys.kin.C(:, 1) = sin(th)*sys.kin.C(:, 1);
 
 sys = dynamic_model(sys);
 

@@ -1,28 +1,19 @@
 function [A, C] = constraint_matrices(sys)
-    is_contrained = sys.is_constrained;
-    is_holonomic = isfield(sys, {'hol_constraints'});
-    is_unholonomic = isfield(sys, {'unhol_constraints'});
+    is_contrained = sys.descrip.is_constrained;
+    is_holonomic = isfield(sys.descrip, {'hol_constraints'});
+    is_unholonomic = isfield(sys.descrip, {'unhol_constraints'});
     
     % Unholonomic constraitns
     if(is_contrained)
-        if(is_unholonomic)
-            constraints = sys.unhol_constraints;
-            A = jacobian(constraints, sys.qp);
+        if(is_unholonomic && ~is_holonomic)
+            constraints = sys.descrip.unhol_constraints;
+            A = jacobian(constraints, sys.kin.qp);
             C = simplify_(null(A));
-
+            
         % Holonomic constraitns
-        elseif(is_holonomic)
-            constraints = sys.hol_constraints;
-            A = jacobian(constraints, sys.q);
-            C = simplify_(null(A));
-
-        % Both
-        elseif(is_holonomic && is_unholonomic)
-            constraints = sys.hol_constraints;
-            A_hol = jacobian(constraints, sys.q);
-            A_unhol = jacobian(constraints, sys.qp);
-
-            A = [A_hol; A_unhol];
+        elseif(is_holonomic && ~is_unholonomic)
+            constraints = sys.descrip.hol_constraints;
+            A = jacobian(constraints, sys.kin.q);
             C = simplify_(null(A));
 
         else
@@ -32,7 +23,7 @@ function [A, C] = constraint_matrices(sys)
         end
     else
         A = [];
-        C = eye(length(sys.q));
+        C = eye(length(sys.kin.q));
         
         if(is_holonomic || is_unholonomic)
             msg = 'When unconstrained, the fields hol_constraints' + ...

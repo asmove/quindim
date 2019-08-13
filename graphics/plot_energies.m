@@ -8,15 +8,14 @@ function [hfig, K, P, F, T] = plot_energies(sys, time, states)
     F = sym_zeros;
     T = sym_zeros;
     
-    sym_states_params = [sys.dyn.states.', sys.syms];
+    sym_states_params = [sys.dyn.states.', sys.descrip.syms];
     
     for i = 1:n
-        num_states_params = [states(i,:), sys.model_params];
+        num_states_params = [states(i,:), sys.descrip.model_params];
         K(i) = vpa(subs(sys.dyn.K, sym_states_params, num_states_params));
         P(i) = vpa(subs(sys.dyn.P, sym_states_params, num_states_params));
         F(i) = vpa(subs(sys.dyn.F, sym_states_params, num_states_params));
-        T(i) = vpa(subs(sys.dyn.total_energy, sym_states_params, ...
-                                          num_states_params));
+        T(i) = K(i) + P(i) - F(i);
     end
 
     plot_info.titles = {'$K(t)$', '$U(t)$', '$F(t)$', '$T(t)$'};

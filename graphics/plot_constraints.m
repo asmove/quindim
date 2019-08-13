@@ -1,27 +1,25 @@
 function hfig = plot_constraints(sys, time, states)
-    [m, ~] = size(sys.A);
+    [m, ~] = size(sys.kin.A);
     
-    n_q = length(q_sym);
+    n_q = length(sys.kin.q);
     
     n_t = length(time);
     unhol = zeros(n_t, 1);
     
-    q_sym = sys.q';
-    qp_sym = sys.qp';
-    q_num = states(:, 1:n_q);
-    p_num = states(:, n_q + 1:end);
+    q_s = sys.kin.q';
+    qp_s = sys.kin.qp';
     
-    subs(sys.A*sys.qp, [q_s, p_s], [q_i, p_i]);
+    [q, qp, p] = states_to_q_qp_p(sys, states);
     
     for i = 1:n_t
-        q_n = q_num(i, :);
-        A_num = vpa(subs(sys.A*sys.p, q_sym, q_n));
+        q_n = q(i, :);
+        A_num = vpa(subs(sys.kin.A*sys.kin.p, [q_s; p_s], [q; p]));
         unhol(i) = double(A_num);
     end
     
     titles = {};
     xlabels = {};
-    Aqp = sys.A*sys.qp;
+    Aqp = sys.kin.A*sys.kin.qp;
     
     for i = 1:m
         constraint = latex(Aqp(i));

@@ -1,6 +1,6 @@
 function friction = friction(sys)
     fric_coeffs = [];
-    for body = sys.bodies
+    for body = sys.descrip.bodies
         for damper = body.dampers
             if isempty(symvar(damper.b))
                 continue;
