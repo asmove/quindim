@@ -87,12 +87,12 @@ function sys = lagrange_eqdyn(sys)
     leqdyns = subs(leqdyns, [qp; qpp], [qp_; qpp_]);
     
     % Dynamic equation respective to generalized coordinate qi
-    sys.dyn.l_r = simplify_(leqdyns - reqdyns);
-    sys.dyn.leqdyns = simplify_(leqdyns);
-    sys.dyn.reqdyns = simplify_(reqdyns);
-    sys.dyn.eqdyns = leqdyns == reqdyns;
+    helper.l_r = simplify_(leqdyns - reqdyns);
+    helper.leqdyns = simplify_(leqdyns);
+    helper.reqdyns = simplify_(reqdyns);
+    helper.eqdyns = leqdyns == reqdyns;
     
     % Main matrices
-    sys = dyn_matrices(sys);
+    sys = dyn_matrices(sys, helper);
 end
 

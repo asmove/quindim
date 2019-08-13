@@ -25,7 +25,7 @@ function sol = validate_model(sys, t, x0, u0)
     
     % Erase waitbar
     tf_acc = evalin('base', 'tf_acc');
-    disp(sprintf('Estimated time is %.6d seconds.', tf_acc(end)));
+    disp(sprintf('Estimated time is %.6f seconds.', tf_acc(end)));
     
     delete(wb);
     toc(t0);
@@ -78,7 +78,7 @@ function update_waitbar(wb, time_params)
     % Variable updates - Time, percentage, display current time, 
     % display end time, average speed
     t_acc = t_acc + dt;
-    t
+    
     perc = 100*t/tf;
     t_curr = datestr(seconds(t_acc), 'HH:MM:SS');
     speed = perc/t_acc;

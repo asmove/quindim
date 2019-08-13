@@ -1,3 +1,3 @@
-function M = mass_matrix(sys)
-    M = equationsToMatrix(sys.dyn.l_r, sys.kin.pp);
+function M = mass_matrix(sys, helper)
+    M = equationsToMatrix(helper.l_r, sys.kin.pp);
 end
