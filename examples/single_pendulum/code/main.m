@@ -34,35 +34,35 @@ pendulum = build_body(m, I, Ts, L, damper, spring, ...
                       th, thp, thpp, previous, params);
 
 % Without spring and damping
-sys.syms = [m, b, k, g, Lg];
-sys.model_params = [1, 0, 0, 9.8, 1];
+sys.descrip.syms = [m, b, k, g, Lg];
+sys.descrip.model_params = [1, 0, 0, 9.8, 1];
 
-sys.gravity = [0; -g; 0];
-sys.g = g;
+sys.descrip.gravity = [0; -g; 0];
+sys.descrip.g = g;
 
-sys.bodies = pendulum;
-
-% Generalized coordinates
-sys.q = th;
-sys.qp = thp;
-sys.qpp = thpp;
+sys.descrip.bodies = pendulum;
 
 % Generalized coordinates
-sys.p = thp;
-sys.pp = thpp;
+sys.kin.q = th;
+sys.kin.qp = thp;
+sys.kin.qpp = thpp;
+
+% Generalized coordinates
+sys.kin.p = thp;
+sys.kin.pp = thpp;
 
 % External excitations
-sys.Fq = tau;
-sys.u = tau;
+sys.descrip.Fq = tau;
+sys.descrip.u = tau;
 
 % Constraint condition
-sys.is_constrained = false;
+sys.descrip.is_constrained = false;
 
 % Sensors
-sys.y = th;
+sys.descrip.y = th;
 
 % State space representation
-sys.states = [th; thp];
+sys.descrip.states = [th; thp];
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);

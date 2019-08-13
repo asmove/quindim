@@ -21,9 +21,12 @@ function sol = validate_model(sys, t, x0, u0)
     
     opts = odeset('RelTol', 1e-7, 'AbsTol', 1e-7, 'Events', cancel_sim);
     
-    sol = ode23t(df_, t, x0, opts);
+    sol = ode45(df_, t, x0, opts);
     
     % Erase waitbar
+    tf_acc = evalin('base', 'tf_acc');
+    disp(sprintf('Estimated time is %.6d seconds.', tf_acc(end)));
+    
     delete(wb);
     toc(t0);
 end
@@ -42,7 +45,7 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     dq = double(vpa(subs(dq_p, ...
                          [sys.descrip.u; sys.kin.q; sys.kin.p], ...
                          [u0; q_p])));
-                     
+    
     % Time elapsed
     dt = toc(t0);
     
@@ -75,6 +78,7 @@ function update_waitbar(wb, time_params)
     % Variable updates - Time, percentage, display current time, 
     % display end time, average speed
     t_acc = t_acc + dt;
+    t
     perc = 100*t/tf;
     t_curr = datestr(seconds(t_acc), 'HH:MM:SS');
     speed = perc/t_acc;
@@ -82,14 +86,14 @@ function update_waitbar(wb, time_params)
     tr_acc = [tr_acc, t_acc];    
     speed_acc = [speed_acc; speed];
     
-    if(perc == 0)
+    if((perc < eps)||(speed < eps))
         t_f = 0;
         msg = sprintf('%3.1f - %.1f [%%/s] [%s]', ...
                       perc, speed, t_curr);
     else
         t_f = 100/speed;
-        t_end = datestr(seconds(mean(tf_acc)), 'HH:MM:SS');
-        msg = sprintf('%3.1f - %.1f [%%/s] [%s - %s]', ...
+        t_end = datestr(seconds(t_f), 'HH:MM:SS');
+        msg = sprintf('%3.0f %% - %.1f [%%/s] [%s - %s]', ...
                   perc, speed, t_curr, t_end); 
     end
     
@@ -100,3 +104,29 @@ function update_waitbar(wb, time_params)
               
     waitbar(t/tf, wb, msg);
 end
+
+function J = objective_tf(t, A, zeta)
+    J = (100 - A*(t + (1/zeta)*exp(-zeta*t) - (1/zeta)))^2;
+end
+
+function J = objective(params, t, y_true, func)
+    A = params(1);
+    zeta = params(2);
+    
+    y_predict = func(params, t);
+
+	J = norm(y_true - y_predict)^2;
+end
+
+function tf = estimate_tf(tf_0, tr_acc, speed_acc)
+    % Model params
+    x0 = [1; 1];
+    func = @(params, t) params(1)*(1 - exp(-params(2)*t))';
+    objective_ = @(params) objective_params(params, tr_acc, speed_acc, func);
+    params = fmincon(objective_, x0)
+    
+    x0 = 100;
+    obj_func = @(t) objective_tf(t, params(1), params(2));
+    tf = fmincon(obj_func, tf_0);
+end
+
