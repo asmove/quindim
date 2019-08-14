@@ -46,9 +46,11 @@ sys.descrip.g = g;
 sys.descrip.syms = [m, R, Is.', g];
 
 % Penny data
-m_num = 2.5e-3;
-R_num = 9.75e-3;
-sys.descrip.model_params = [2.5e-3, 9.75e-3, ...
+% m_num = 2.5e-3;
+% R_num = 9.75e-3;
+m_num = 1;
+R_num = 1;
+sys.descrip.model_params = [m_num, R_num, ...
                             m_num*R_num^2/2, ...
                             m_num*R_num^2/4, ...
                             m_num*R_num^2/2, ...
@@ -117,4 +119,4 @@ hfig_consts = plot_constraints(sys, x, y);
 % Images
 saveas(hfig_energies, '../images/energies', 'epsc');
 saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
-saveas(hfigs_consts(1), ['../images/consts', num2str(1)], 'epsc'); 
+saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 

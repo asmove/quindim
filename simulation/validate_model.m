@@ -17,7 +17,6 @@ function sol = validate_model(sys, t, x0, u0)
     % Mass matrix
     H = subs(sys.dyn.H, sys.descrip.syms, sys.descrip.model_params);
     
-    qp = [sys.kin.q; sys.kin.p{end}];
     opts = odeset('RelTol', 1e-7, 'AbsTol', 1e-7, 'Events', cancel_sim);
     sol = ode45(df_, t, x0, opts);
     
@@ -41,12 +40,22 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     
-    uq_s = [sys.descrip.u; sys.kin.q; sys.kin.p{end}];
+    
+    if(iscell(sys.kin.p))
+        p = sys.kin.p{end};
+    else
+        p = sys.kin.p;
+    end
+    
+    qp = [sys.kin.q; p];
+    
+    uq_s = [sys.descrip.u; qp];
     uq_n = [u0; q_p];
     
     % Quick hack: double subs
     dq = subs(dq_p, uq_s, uq_n);
     dq = subs(dq_p, uq_s, uq_n);
+    
     dq = double(vpa(dq));
     
     % Time elapsed
@@ -91,12 +100,12 @@ function update_waitbar(wb, time_params)
     
     if((perc < eps)||(speed < eps))
         t_f = 0;
-        msg = sprintf('%3.1f - %.1f [%%/s] [%s]', ...
+        msg = sprintf('%d - %.1f [%%/s] [%s]', ...
                       perc, speed, t_curr);
     else
         t_f = 100/speed;
         t_end = datestr(seconds(mean(tf_acc)), 'HH:MM:SS');
-        msg = sprintf('%3.0f %% - %.1f [%%/s] [%s - %s]', ...
+        msg = sprintf('%d %% - %.1f [%%/s] [%s - %s]', ...
                   perc, speed, t_curr, t_end); 
     end
     
