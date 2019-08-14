@@ -9,4 +9,6 @@ function sys = constraints_props(sys)
     
     sys.kin.p = sym('p', [m, 1]);
     sys.kin.pp = sym('pp', [m, 1]);
+    
+    sys = update_jacobians(sys, C);
 end

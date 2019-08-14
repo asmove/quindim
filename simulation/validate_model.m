@@ -15,17 +15,15 @@ function sol = validate_model(sys, t, x0, u0)
     cancel_sim = @(t, q_p) cancel_simulation(t, q_p, wb);
     
     % Mass matrix
-    H = subs(sys.dyn.H, [sys.descrip.syms], [sys.descrip.model_params]);
+    H = subs(sys.dyn.H, sys.descrip.syms, sys.descrip.model_params);
     
-    qp = [sys.kin.q; sys.kin.p];
-    
+    qp = [sys.kin.q; sys.kin.p{end}];
     opts = odeset('RelTol', 1e-7, 'AbsTol', 1e-7, 'Events', cancel_sim);
-    
     sol = ode45(df_, t, x0, opts);
     
     % Erase waitbar
     tf_acc = evalin('base', 'tf_acc');
-    disp(sprintf('Estimated time is %.6f seconds.', tf_acc(end)));
+    disp(sprintf('Estimated time is %.6f seconds.', mean(tf_acc)));
     
     delete(wb);
     toc(t0);
@@ -41,10 +39,15 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     t0 = tic;
 
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
-            
-    dq = double(vpa(subs(dq_p, ...
-                         [sys.descrip.u; sys.kin.q; sys.kin.p], ...
-                         [u0; q_p])));
+    dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
+    
+    uq_s = [sys.descrip.u; sys.kin.q; sys.kin.p{end}];
+    uq_n = [u0; q_p];
+    
+    % Quick hack: double subs
+    dq = subs(dq_p, uq_s, uq_n);
+    dq = subs(dq_p, uq_s, uq_n);
+    dq = double(vpa(dq));
     
     % Time elapsed
     dt = toc(t0);
@@ -92,7 +95,7 @@ function update_waitbar(wb, time_params)
                       perc, speed, t_curr);
     else
         t_f = 100/speed;
-        t_end = datestr(seconds(t_f), 'HH:MM:SS');
+        t_end = datestr(seconds(mean(tf_acc)), 'HH:MM:SS');
         msg = sprintf('%3.0f %% - %.1f [%%/s] [%s - %s]', ...
                   perc, speed, t_curr, t_end); 
     end
@@ -123,7 +126,7 @@ function tf = estimate_tf(tf_0, tr_acc, speed_acc)
     x0 = [1; 1];
     func = @(params, t) params(1)*(1 - exp(-params(2)*t))';
     objective_ = @(params) objective_params(params, tr_acc, speed_acc, func);
-    params = fmincon(objective_, x0)
+    params = fmincon(objective_, x0);
     
     x0 = 100;
     obj_func = @(t) objective_tf(t, params(1), params(2));

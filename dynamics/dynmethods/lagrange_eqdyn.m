@@ -90,7 +90,7 @@ function sys = lagrange_eqdyn(sys)
     helper.l_r = simplify_(leqdyns - reqdyns);
     helper.leqdyns = simplify_(leqdyns);
     helper.reqdyns = simplify_(reqdyns);
-    helper.eqdyns = leqdyns == reqdyns;
+    sys.dyn.eqdyns = helper.leqdyns == helper.reqdyns;
     
     % Main matrices
     sys = dyn_matrices(sys, helper);
