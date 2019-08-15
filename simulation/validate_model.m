@@ -35,8 +35,6 @@ end
 
 function dq = df(t, q_p, sys, tf, u0, wb)
     t0 = tic;
-    size(sys.descrip.syms)
-    size(sys.descrip.model_params)
     
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
