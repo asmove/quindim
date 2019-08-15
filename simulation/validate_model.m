@@ -15,8 +15,7 @@ function sol = validate_model(sys, t, x0, u0)
     cancel_sim = @(t, q_p) cancel_simulation(t, q_p, wb);
     
     % Mass matrix
-    H = subs(sys.dyn.H, sys.descrip.syms, sys.descrip.model_params);
-    
+    x0
     opts = odeset('RelTol', 1e-7, 'AbsTol', 1e-7, 'Events', cancel_sim);
     sol = ode45(df_, t, x0, opts);
     
@@ -36,7 +35,9 @@ end
 
 function dq = df(t, q_p, sys, tf, u0, wb)
     t0 = tic;
-
+    size(sys.descrip.syms)
+    size(sys.descrip.model_params)
+    
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     
@@ -105,7 +106,7 @@ function update_waitbar(wb, time_params)
     else
         t_f = 100/speed;
         t_end = datestr(seconds(mean(tf_acc)), 'HH:MM:SS');
-        msg = sprintf('%d %% - %.1f [%%/s] [%s - %s]', ...
+        msg = sprintf('%3.0f %% - %.1f [%%/s] [%s - %s]', ...
                   perc, speed, t_curr, t_end); 
     end
     
