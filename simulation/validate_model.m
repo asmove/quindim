@@ -39,7 +39,6 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     
-    
     if(iscell(sys.kin.p))
         p = sys.kin.p{end};
     else
@@ -47,12 +46,10 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     end
     
     qp = [sys.kin.q; p];
-    
     uq_s = [sys.descrip.u; qp];
     uq_n = [u0; q_p];
     
     % Quick hack: double subs
-    dq = subs(dq_p, uq_s, uq_n);
     dq = subs(dq_p, uq_s, uq_n);
     
     dq = double(vpa(dq));
@@ -103,7 +100,8 @@ function update_waitbar(wb, time_params)
                       perc, speed, t_curr);
     else
         t_f = 100/speed;
-        t_end = datestr(seconds(tf_acc(end)), 'HH:MM:SS');
+        horizon = 5;
+        t_end = datestr(seconds(mean(tf_acc(end-horizon:end))), 'HH:MM:SS');
         msg = sprintf('%3.0f %% - %.1f [%%/s] [%s - %s]', ...
                   perc, speed, t_curr, t_end); 
     end
@@ -114,30 +112,5 @@ function update_waitbar(wb, time_params)
     assignin('base', 'speed_acc', speed_acc);
               
     waitbar(t/tf, wb, msg);
-end
-
-function J = objective_tf(t, A, zeta)
-    J = (100 - A*(t + (1/zeta)*exp(-zeta*t) - (1/zeta)))^2;
-end
-
-function J = objective(params, t, y_true, func)
-    A = params(1);
-    zeta = params(2);
-    
-    y_predict = func(params, t);
-
-	J = norm(y_true - y_predict)^2;
-end
-
-function tf = estimate_tf(tf_0, tr_acc, speed_acc)
-    % Model params
-    x0 = [1; 1];
-    func = @(params, t) params(1)*(1 - exp(-params(2)*t))';
-    objective_ = @(params) objective_params(params, tr_acc, speed_acc, func);
-    params = fmincon(objective_, x0);
-    
-    x0 = 100;
-    obj_func = @(t) objective_tf(t, params(1), params(2));
-    tf = fmincon(obj_func, tf_0);
 end
 
