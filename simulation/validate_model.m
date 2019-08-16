@@ -101,7 +101,12 @@ function update_waitbar(wb, time_params)
     else
         t_f = 100/speed;
         horizon = 5;
-        t_end = datestr(seconds(mean(tf_acc(end-horizon:end))), 'HH:MM:SS');
+        if(length(tf_acc) < horizon+1)
+            tf_ = tf_acc(end);
+        else
+            tf_ = tf_acc(end-horizon:end);
+        end
+        t_end = datestr(seconds(mean(tf_)), 'HH:MM:SS');
         msg = sprintf('%3.0f %% - %.1f [%%/s] [%s - %s]', ...
                   perc, speed, t_curr, t_end); 
     end
