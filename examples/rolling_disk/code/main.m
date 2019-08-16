@@ -5,7 +5,7 @@ clear all
 close all
 clc
 
-syms g u;
+syms g f_phi f_th;
 
 % Body 1
 syms m R real;
@@ -57,8 +57,8 @@ sys.descrip.model_params = [m_num, R_num, ...
                             9.8];
 
 % External excitations
-sys.descrip.Fq = [0; 0; 0; 0];
-sys.descrip.u = u;
+sys.descrip.Fq = [0; 0; f_th; f_phi];
+sys.descrip.u = [f_phi; f_th];
 
 % State space representation
 sys.descrip.states = [x; y; th; phi];
@@ -91,7 +91,7 @@ t = 0:dt:tf;
 x0 = [1, 1, pi/4, 0, 0, 1]';
 
 % System modelling
-sol = validate_model(sys, t, x0, 0);
+sol = validate_model(sys, t, x0, [0; 0]);
 
 x = sol.x.';
 y = sol.y.';

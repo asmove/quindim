@@ -6,7 +6,7 @@ function sys = state_space(sys)
     
     sys.dyn.states = [sys.kin.q; sys.kin.p];
     dstates = [qp; pp];
-    sys.dyn.g = equationsToMatrix(dstates, sys.descrip.u);
+    sys.dyn.G = equationsToMatrix(dstates, sys.descrip.u);
     sys.dyn.f = subs(dstates, sys.descrip.u, ...
                      zeros(size(sys.descrip.u)));
 end

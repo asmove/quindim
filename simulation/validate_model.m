@@ -15,8 +15,7 @@ function sol = validate_model(sys, t, x0, u0)
     cancel_sim = @(t, q_p) cancel_simulation(t, q_p, wb);
     
     % Mass matrix
-    H = subs(sys.dyn.H, sys.descrip.syms, sys.descrip.model_params);
-    
+    x0
     opts = odeset('RelTol', 1e-7, 'AbsTol', 1e-7, 'Events', cancel_sim);
     sol = ode45(df_, t, x0, opts);
     
@@ -36,7 +35,7 @@ end
 
 function dq = df(t, q_p, sys, tf, u0, wb)
     t0 = tic;
-
+    
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
     
