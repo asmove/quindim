@@ -15,13 +15,13 @@ function sol = validate_model(sys, t, x0, u0)
     cancel_sim = @(t, q_p) cancel_simulation(t, q_p, wb);
     
     % Mass matrix
-    x0
     opts = odeset('RelTol', 1e-7, 'AbsTol', 1e-7, 'Events', cancel_sim);
     sol = ode45(df_, t, x0, opts);
     
     % Erase waitbar
     tf_acc = evalin('base', 'tf_acc');
-    disp(sprintf('Estimated time is %.6f seconds.', mean(tf_acc)));
+    time_scaler = 1.25;
+    disp(sprintf('Estimated time is %.6f seconds.', time_scaler*tf_acc(end)));
     
     delete(wb);
     toc(t0);
@@ -64,7 +64,7 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     time_params.tf = tf;
     time_params.dt = dt;
     time_params.t = t;
-
+    
     update_waitbar(wb, time_params)
 end
 
@@ -103,7 +103,7 @@ function update_waitbar(wb, time_params)
                       perc, speed, t_curr);
     else
         t_f = 100/speed;
-        t_end = datestr(seconds(mean(tf_acc)), 'HH:MM:SS');
+        t_end = datestr(seconds(tf_acc(end)), 'HH:MM:SS');
         msg = sprintf('%3.0f %% - %.1f [%%/s] [%s - %s]', ...
                   perc, speed, t_curr, t_end); 
     end

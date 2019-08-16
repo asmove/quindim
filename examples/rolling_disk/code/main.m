@@ -88,7 +88,7 @@ t = 0:dt:tf;
 
 % Initial conditions [m; m/s]
 % x = 1, y = 1, v = 1
-x0 = [1, 1, pi/4, 0, 0, 1]';
+x0 = [1, 1, pi/4, 0, 1, 1]';
 
 % System modelling
 sol = validate_model(sys, t, x0, [0; 0]);
