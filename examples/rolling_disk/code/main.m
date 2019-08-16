@@ -1,4 +1,4 @@
-    % Author: Bruno Peixoto
+% Author: Bruno Peixoto
 % Date: 08/01/19
 
 clear all
@@ -110,7 +110,7 @@ plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
 plot_info_p.grid_size = [2, 1];
 
 % States plot
-hfigs_states = my_plot(x, y(:, 5:6), plot_info_p);
+hfigs_speeds = my_plot(x, y(:, 5:6), plot_info_p);
 
 % Energies plot
 hfig_energies = plot_energies(sys, x, y);
@@ -119,4 +119,5 @@ hfig_consts = plot_constraints(sys, x, y);
 % Images
 saveas(hfig_energies, '../images/energies', 'epsc');
 saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
+saveas(hfigs_speeds(1), ['../images/speeds', num2str(1)], 'epsc'); 
 saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 

@@ -26,8 +26,8 @@ function [A, C] = constraint_matrices(sys)
         C = eye(length(sys.kin.q));
         
         if(is_holonomic || is_unholonomic)
-            msg = 'When unconstrained, the fields hol_constraints' + ...
-                  'and unhol_constraints cannot be presented.';
+            msg = ['When unconstrained, the fields hol_constraints' + ...
+                  'and unhol_constraints cannot be presented.'];
             error(msg);
         end
     end

@@ -14,7 +14,8 @@ function sys = constrain_system(sys, A)
     
     C0 = sys.kin.C;
     C1 = C;
-    
+    C0
+    C1
     C = C0*C1;
     
     % qp and qpp in terms of quasi-velocities
