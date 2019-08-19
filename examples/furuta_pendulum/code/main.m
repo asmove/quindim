@@ -19,12 +19,14 @@ I1 = inertia_tensor('1', is_diag2);
 
 % Position relative to body coordinate system
 L0g_ = [0; L0g; 0];
-L1g_ = [L1g; 0; 0];
+L1g_ = [0; 0; L1g];
 
 % Bodies transformations
 T1 = T3d(th0, [0; 0; 1], [0; 0; 0]);
 T2 = T3d(0, [0; 0; 1], [0; L0; 0]);
-T3 = T3d(th1, [0; 1; 0], [0; 0; 0]);
+T3 = T3d(pi/2 + th1, [0; 1; 0], [0; 0; 0]);
+
+% Body 1 and 2 related transformation matrices
 T0s = {T1};
 T1s = {T1, T2, T3};
 
@@ -94,7 +96,7 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Initia conditions [m; m/s]
-x0 = [pi/3; pi/3; 0; 0];
+x0 = [0; pi/3; 0; 0];
 
 % Time [s]
 dt = 0.001;
