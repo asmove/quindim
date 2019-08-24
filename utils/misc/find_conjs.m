@@ -1,4 +1,11 @@
 function [imag_idx, conj_idxs] = find_conjs(eigs)
+% Description: Provide eigenvalues and return the conjugate without
+% repetition
+% Input [complex]: Eigenvalues
+% 0utput:
+%   - [list]: Eigenvalues indexes
+%   - [cell]: Eigenvalues conjugate
+
     eig_imags = imag(eigs);
     
     idx_imags = find(eig_imags ~= 0)';
