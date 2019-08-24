@@ -1,0 +1,22 @@
+function find_conjs(eigs)
+    eig_imags = imag(eigs);
+    idx_is_imag = find(~mod(eig_imags, 2))';
+    
+    n = length(idx_is_imag);
+    
+    imag_pairs = zeros(n, 2);
+    
+    i = 1;
+    for idx = idxs_is_imag
+        is_conj = eigs == conj(eigs(idxs));
+        idx_conj = find(is_conj);
+        
+        if(~isempty(idx))
+            imag_pairs(i)
+            
+        end
+        
+        is_imag(idxs) = ;
+        i = i + 1;
+    end
+end
