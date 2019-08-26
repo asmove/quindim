@@ -11,7 +11,7 @@ function hfigs = my_plot(t, x, plot_config)
     MAX_COLS_DIV = 4;
     
     if((nrows >= MAX_ROWS_DIV) || (ncols >= MAX_COLS_DIV))
-        msg = 'One recommends the maximum number of ';
+        msg = 'One recommends the maximum number of ' + MAX_COLS_DIV;
         warning(msg);
     end
         
