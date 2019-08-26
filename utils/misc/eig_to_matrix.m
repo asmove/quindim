@@ -65,9 +65,14 @@ function A = eig_to_matrix(eigs)
     
     len_reals = length(real_eigs);
     for i = 1:len_reals
-        Ai = diag(real_eigs);
-        if(len_reals > 1)
-            for j = 1:len_reals - 1
+        real_eig = real_eigs(i);
+        eig_i = eigs(find(eigs == real_eig));
+        
+        Ai = diag(eig_i);
+        
+        len_eig_i = length(eig_i);
+        if(len_eig_i > 1)
+            for j = 1:len_eig_i - 1
                 Ai(j, j+1) = 1;
             end
         end
