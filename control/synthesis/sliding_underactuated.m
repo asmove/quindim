@@ -1,6 +1,6 @@
-function u = sliding_underactuated(sys, eta, poles, params_lims)
+function u = sliding_underactuated(sys)
     % Matrices size
-    [~, m] = size(sys.dyn.Z);
+    [n, m] = size(sys.dyn.Z);
     
     % Generalized coordinates, velocities and accelerations
     q = sys.kin.q;
@@ -25,18 +25,13 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
     M = -sys.dyn.H;
 
     % Mass Matrix
-    M_aa = M(1, 1);
-    M_au = M(1, 2);
-    M_uu = M(2, 2);
+    M_aa = M(1:m, 1:m);
+    M_au = M(1:m, m+1:end);
+    M_uu = M(m+1:end, m+1:end);
 
     % Partitioned independent terms
-    f_a = f(1);
-    f_u = f(2);
-
-    % Tuning parameters
-    eta = 1;
-
-    [n, m] = size(sys.dyn.Z);
+    f_a = f(1:m);
+    f_u = f(m+1:end);
 
     % Invertibility matrix
     alpha_a = sym('alpha_a_%d%d', [m, m]);
@@ -62,17 +57,10 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
     fs_hat = subs(fs, params, params_hat);
     Ms_hat = subs(Ms, params, params_hat);
     
-    min_params = params_lims(:, 1);
-    max_params = params_lims(:, 2);
-    
-    params_num = min_params;
-    params_hat_num = max_params;
-    
     Fs = abs(fs - fs_hat);
-    Fs_ = subs(Fs, [params, params_hat], ...
-                   []);
-    Fs_ = vpa(Fs);
-
+    
+    eta = sym('eta');
+    
     % Sliding gain
     K = diag(eta + Fs);
     
@@ -92,12 +80,12 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
     
     sr_p = dvecdt(sr, [q; qp], [qp; qpp]);
     
-    % Substituted values of numerical evalutation
-    s = subs(s, params_hat, params_hat_num);
-    sr_p = subs(sr_p, params_hat, params_hat_num);
-    fs_hat = subs(fs, params_hat, params_hat_num);
-    Ms_hat = subs(fs, params_hat, params_hat_num);
-        
-    u = -inv(Ms_hat)*(fs_hat + sr_p + K*sign(s));
+    u.output = -inv(Ms_hat)*(fs_hat + sr_p + K*sign(s));
+    u.Ms = Ms;
+    u.lambda = [lambda_a, lambda_u];
+    u.alpha = [alpha_a, alpha_u];
+    u.Fs = Fs;
+    u.fs = fs;
+    u.fs_hat = fs_hat;
 end
 
