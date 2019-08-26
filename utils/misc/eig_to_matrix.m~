@@ -51,17 +51,13 @@ function A = eig_to_matrix(eigs)
     A = blkdiag(A, A_imag);
     
     imags_id = [];
-    for id_imag = id_imags
-        imags_id = [imags_id, id_imag{1}];
+    for i = 1:length(id_imags)
+        imags_id = [imags_id, id_imags{1}];
     end
     
-    imags_ = [unique(eigs(imags_id)), unique(conj(eigs(imags_id)))];
     
-    for imag_ = imags_
-        eigs(find(eigs == imag_)) = [];
-    end
-    
-    real_eigs = unique(eigs);
+    eigs(imags_id) = [];
+    real_eigs = unique(eigs)
     
     len_reals = length(real_eigs);
     for i = 1:len_reals
