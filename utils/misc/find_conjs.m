@@ -16,15 +16,26 @@ function [imag_idx, conj_idxs] = find_conjs(eigs)
     imag_idx = {};
     
     conj_ids = [];
+    repeated_eigs = [];
+    
     for idx = idx_imags'
+        if(any(eigs(idx) == eigs(repeated_eigs)) || ...
+           any(conj(eigs(idx)) == eigs(repeated_eigs)))
+            continue;
+        end
+        
+        % Find conjugate numbers
         is_complex = idx == conj_ids;
         is_conj = any(is_complex);
+        
+        repeated_eigs = [repeated_eigs, find(eigs == eigs(idx))];
         
         if(is_conj)
             continue;
         end
         
-        conjs = eigs == conj(eigs(idx));
+        conjs = find(eigs == conj(eigs(idx)));
+        
         conj_ids = [conj_ids, find(conjs)];
         
         % Complex numbers - either unique or repeated
@@ -33,8 +44,8 @@ function [imag_idx, conj_idxs] = find_conjs(eigs)
         
         imag_idx{end+1} = idx_imags;
         
-        if(~isempty(idx_conj))
-            conj_idxs{end+1} = idx_conj;
+        if(~isempty(conj_ids))
+            conj_idxs{end+1} = conjs;
         else
             conj_idxs{end+1} = [];
         end
