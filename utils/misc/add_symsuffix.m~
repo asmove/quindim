@@ -1,6 +1,0 @@
-function new_symvar = add_symsuffix(symvars, suffix)
-    for i = 1:length(symvars)
-        items = [symvars(i)), suffix];
-        new_symvar = sym(char(items));
-    end
-end

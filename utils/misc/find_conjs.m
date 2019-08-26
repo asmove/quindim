@@ -6,35 +6,37 @@ function [imag_idx, conj_idxs] = find_conjs(eigs)
 %   - [list]: Eigenvalues indexes
 %   - [cell]: Eigenvalues conjugate
 
+    % Find complex numbers
     eig_imags = imag(eigs);
-    
     idx_imags = find(eig_imags ~= 0)';
     
     n = length(idx_imags);
     
     conj_idxs = {};
-    imag_idx = [];
+    imag_idx = {};
     
-    repeated = [];
+    conj_ids = [];
     for idx = idx_imags'
-        if(any(find(idx == repeated)))
+        is_complex = idx == conj_ids;
+        is_conj = any(is_complex);
+        
+        if(is_conj)
             continue;
         end
         
-        idx_conj = find(eigs == conj(eigs(idx)));
-        repeated = [repeated, idx_conj];
+        conjs = eigs == conj(eigs(idx));
+        conj_ids = [conj_ids, find(conjs)];
         
-        % Remove elements from list
-        for idx_ = idx_conj
-            idx_imags(idx_) = 0;
-        end
+        % Complex numbers - either unique or repeated
+        imags = eigs == eigs(idx);
+        idx_imags = find(imags);
+        
+        imag_idx{end+1} = idx_imags;
         
         if(~isempty(idx_conj))
             conj_idxs{end+1} = idx_conj;
         else
-            conj_idxs{end+1} = 0;
+            conj_idxs{end+1} = [];
         end
-        
-        imag_idx = [imag_idx, idx];
     end
 end
