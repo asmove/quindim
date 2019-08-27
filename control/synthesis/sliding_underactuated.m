@@ -87,5 +87,8 @@ function u = sliding_underactuated(sys)
     u.Fs = Fs;
     u.fs = fs;
     u.fs_hat = fs_hat;
+    u.params = params;
+    u.params_hat = params_hat;
+    u.eta = eta;
 end
 
