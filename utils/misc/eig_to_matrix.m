@@ -40,8 +40,6 @@ function A = eig_to_matrix(eigs)
             for i = 1:len_imag-1
                 Ai_imag(i:i+1, i+2:i+3) = eye(2);
             end
-            
-            Ai_imag
         end
 
         % Imaginary blocks
