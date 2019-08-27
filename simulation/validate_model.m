@@ -8,7 +8,9 @@ function sol = validate_model(sys, t, x0, u0)
                  'Name','Calculating simulation',...
                  'CreateCancelBtn', ...
                  'setappdata(gcbf,''canceling'',1)');
-
+    
+    set(findall(wb,'type','text'),'Interpreter','none');
+             
     setappdata(wb,'canceling',0);
     
     df_ = @(t_, q_p) df(t_, q_p, sys, t(end), u0, wb);
