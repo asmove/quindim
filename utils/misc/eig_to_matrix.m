@@ -56,7 +56,12 @@ function A = eig_to_matrix(eigs)
     imags_ = [unique(eigs(imags_id)), unique(conj(eigs(imags_id)))];
     
     for imag_ = imags_
-        eigs(find(eigs == imag_)) = [];
+        if(isempty(imag_))
+            break;
+        end
+        
+        idxs = find(eigs == imag_);
+        eigs(idxs) = [];
     end
     
     real_eigs = unique(eigs);
