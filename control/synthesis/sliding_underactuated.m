@@ -1,10 +1,11 @@
-function u = sliding_underactuated(sys, eta, poles, params_lims)
+function u = sliding_underactuated(sys, etas, poles, params_lims)
     % Matrices size
     [n, m] = size(sys.dyn.Z);
     
     % Generalized coordinates, velocities and accelerations
     q = sys.kin.q;
     qp = sys.kin.qp;
+    p = sys.kin.p;
     qpp = sys.kin.qpp;
     
     % Actuated and unactuated systems
@@ -45,18 +46,12 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
 
     f_a_prime = f_a - M_au*inv(M_uu)*f_u;
     f_u_prime = f_u - M_au.'*inv(M_aa)*f_a;
-
+    
     Ms = alpha_a*inv(M_aa_prime) - ...
          alpha_u*inv(M_uu_prime)*M_au.'*inv(M_aa_prime);
     fs = alpha_a*inv(M_aa_prime)*f_a_prime + ...
          alpha_u*inv(M_uu_prime)*f_u_prime.';
     
-    params_sym = sys.descrip.syms;
-    params_hat = add_symsuffix(sys.descrip.syms, '_hat');
-    
-    fs_hat_sym = subs(fs, params_sym, params_hat);
-    Ms_hat_sym = subs(Ms, params_sym, params_hat);
-        
     % Sliding function
     error_a = q_a - q_a_d;
     errorp_a = qp_a - qp_a_d;
@@ -80,10 +75,8 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
     [n, m] = size(sys.dyn.Z);
     
     % Lambda and alpha parameters
-    CI = [C, eye(size(C))];
+    CI = [C', eye(size(C))];
     null_CI = null(CI);
-
-    null_CI = sum(null_CI')';
 
     alpha_ = null_CI(1:n, 1:m).';
     lambda_ = null_CI(n+1:2*n, 1:m).';
@@ -97,27 +90,41 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
     % Parameter limits
     params_min = params_lims(1, :);
     params_max = params_lims(2, :);
-
-    params_mean = (params_min + params_max)/2;
-
-    % Approximation mass matrix calculation
-    Ms_min = subs(Ms, params_sym, params_min);
-    Ms_max = subs(Ms, params_sym, params_max);
-    Ms_hat = sqrt(Ms_min*Ms_max);
-    disp('oi');
-    fs_hat = subs(Ms, params_sym, params_mean);
     
-    % Sliding gain
-    Fs = abs(fs - fs_hat);
-    Fs = subs(Fs, params_sym, params_min);
-    Fs = subs(Fs, params_hat, params_max);
+    params_sym = sys.descrip.syms.';
+    params_hat = add_symsuffix(params_sym, '_hat');
     
-    K = diag(eta + Fs);
+    fs_hat = subs(fs, params_sym, params_hat);
+    Ms_hat = subs(Ms, params_sym, params_hat);
+    
+    x = [q; p];
+    
+    % Dynamics uncertainties
+    Fs = dynamics_uncertainties(fs, fs_hat, x, ...
+                                params_sym, params_hat, params_lims);
+
+    % Mass matrix uncertainties
+    [D, D_tilde] = mass_uncertainties(Ms, Ms_hat, x, ...
+                                      params_sym, params_hat, params_lims);
+    
+    % Parameter boundaries
+    params_min = params_lims(:, 1);
+    params_max = params_lims(:, 2);
+    
+    % Gains
+    k = simplify_(inv(eye(n) - D_tilde)*(Fs + ...
+                  D*abs(sr_p + fs_hat) + etas));
+    k = subs(k, params_hat, params_maxn);
+    k = subs(k, flat_lambda, flatten(lambda_));
+    k = subs(k, flat_alpha, flatten(alpha_));
+    K = vpa(diag(k));
+    
+    % Sliding surface
+    s = subs(s, flat_lambda, flatten(lambda_));
+    s = subs(s, flat_alpha, flatten(alpha_));
     
     % Control output
     u_control = -inv(Ms_hat)*(fs_hat + sr_p + K*sign(s));
-    u_control = subs(u_control, flat_lambda, flatten(lambda_));
-    u_control = subs(u_control, flat_alpha, flatten(alpha_));
     u.output = vpa(u_control);
     
     % Manifold parameters
@@ -126,6 +133,13 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
     
     % Dynamics approximations
     u.Ms = Ms;
+    u.Ms_hat = Ms_hat_sym;
+    
+    % Maximum and minimum of mass matrix and dynamic vector
+    u.D = D;
+    u.D_tilde = D_tilde;
+    
+    u.Fs = Fs;
     
     u.Fs = Fs;
     u.fs = fs;
@@ -137,6 +151,6 @@ function u = sliding_underactuated(sys, eta, poles, params_lims)
     u.params = params_sym;
     u.params_hat = params_hat;
     
-    u.eta = eta;
+    u.eta = etas;
 end
 
