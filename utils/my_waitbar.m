@@ -20,7 +20,7 @@ classdef my_waitbar
         tf_real_vec = [];
         
         speed = 0;
-        speed_acc = [];
+        speed_vec = [];
         
         wb = [];        
         
@@ -28,6 +28,30 @@ classdef my_waitbar
     end
     
     methods
+        function obj = set.t_sim(obj, num)
+            obj.t_sim = num;
+        end
+        
+        function obj = set.t_real(obj, num)
+            obj.t_real = num;
+        end
+        
+        function obj = set.t_curr_str(obj, num)
+            obj.t_curr_str = num;
+        end
+        
+        function obj = set.t_real_vec(obj, arr)
+            obj.t_real_vec = arr;
+        end
+        
+        function obj = set.speed(obj, num)
+            obj.speed = num;
+        end
+    
+        function obj = set.speed_vec(obj, num)
+            obj.speed_vec = num;
+        end
+        
         function obj = my_waitbar(name)
             obj.name = name;
             
@@ -59,7 +83,8 @@ classdef my_waitbar
             set(wb_texts, 'Interpreter', 'none');
         end
         
-        function update_waitbar(obj, t, tf)
+        function obj = update_waitbar(obj, t, tf)
+            
             dt = toc(obj.previous_t);
             
             obj.tf = tf;
@@ -72,10 +97,10 @@ classdef my_waitbar
             perc = 100*t/tf;
             obj.t_curr_str = datestr(seconds(obj.t_real), 'HH:MM:SS');
             obj.speed = perc/obj.t_real;
-
+            
             obj.t_real_vec = [obj.t_real_vec, obj.t_real];    
-            obj.speed_acc = [obj.speed_acc; obj.speed];
-
+            obj.speed_vec = [obj.speed_vec; obj.speed];
+            
             if((perc < eps)||(obj.speed < eps))
                 t_f = 0;
 
@@ -105,8 +130,9 @@ classdef my_waitbar
             end
             
             h = obj.find_handle();
-            h = h(1);
-            waitbar(t/tf, h, msg);
+            obj.wb = h(1);
+            
+            waitbar(t/tf, obj.wb, msg);
             
             obj.previous_t = tic;
         end
