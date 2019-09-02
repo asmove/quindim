@@ -1,6 +1,4 @@
 function sol = validate_model(sys, t, x0, u0)
-    t0 = tic;
-    
     n = length(sys.kin.q);
     
     % Waitbar for the simulation
@@ -20,7 +18,6 @@ function sol = validate_model(sys, t, x0, u0)
     fprintf('Estimated time is %.6f seconds.\n', tf);
     
     wb.close_window();
-    toc(t0);
 end
 
 function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)

@@ -23,8 +23,8 @@ L1g_ = [0; 0; L1g];
 
 % Bodies transformations
 T1 = T3d(th0, [0; 0; 1], [0; 0; 0]);
-T2 = T3d(0, [0; 0; 1], [0; L0; 0]);
-T3 = T3d(pi/2 + th1, [0; 1; 0], [0; 0; 0]);
+T2 = T3d(0, [0; 0; 1], [2*L0; 0; 0]);
+T3 = T3d(th1, [1; 0; 0], [0; 0; 0]);
 
 % Body 1 and 2 related transformation matrices
 T0s = {T1};
@@ -60,9 +60,27 @@ sys.descrip.syms = [m0, L0, L0g, ...
                     I0_1, I0_2, I0_3, ...
                     I1_1, I1_2, I1_3, ...
                     b, g];
-sys.descrip.model_params = [1, 1, 1, 1, 1, 1, ...
-                            1, 1, 1, 1, 1, 1, ... 
-                            0.5, 9.8];
+r = 0.25;
+m0_n = 0.12;
+L0_n = 0.13;
+L0g_n = r - L0_n;
+m1_n = 0.076;
+L1_n = 0.25;
+L1g_n = 0.125;
+I0_1_n = 0;
+I0_2_n = (1/12)*m0_n*(2*L0_n)^2 + m0_n*(L0_n - r)^2;
+I0_3_n = (1/12)*m0_n*(2*L0_n)^2 + m0_n*(L0_n - r)^2;
+I1_1_n = (1/3)*m1_n*(2*L1_n)^2;
+I1_2_n = (1/3)*m1_n*(2*L1_n)^2;
+I1_3_n = 0;
+b_n = 0.1;
+g_n = 9.8;
+
+sys.descrip.model_params = [m0_n, L0_n, L0g_n, ...
+                            m1_n, L1_n, L1g_n, ...
+                            I0_1_n, I0_2_n, I0_3_n, ...
+                            I1_1_n, I1_2_n, I1_3_n, ...
+                            b_n, g_n];
 
 sys.descrip.gravity = [0; 0; -g];
 sys.descrip.g = g;

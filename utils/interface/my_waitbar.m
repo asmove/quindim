@@ -8,6 +8,8 @@ classdef my_waitbar
         t_sim = 0;
         t_real = 0;
         
+        hfig = [];
+        
         % Real time
         t_curr_str = '';
         t_end_str = '';
@@ -18,13 +20,14 @@ classdef my_waitbar
         % Real time
         tf = 0;
         tf_real_vec = [];
-        
+                
         speed = 0;
         speed_vec = [];
         
         wb = [];        
         
         previous_t = 0;
+        t_init = tic;
     end
     
     methods
@@ -99,34 +102,30 @@ classdef my_waitbar
             obj.t_real = obj.t_real + dt;
             
             perc = 100*t/tf;
-            obj.t_curr_str = datestr(seconds(obj.t_real), 'HH:MM:SS');
-            obj.speed = perc/obj.t_real;
             
+            obj.t_curr_str = datestr(seconds(obj.t_real), 'HH:MM:SS');
+
+            if((perc < eps))
+                t_f = 0;
+                obj.speed = 0;
+                
+                obj.t_end_str = datestr(seconds(t_f), 'HH:MM:SS');
+                obj.msg = sprintf(obj.time_mask, perc, ...
+                              obj.speed, obj.t_curr_str, obj.t_end_str);
+            
+            else                
+                obj.speed = perc/obj.t_real;
+                t_f = 100/obj.speed;
+                
+                obj.t_end_str = datestr(seconds(t_f), 'HH:MM:SS');
+                obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
+                                  obj.t_curr_str, obj.t_end_str); 
+            end
+            
+           
             obj.t_real_vec = [obj.t_real_vec, obj.t_real];    
             obj.speed_vec = [obj.speed_vec; obj.speed];
             
-            if((perc < eps)||(obj.speed < eps))
-                t_f = 0;
-
-                obj.t_end_str = datestr(seconds(tf), 'HH:MM:SS');
-                obj.msg = sprintf(obj.time_mask, perc, ...
-                              obj.speed, obj.t_curr_str, obj.t_end_str);
-            else
-                t_f = 100/obj.speed;
-
-                % Smooth speed
-                horizon = 5;
-                if(length(obj.tf_real_vec) < horizon + 1)
-                    tf_ = t_f;
-                else
-                    tf_ = obj.tf_real_vec(end-horizon:end);
-                end
-
-                obj.t_end_str = datestr(seconds(mean(tf_)), 'HH:MM:SS');
-                obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
-                              obj.t_curr_str, obj.t_end_str); 
-            end
-
             obj.tf_real_vec = [obj.tf_real_vec, t_f];
             
             if(~isgraphics(obj.wb))
@@ -140,6 +139,10 @@ classdef my_waitbar
         
         function close_window(obj)
             h = obj.find_handle();
+            assignin('base', 'tf_real_vec', obj.tf_real_vec);
+            assignin('base', 't_real_vec', obj.t_real_vec);
+            assignin('base', 'speed_vec', obj.speed_vec);
+            toc(obj.t_init);
             delete(h);
         end
     end

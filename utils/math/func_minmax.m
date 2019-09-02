@@ -50,7 +50,7 @@ function expr_sup = func_minmax(expr, x, is_min, label)
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));
         expr_sup = expr_sup + expr_i_sup;
         
-        wb_outer.update_waitbar(i, length(exprs))
+        wb_outer = wb_outer.update_waitbar(i, length(exprs));
     end
     
     wb_outer.close_window();
