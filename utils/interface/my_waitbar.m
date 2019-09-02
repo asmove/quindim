@@ -57,8 +57,8 @@ classdef my_waitbar
             
             obj.t_curr_str = datestr(seconds(0), 'HH:MM:SS');
             obj.t_end_str = datestr(seconds(0), 'HH:MM:SS');
-            obj.show(0);
-        
+            obj.wb = obj.show(0);
+            
             obj.previous_t = tic;
         end
         
@@ -72,13 +72,13 @@ classdef my_waitbar
             delete(F);
         end
         
-        function show(obj, perc)
+        function wb = show(obj, perc)
             obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
                               obj.t_curr_str, obj.t_end_str);
-            obj.wb = waitbar(0, obj.msg,  'Name', obj.name, ... 
+            wb = waitbar(0, obj.msg,  'Name', obj.name, ... 
                              'CreateCancelBtn', ...
                              'setappdata(gcbf,''canceling'',1)');
-        
+            
             wb_texts = findall(obj.wb, 'type', 'text');
             set(wb_texts, 'Interpreter', 'none');
         end
@@ -105,7 +105,7 @@ classdef my_waitbar
                 t_f = 0;
 
                 obj.t_end_str = datestr(seconds(tf), 'HH:MM:SS');
-                msg = sprintf(obj.time_mask, perc, ...
+                obj.msg = sprintf(obj.time_mask, perc, ...
                               obj.speed, obj.t_curr_str, obj.t_end_str);
             else
                 t_f = 100/obj.speed;
@@ -119,20 +119,17 @@ classdef my_waitbar
                 end
 
                 obj.t_end_str = datestr(seconds(mean(tf_)), 'HH:MM:SS');
-                msg = sprintf(obj.time_mask, perc, obj.speed, ...
+                obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
                               obj.t_curr_str, obj.t_end_str); 
             end
 
             obj.tf_real_vec = [obj.tf_real_vec, t_f];
             
             if(~isgraphics(obj.wb))
-                obj.show()
+                obj.wb = obj.show('100');
             end
             
-            h = obj.find_handle();
-            obj.wb = h(1);
-            
-            waitbar(t/tf, obj.wb, msg);
+            waitbar(t/tf, obj.wb, obj.msg);
             
             obj.previous_t = tic;
         end
