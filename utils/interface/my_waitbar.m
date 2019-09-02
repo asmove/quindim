@@ -57,7 +57,11 @@ classdef my_waitbar
             
             obj.t_curr_str = datestr(seconds(0), 'HH:MM:SS');
             obj.t_end_str = datestr(seconds(0), 'HH:MM:SS');
+            
             obj.wb = obj.show(0);
+            
+            text_props = findall(obj.wb, 'type', 'text');
+            set(text_props, 'Interpreter', 'none');
             
             obj.previous_t = tic;
         end
@@ -76,8 +80,8 @@ classdef my_waitbar
             obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
                               obj.t_curr_str, obj.t_end_str);
             wb = waitbar(0, obj.msg,  'Name', obj.name, ... 
-                             'CreateCancelBtn', ...
-                             'setappdata(gcbf,''canceling'',1)');
+                         'CreateCancelBtn', ...
+                         'setappdata(gcbf,''canceling'',1)');
             
             wb_texts = findall(obj.wb, 'type', 'text');
             set(wb_texts, 'Interpreter', 'none');
