@@ -12,11 +12,6 @@ function sol = validate_model(sys, t, x0, u0)
     sol = ode45(df_, t, x0, opts);
     
     wb = evalin('base', 'wb');
-    
-    % Erase waitbar
-    tf = wb.tf_real_vec(end);
-    fprintf('Estimated time is %.6f seconds.\n', tf);
-    
     wb.close_window();
 end
 
