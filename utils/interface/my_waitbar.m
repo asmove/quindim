@@ -27,7 +27,6 @@ classdef my_waitbar
         wb = [];        
         
         previous_t = 0;
-        t_init = tic;
     end
     
     methods
@@ -139,10 +138,15 @@ classdef my_waitbar
         
         function close_window(obj)
             h = obj.find_handle();
+            
             assignin('base', 'tf_real_vec', obj.tf_real_vec);
             assignin('base', 't_real_vec', obj.t_real_vec);
             assignin('base', 'speed_vec', obj.speed_vec);
-            toc(obj.t_init);
+            
+            % Erase waitbar
+            tf = obj.tf_real_vec(end);
+            fprintf('Elapsed time is %.6f seconds.\n', tf);
+            
             delete(h);
         end
     end
