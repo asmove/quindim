@@ -13,19 +13,21 @@ function u = sliding_underactuated(sys, etas, poles, params_lims)
         end
     end
     
-    % Matrices size
-    [n, m] = size(sys.dyn.Z);
-        
     params_s = sys.descrip.syms.';
     params_hat_s = add_symsuffix(params_s, '_hat');
-        
+    
+    % Sliding constant matrices
     [alpha_a, alpha_u, lambda_a, lambda_u] = alpha_lambda(poles, m, n);
+    
+    % Matrix and dynamic matrices
     [Ms_s, fs_s] = Ms_fs(sys, alpha_a, alpha_u);
+    
+    % Sliding surface and auxiliary matrices
     [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u);
     
     % Parameter limits
     params_min = params_lims(:, 1);
-    params_max = params_lims(:, 1);
+    params_max = params_lims(:, 2);
     params_hat_n = (params_min + params_max)/2;
     
     fs_hat_s = subs(fs_s, params_s, params_hat_s);
@@ -35,10 +37,11 @@ function u = sliding_underactuated(sys, etas, poles, params_lims)
 
     % Dynamics uncertainties
     Fs = dynamics_uncertainties(fs_s, q_p, params_s, params_lims);
+    %Fs = 0;
     
     % Mass matrix uncertainties
     [D, D_tilde, Ms_hat_n] = mass_uncertainties(Ms_s, q_p, params_s, params_lims);
-
+    
     % Gains
     inv_I_Dtilde = inv(eye(m) - D_tilde);
     k = simplify_(inv_I_Dtilde*(Fs + D*abs(sr_p + fs_hat_n) + etas));
@@ -55,8 +58,12 @@ function u = sliding_underactuated(sys, etas, poles, params_lims)
     u.alpha = [alpha_a, alpha_u];
     
     % Dynamics approximations
-    u.Ms_hat = Ms_hat_n;    
-    u.fs_hat = fs_hat_n;
+    u.Ms_hat = vpa(Ms_hat_n);    
+    u.fs_hat = vpa(fs_hat_n);
+    
+    u.f_hat_s = fs_hat_s;
+    
+    u.K = K;
     
     % Maximum and minimum of mass matrix and dynamic vector
     u.D = D;

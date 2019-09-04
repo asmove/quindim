@@ -51,7 +51,7 @@ syms g u;
 sys.descrip.syms = [m1, b1, k1, m2, b2, k2, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [1, 0, 1, 1, 0, 1, 9.8];
+sys.descrip.model_params = [1, 1, 1, 1, 1, 1, 9.8];
 
 sys.descrip.bodies = [body1, body2];
 
@@ -95,7 +95,7 @@ x0 = [0; 1; 0; 1];
 
 % Time [s]
 dt = 0.01;
-tf = 20;
+tf = 5;
 t = 0:dt:tf; 
 
 % System modelling
