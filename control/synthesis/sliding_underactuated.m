@@ -24,48 +24,39 @@ function u = sliding_underactuated(sys, etas, poles, params_lims)
     [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u);
     
     % Parameter limits
-    params_min = params_lims(1, :);
-    params_max = params_lims(2, :);
+    params_min = params_lims(:, 1);
+    params_max = params_lims(:, 1);
+    params_hat_n = (params_min + params_max)/2;
     
     fs_hat_s = subs(fs_s, params_s, params_hat_s);
-    Ms_hat_s = subs(Ms_s, params_s, params_hat_s);
+    fs_hat_n = subs(fs_hat_s, params_hat_s, params_hat_n);
     
     q_p = [sys.kin.q; sys.kin.p];
 
     % Dynamics uncertainties
-    Fs = dynamics_uncertainties(fs_s, fs_hat_s, q_p, params_s, ...
-                                params_hat_s, params_lims);
-                            
+    Fs = dynamics_uncertainties(fs_s, q_p, params_s, params_lims);
+    
     % Mass matrix uncertainties
-    [D, D_tilde] = mass_uncertainties(Ms_s, Ms_hat_s, q_p, params_s, ...
-                                      params_hat_s, params_lims);
-    
+    [D, D_tilde, Ms_hat_n] = mass_uncertainties(Ms_s, q_p, params_s, params_lims);
+
     % Gains
-    k = simplify_(inv(eye(m) - D_tilde)*(Fs + ...
-                  D*abs(sr_p + fs_hat_s) + etas));
+    inv_I_Dtilde = inv(eye(m) - D_tilde);
+    k = simplify_(inv_I_Dtilde*(Fs + D*abs(sr_p + fs_hat_n) + etas));
+    %k = simplify_(Fs + etas);
     k = subs(k, params_hat_s, params_hat_n);
-    
     K = vpa(diag(k));
-        
-    Ms_hat_n = subs(Ms_hat_s, params_hat_s, params_hat_n);
-    fs_hat_n = subs(fs_hat_s, params_hat_s, params_hat_n);
     
     % Control output
     u_control = -inv(Ms_hat_n)*(fs_hat_n + sr_p + K*sign(s));
     u.output = vpa(u_control);
     
     % Manifold parameters
-    u.lambda = lambda_n;
-    u.alpha = alpha_n;
-    
-    u.C = C;
+    u.lambda = [lambda_a, lambda_u];
+    u.alpha = [alpha_a, alpha_u];
     
     % Dynamics approximations
-    u.Ms_s = Ms_s;
-    u.Ms_hat_n = Ms_hat_n;
-    
-    u.fs = fs_s;
-    u.fs_hat = fs_hat_s;
+    u.Ms_hat = Ms_hat_n;    
+    u.fs_hat = fs_hat_n;
     
     % Maximum and minimum of mass matrix and dynamic vector
     u.D = D;

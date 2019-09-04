@@ -1,51 +1,74 @@
-function [D, D_tilde] = mass_uncertainties(Ms, Ms_hat, x, ...
-                                           params_syms, params_hat_syms, ...
-                                           params_lims)
+function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_lims)
     
     n = length(Ms);
     
-    Ms_Ms_hat = Ms*inv(Ms_hat);
-    
-    % Initialization
-    D = sym(zeros(n));
-    D_tilde = sym(zeros(n));
-            
-    % Symbolic terms'F calculation'
-    params_s = [params_syms; params_hat_syms];
-    
     % Parameter boundaries
     params_min = params_lims(:, 1);
-    params_n_min = [params_min; params_min];
-    
     params_max = params_lims(:, 2);
-    params_n_max = [params_max; params_max];
+    
+    Ms_min = subs(Ms, params_syms, params_min);
+    Ms_max = subs(Ms, params_syms, params_max);
+    
+    % inv(Mu) = I + inv(Ms_hat)
+    % Mu = I + Ms_hat
+    Mu = Ms_max*Ms_min;
+    Mu_1 = inv(Mu);
+    
+    Ms_hat = sqrt(Mu);
+    
+    D_Mu_sq = majorate_matrix(Mu, q_p, params_syms, params_lims);
+    D_Mu_1_sq = majorate_matrix(Mu_1, q_p, params_syms, params_lims);
+    
+    D_Mu = eye(n) + sqrt(D_Mu_sq);
+    D_Mu_1 = eye(n) + sqrt(D_Mu_1_sq);
+    
+    D = sym(zeros(n, n));
     
     for i = 1:n
         for j = 1:n
-            m_s = Ms_Ms_hat(i, j);
-            [num, den] = numden(expand(m_s));
+            dij_omega = D_Mu_sq(i, j);
+            dij_omega_1 = D_Mu_1_sq(i, j);
             
-            label = sprintf('(%d, %d) - d', i, j);
-            
-            % Numerator and denominator for D matrix
-            d_num_sup = func_minmax(num, x, 0, label);
-            d_num_sup = subs(d_num_sup, params_s, params_n_max);
-            
-            d_den_inf = func_minmax(den, x, 1, label);
-            d_den_inf = subs(d_den_inf, params_s, params_n_min);
-            
-            if i == j
-                d_ij = (d_num_sup - d_den_inf)/(d_den_inf);
+            if(dij_omega >= dij_omega_1)
+                D(i, j) = dij_omega;
             else
-                d_ij = d_num_sup/d_den_inf;
+                D(i, j) = dij_omega_1;
             end
+        end
+    end
+    
+    Dtilde = D - diag(2*diag(D));
+end
 
-            D(i, j) = d_ij;
+function D = majorate_matrix(matrix, q_p, params_syms, params_lims)
+    % Parameter limits
+    params_min = params_lims(:, 1);
+    params_max = params_lims(:, 2);
+    
+    n = length(matrix);
+    
+    % Initialization
+    D = sym(zeros(n));
+    
+    for i = 1:n
+        for j = 1:n
+            a_ij = matrix(i, j);
 
-            if i == j
-                D_tilde(i, j) = d_ij;
+            [num, den] = numden(expand(a_ij));
+            
+            label = sprintf('(%d, %d)', i, j);
+            
+            % Numerator and denominator for D matriq_p
+            sup_num = func_minmax(num, q_p, 0, label);
+            sup_num = vpa(subs(sup_num, params_syms, params_max));
+            
+            inf_den = func_minmax(den, q_p, 1, label);
+            inf_den = vpa(subs(inf_den, params_syms, params_min));
+            
+            if(i == j)
+                d_ij = vpa((sup_num - inf_den)/(inf_den));
             else
-                D_tilde(i, j) = -d_ij;
+                d_ij = vpa(sup_num/inf_den);
             end
         end
     end
