@@ -18,31 +18,20 @@ u = sliding_underactuated(sys, eta, poles, params_lims);
 
 len_params = length(sys.descrip.model_params);
 
-% Initial values
-x0 = [0; 0; 0; 0];
 
-% Tracking values
-x_xp_d = [1; 1; 0; 0];
-xpp_d = [0; 0];
+x0 = [0; 0; 0; 0 ];
+x_d = [1; 1; 0; 0; 0; 0];
 
-x_d = [x_xp_d; xpp_d];
+[1; 1; 0; 0]
 
-alpha_ = u.alpha;
-lambda = u.lambda;
-
-G = [alpha_, lambda];
-
-error = x0 - x_xp_d;
-
-s0 = G*error;
-x_s_0 = [x0; s0];
+s0 = u.alpha*;
 
 % Initial conditions
-tf = 5;
-tspan = [0, tf];
-df_h = @(t, x) df_sys(t, x, x_d, u, sys, tf);
+q_p_d = [1; 1; 0; 0];
+tspan = [0, 5];
+df_h = @(t, x) df_sys(t, x, q_p_d, u, sys);
 
-sol = ode45(df_h, tspan, x_s_0);
+sol = ode45(df_h, tspan, x0);
 
 % mdlname = 'sliding_mode_MIMO';
 % tf = 3;
