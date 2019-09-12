@@ -1,23 +1,31 @@
 function [alpha_a, alpha_u, ...
-          lambda_a, lambda_u] = alpha_lambda(poles, m, n)
+          lambda_a, lambda_u] = alpha_lambda(sys, poles, rel_qqbar)
     
-    if(length(poles) ~= n)
-        error('Number of poles MUST be equal to number of states');
+    [n, m] = size(sys.dyn.Z);
+      
+    if(length(poles) ~= m)
+        error('Number of poles MUST be equal to number of inputs');
     end
+    
+    q = sys.kin.q;
+    p = sys.kin.p;
+    
+    q_a = q(1:m);
+    q_u = q(m+1:n);
+    p_a = p(1:m);
+    p_u = p(m+1:n);
+    
+    D = equationsToMatrix(rel_qqbar, q);
     
     % Convergence on the manifold
     C = eig_to_matrix(poles);
+        
+    alpha_ = D;
+    lambda_ = -C*D;
     
-    % Lambda and alpha parameters
-    CI = [C', eye(size(C))];
-    null_CI = null(CI);
+    alpha_a = alpha_(1:m, 1:m);
+    alpha_u = alpha_(1:m, m+1:end);
     
-    alpha_n = null_CI(1:n, 1:m).';
-    lambda_n = null_CI(n+1:2*n, 1:m).';
-    
-    alpha_a = alpha_n(1:m, 1:m);
-    alpha_u = alpha_n(1:m, m+1:end);
-    
-    lambda_a = lambda_n(1:m, 1:m);
-    lambda_u = lambda_n(1:m, m+1:end);
+    lambda_a = lambda_(1:m, 1:m);
+    lambda_u = lambda_(1:m, m+1:end);
 end

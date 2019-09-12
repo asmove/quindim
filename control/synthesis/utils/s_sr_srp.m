@@ -30,13 +30,22 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
     
     error_u = q_u - q_u_d;
     errorp_u = qp_u - qp_u_d;
-   
-    s = alpha_a*errorp_a + lambda_a*error_a +...
+    
+    if(m == n)
+        s = alpha_a*errorp_a + lambda_a*error_a;
+                
+        % Auxiliary variable
+        sr = -alpha_a*qp_a_d + lambda_a*error_a ;
+    elseif(m < n)
+        s = alpha_a*errorp_a + lambda_a*error_a +...
         alpha_u*error_u + lambda_u*errorp_u;
     
-    % Auxiliary variable
-    sr = -alpha_a*qp_a_d - alpha_u*qp_u_d +...
-          lambda_a*error_a + lambda_u*error_u;
+        % Auxiliary variable
+        sr = -alpha_a*qp_a_d - alpha_u*qp_u_d +...
+              lambda_a*error_a + lambda_u*error_u; 
+    else
+        error('Overactuated systems are not implemented!')
+    end
     
     qp = sys.kin.C*p;
     sr_p = dvecdt(sr, [q; p; q_a_d; q_u_d; qp_a_d; qp_u_d], ...

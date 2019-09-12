@@ -14,14 +14,27 @@ function [Ms_s, fs_s] = Ms_fs(sys, alpha_a, alpha_u)
     f_a = f(1:m);
     f_u = f(m+1:end);
     
-    M_aa_prime = M_aa + M_au*inv(M_uu)*M_au.';
-    M_uu_prime = M_uu + M_au.'*inv(M_aa)*M_au;
+    if(~isempty(M_uu))
+        M_aa_prime = M_aa + M_au*inv(M_uu)*M_au.';
+        M_uu_prime = M_uu + M_au.'*inv(M_aa)*M_au;
 
-    f_a_prime = f_a - M_au*inv(M_uu)*f_u;
-    f_u_prime = f_u - M_au.'*inv(M_aa)*f_a;
-    
-    Ms_s = alpha_a*inv(M_aa_prime) - ...
+        f_a_prime = f_a - M_au*inv(M_uu)*f_u;
+        f_u_prime = f_u - M_au.'*inv(M_aa)*f_a;
+
+        Ms_s = alpha_a*inv(M_aa_prime) - ...
          alpha_u*inv(M_uu_prime)*M_au.'*inv(M_aa_prime);
-    fs_s = alpha_a*inv(M_aa_prime)*f_a_prime + ...
-         alpha_u*inv(M_uu_prime)*f_u_prime.';
+    
+        fs_s = alpha_a*inv(M_aa_prime)*f_a_prime + ...
+             alpha_u*inv(M_uu_prime)*f_u_prime.';
+    
+    else
+        M_aa_prime = M_aa;
+        M_uu_prime = M_uu;
+    
+        f_a_prime = f_a;
+        f_u_prime = f_u;
+    
+        Ms_s = alpha_a*inv(M_aa_prime);
+        fs_s = alpha_a*inv(M_aa_prime)*f_a_prime;
+    end
 end

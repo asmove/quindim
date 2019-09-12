@@ -98,7 +98,7 @@ dt = 0.01;
 tf = 5;
 t = 0:dt:tf; 
 
-[~, m] = size(sys.dyn.Z);
+[~, m] = size();
 
 % System modelling
 sol = validate_model(sys, t, x0, zeros(m, 1));

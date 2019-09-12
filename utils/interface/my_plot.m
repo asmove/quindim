@@ -14,14 +14,14 @@ function hfigs = my_plot(t, x, plot_config)
         msg = 'One recommends the maximum number of ' + MAX_COLS_DIV;
         warning(msg);
     end
-
+    
     [~, n] = size(x);
-
+    
     n_subplots = nrows*ncols;
 
     remaind_n = rem(n, n_subplots);
     n_windows = (n - remaind_n)/n_subplots;
-
+(n - remaind_n)/n_subplots
     i = 1;
     while(i <= n_windows)
         hfig = my_figure();
@@ -31,7 +31,7 @@ function hfigs = my_plot(t, x, plot_config)
             idx = i+j-1;
 
             subplot(nrows, ncols, id_plot);
-
+            
             plot(t, x(:, idx));
             title(titles{idx}, 'interpreter', 'latex');
             xlabel(xlabels{idx}, 'interpreter', 'latex');
@@ -84,7 +84,7 @@ function hfigs = my_plot(t, x, plot_config)
     subplot(new_ncols, new_nrows, id_plot);
 
     plot(t, xs(:, k));
-
+    
     title(titles{k+i-1}, 'interpreter', 'latex');
     xlabel(xlabels{k+i-1}, 'interpreter', 'latex');
     ylabel(ylabels{k+i-1}, 'interpreter', 'latex');

@@ -1,6 +1,8 @@
 classdef my_waitbar
     properties
-        time_mask = '%3.0f %% - %.1f [%%/s] [%s - %s]';
+        idx = tic;
+        
+        time_mask = '%3.0f %% - %.4f [%%/s] [%s - %s]';
         msg = '';
         name = '';
         
@@ -121,7 +123,6 @@ classdef my_waitbar
                                   obj.t_curr_str, obj.t_end_str); 
             end
             
-           
             obj.t_real_vec = [obj.t_real_vec, obj.t_real];    
             obj.speed_vec = [obj.speed_vec; obj.speed];
             
@@ -138,10 +139,6 @@ classdef my_waitbar
         
         function close_window(obj)
             h = obj.find_handle();
-            
-            assignin('base', 'tf_real_vec', obj.tf_real_vec);
-            assignin('base', 't_real_vec', obj.t_real_vec);
-            assignin('base', 'speed_vec', obj.speed_vec);
             
             % Erase waitbar
             tf = obj.tf_real_vec(end);

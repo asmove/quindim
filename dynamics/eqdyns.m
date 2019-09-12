@@ -27,4 +27,6 @@ function sys = eqdyns(sys, method)
     end
     
     sys = state_space(sys);
+    
+    sys.dyn.plant = sys.dyn.f + sys.dyn.G*sys.descrip.u;
 end
