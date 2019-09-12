@@ -28,10 +28,8 @@ function expr_sup = func_minmax(expr, x, is_min, label)
         for monome = monomes
             monome_sym = sym(monome);
             monome_vars = symvar(monome_sym);
-
+            
             is_not_x = ~all(ismember(monome_vars, x));
-            is_not_x
-            monome_vars
             
             % Parameters of the plant
             if(is_not_x || isempty(monome_vars))

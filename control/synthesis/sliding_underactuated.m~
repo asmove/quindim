@@ -100,5 +100,27 @@ function u = sliding_underactuated(sys, etas, poles, ...
     u.params_hat = params_hat_s;
     
     u.etas = etas;
-    u.is_sat = is_sat;
+    
+    u.control = @(q_p, q_p_d) f_control(q_p, q_p_d, u, is_sat, sys);
+end
+
+function u = f_control(q_p, q_p_d, s, Ms_hat)
+    q_p_s = [sys.kin.q; sys.kin.p];
+    q_p_d_s = add_symsuffix([q_p_s; sys.kin.pp], '_d');
+
+    % Control output
+    if(is_sat)
+       switch_func = @(s) sat_sign(s, 0.1);
+    else
+        switch_func = @(s) sign(s);
+    end
+    
+    symbs = [q_p_s; q_p_d_s];
+    nums = [q_p; q_p_d];
+    s = subs(s, symbs, nums);
+    
+    u = subs(-inv(Ms_hat)*(u_struct.fs_hat_n + ...
+                                    u_struct.sr_p + ...
+                                    u_struct.K*switch_func(s)), ...
+                                    symbs, nums);
 end

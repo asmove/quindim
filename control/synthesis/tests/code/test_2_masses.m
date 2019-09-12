@@ -1,24 +1,19 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/2_masses/code/main.m');
+run('~/github/Robotics4fun/examples/2_masses/code/main.m');
 
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-perc = 10/100;
 imprecision = perc*ones(size(sys.descrip.syms))';
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 
-rel_qqbar = sys.kin.q;
+rel_qqbar = sys.kin.q(1);
 
 [n, m] = size(sys.dyn.Z);
 
 % Control action
 eta = ones(m, 1);
 poles = -5*ones(m, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar);
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
 
 len_params = length(sys.descrip.model_params);
 
@@ -109,10 +104,10 @@ end
 hfigs_s = my_plot(tspan', s, plot_config);
 
 % States
-saveas(hfigs_x, '../imgs/x_2.eps', 'eps');
+saveas(hfigs_x, '../imgs/x_2_', 100*perc, '.eps', 'eps');
 
 % Control input
-saveas(hfigs_u, '../imgs/u_2.eps', 'eps');
+saveas(hfigs_u, '../imgs/u_2_', 100*perc, '.eps', 'eps');
 
 % Sliding function
-saveas(hfigs_s, '../imgs/s_2.eps', 'eps');
+saveas(hfigs_s, '../imgs/s_2_', 100*perc, '.eps', 'eps');

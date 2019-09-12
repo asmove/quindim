@@ -64,8 +64,8 @@ classdef my_waitbar
             
             obj.wb = obj.show(0);
             
-            text_props = findall(obj.wb, 'type', 'text');
-            set(text_props, 'Interpreter', 'none');
+            wb_texts = findall(obj.wb, 'type', 'text');
+            set(wb_texts, 'Interpreter', 'none');
             
             obj.previous_t = tic;
         end
@@ -83,12 +83,10 @@ classdef my_waitbar
         function wb = show(obj, perc)
             obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
                               obj.t_curr_str, obj.t_end_str);
-            wb = waitbar(0, obj.msg,  'Name', obj.name, ... 
-                         'CreateCancelBtn', ...
-                         'setappdata(gcbf,''canceling'',1)');
             
-            wb_texts = findall(obj.wb, 'type', 'text');
-            set(wb_texts, 'Interpreter', 'none');
+            cancel_callback = 'setappdata(gcbf,''canceling'',1)';
+            wb = waitbar(0, obj.msg,  'Name', obj.name, ... 
+                         'CreateCancelBtn', cancel_callback);
         end
         
         function obj = update_waitbar(obj, t, tf)

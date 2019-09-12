@@ -18,18 +18,18 @@ function dx = df_sys(t, x, q_p_d, u_struct, sys, tf)
     q_p_d_s = add_symsuffix([q_p_s; sys.kin.pp], '_d');
 
     % Control output
-    if(u_struct.is_sat)
+    if(is_sat)
        switch_func = @(s) sat_sign(s, 0.1);
     else
         switch_func = @(s) sign(s);
     end
     
-    symbs = [q_p_s; q_p_d_s];
-    nums = [q_p; q_p_d];
-    u = subs(-inv(u_struct.Ms_hat)*(u_struct.fs_hat_n + u_struct.sr_p + ...
-                                    u_struct.K*switch_func(...
-                                    subs(u_struct.s, symbs, nums))), ...
-                                    symbs, nums);
+    u = subs(-inv(u.Ms_hat)*(u.fs_hat_n + u.sr_p + ...
+                                   u.K*sign(subs(u.s, ...
+                                   symbs, [q_p; q_p_d]))), ...
+                                   symbs, [q_p; q_p_d])
+    
+    u = u_struct.control(q_p, q_p_d);
     
     plant = subs(sys.dyn.plant, sys.descrip.syms, ...
                  sys.descrip.model_params);
