@@ -1,8 +1,5 @@
-run('~/github/Robotics4fun/examples/1_mass/code/main.m');
-
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-perc = 0;
 imprecision = perc*ones(size(sys.descrip.syms))';
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
@@ -72,7 +69,7 @@ hfigs_x = my_plot(tspan, x', plot_config);
 
 % Input plot
 plot_config.titles = {'', ''};
-plot_config.xlabels = {'$u_1$ [N]'};
+plot_config.xlabels = {'t [s]'};
 plot_config.ylabels = {'$u_1$ [N]'};
 plot_config.grid_size = [1, 1];
 
@@ -104,10 +101,10 @@ end
 hfigs_s = my_plot(tspan', s, plot_config);
 
 % States
-saveas(hfigs_x, '../imgs/x_1_', 100*perc, '.eps', 'eps');
+saveas(hfigs_x, ['../imgs/x_1_', int2str(100*perc), '.eps'], 'eps');
 
 % States
-saveas(hfigs_u, '../imgs/u_1_', 100*perc, '.eps', 'eps');
+saveas(hfigs_u, ['../imgs/u_1_', int2str(100*perc), '.eps'], 'eps');
 
 % Sliding function
-saveas(hfigs_s, '../imgs/s_1_', 100*perc, '.eps', 'eps');
+saveas(hfigs_s, ['../imgs/s_1_', int2str(100*perc), '.eps'], 'eps');

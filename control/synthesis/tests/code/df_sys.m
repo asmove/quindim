@@ -10,7 +10,7 @@ function dx = df_sys(t, x, q_p_d, u_struct, sys, tf)
         dt = 0;
         wb = my_waitbar('Simulate underactuated');
     end
-
+    wb.idx
     q_p = x(1:end);
     q_p_s = [sys.kin.q; sys.kin.p];
     
@@ -26,10 +26,12 @@ function dx = df_sys(t, x, q_p_d, u_struct, sys, tf)
     
     symbs = [q_p_s; q_p_d_s];
     nums = [q_p; q_p_d];
+    
+    s_n = subs(u_struct.s, symbs, nums);
+    double(s_n)
+    
     u = subs(-inv(u_struct.Ms_hat)*(u_struct.fs_hat_n + u_struct.sr_p + ...
-                                    u_struct.K*switch_func(...
-                                    subs(u_struct.s, symbs, nums))), ...
-                                    symbs, nums);
+                                    u_struct.K*switch_func(s_n)), symbs, nums);
     
     plant = subs(sys.dyn.plant, sys.descrip.syms, ...
                  sys.descrip.model_params);

@@ -1,37 +1,35 @@
-run('~/github/Robotics4fun/examples/2_masses/code/main.m');
-
-% Params and parameters estimation
-model_params = sys.descrip.model_params.';
-imprecision = perc*ones(size(sys.descrip.syms))';
-params_lims = [(1-imprecision).*model_params, ...
-               (1+imprecision).*model_params];
-
-rel_qqbar = sys.kin.q(1);
-
-[n, m] = size(sys.dyn.Z);
-
-% Control action
-eta = ones(m, 1);
-poles = -5*ones(m, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
-
-len_params = length(sys.descrip.model_params);
-
-% Initial values
-x0 = [0; 0; 0; 0];
-
-% Tracking values
-x_xp_d = [1; 0; 0; 0];
-xpp_d = [0; 0];
-
-x_d = [x_xp_d; xpp_d];
-
-% Initial conditions
-tf = 30;
-tspan = 0:0.01:tf;
-df_h = @(t, x) df_sys(t, x, x_d, u, sys, tf);
-sol = my_ode45(df_h, tspan, x0);
-
+% % Params and parameters estimation
+% model_params = sys.descrip.model_params.';
+% imprecision = perc*ones(size(sys.descrip.syms))';
+% params_lims = [(1-imprecision).*model_params, ...
+%                (1+imprecision).*model_params];
+% 
+% rel_qqbar = sys.kin.q(1);
+% 
+% [n, m] = size(sys.dyn.Z);
+% 
+% % Control action
+% eta = ones(m, 1);
+% poles = -5*ones(m, 1);
+% u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
+% 
+% len_params = length(sys.descrip.model_params);
+% 
+% % Initial values
+% x0 = [0; 0; 0; 0];
+% 
+% % Tracking values
+% x_xp_d = [1; 0; 0; 0];
+% xpp_d = [0; 0];
+% 
+% x_d = [x_xp_d; xpp_d];
+% 
+% % Initial conditions
+% tf = 30;
+% tspan = 0:0.1:tf;
+% df_h = @(t, x) df_sys(t, x, x_d, u, sys, tf);
+% sol = my_ode45(df_h, tspan, x0);
+% 
 [m, ~] = size(sys.dyn.Z);
 
 % Plot part
@@ -104,10 +102,10 @@ end
 hfigs_s = my_plot(tspan', s, plot_config);
 
 % States
-saveas(hfigs_x, '../imgs/x_2_', 100*perc, '.eps', 'eps');
+saveas(hfigs_x, ['../imgs/x_2_', int2str(100*perc), '.eps'], 'eps');
 
 % Control input
-saveas(hfigs_u, '../imgs/u_2_', 100*perc, '.eps', 'eps');
+saveas(hfigs_u, ['../imgs/u_2_', int2str(100*perc), '.eps'], 'eps');
 
 % Sliding function
-saveas(hfigs_s, '../imgs/s_2_', 100*perc, '.eps', 'eps');
+saveas(hfigs_s, ['../imgs/s_2_', int2str(100*perc), '.eps'], 'eps');

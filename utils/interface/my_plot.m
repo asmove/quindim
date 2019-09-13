@@ -21,7 +21,7 @@ function hfigs = my_plot(t, x, plot_config)
 
     remaind_n = rem(n, n_subplots);
     n_windows = (n - remaind_n)/n_subplots;
-(n - remaind_n)/n_subplots
+    
     i = 1;
     while(i <= n_windows)
         hfig = my_figure();
