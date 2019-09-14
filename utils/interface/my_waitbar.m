@@ -110,7 +110,7 @@ classdef my_waitbar
                 
                 obj.t_end_str = datestr(seconds(t_f), 'HH:MM:SS');
                 obj.msg = sprintf(obj.time_mask, perc, ...
-                              obj.speed, obj.t_curr_str, obj.t_end_str);
+                                  obj.speed, obj.t_curr_str, obj.t_end_str);
             
             else                
                 obj.speed = perc/obj.t_real;
@@ -131,7 +131,7 @@ classdef my_waitbar
             end
             
             waitbar(t/tf, obj.wb, obj.msg);
-            
+            disp(':)')
             obj.previous_t = tic;
         end
         
