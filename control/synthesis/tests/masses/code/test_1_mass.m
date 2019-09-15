@@ -9,8 +9,8 @@ rel_qqbar = sys.kin.q;
 n = length(sys.kin.q);
 
 % Control action
-eta = ones(n, 1);
-poles = -5*ones(n, 1);
+eta = 10000*ones(n, 1);
+poles = -1000*ones(n, 1);
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
 
 len_params = length(sys.descrip.model_params);
@@ -19,15 +19,15 @@ len_params = length(sys.descrip.model_params);
 x0 = [0; 0];
 
 % Tracking values
-x_xp_d = [1; 0];
-xpp_d = 0;
-
-x_d = [x_xp_d; xpp_d];
+A = 127;
+w = 2*pi*60;
+q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
+%q_p_ref_fun = @(t) [1; 0; 0];
 
 % Initial conditions
-tf = 10;
-tspan = 0:0.01:tf;
-df_h = @(t, x) df_sys(t, x, x_d, u, sys, tf);
+tf = 0.01;
+tspan = 0:0.00001:tf;
+df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
 
 [m, ~] = size(sys.dyn.Z);
@@ -48,7 +48,7 @@ u_n = zeros(t_len, m);
 
 for i = 1:t_len
     x_i = x(:, i);
-    x_di = x_d;
+    x_di = q_p_ref_fun(tspan(i));
     
     x_xd_i = [x_i; x_di];
     x_xd_s = [q_p_s; q_p_d_s];
@@ -88,7 +88,7 @@ lambda = u.lambda;
 
 for i = 1:t_len
     x_i = x(:, i);
-    x_di = x_d;
+    x_di = q_p_ref_fun(tspan(i));
     
     x_xd_i = [x_i; x_di];
     x_xd_s = [q_p_s; q_p_d_s];

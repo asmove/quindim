@@ -7,15 +7,15 @@ clc
 
 % The 'real' statement on end is important
 % for inner simplifications
-syms F q i ip real;
+syms F q current ip real;
 syms R L C g real;
-syms Vcc u real;
+syms u real;
 
 % Paramater symbolics of the system
-sys.descrip.syms = [R, L, C, Vcc];
+sys.descrip.syms = [R, L, C];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [25e-6, 19e-3, 0.5, 140];
+sys.descrip.model_params = [0.5, 19e-3, 25e-6];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; 0];
@@ -30,47 +30,42 @@ L0 = zeros(3, 1);
 % Bodies definition
 T = {T3d(0, [0, 0, 1].', [q; 0; 0])};
 
-damper = build_damper(R, [0; 0; 0], [i; 0; 0]);
+damper = build_damper(R, [0; 0; 0], [current; 0; 0]);
 spring = build_spring(1/C, [0; 0; 0], [q; 0; 0]);
 block = build_body(L, I, T, L0, damper, spring, ...
-                   q, i, ip, struct(''), []);
+                   q, current, ip, struct(''), []);
 
 sys.descrip.bodies = block;
 
 % Generalized coordinates
 sys.kin.q = q;
-sys.kin.qp = i;
+sys.kin.qp = current;
 sys.kin.qpp = ip;
 
 % External excitations
-sys.descrip.Fq = Vcc*u;
+sys.descrip.Fq = u;
 sys.descrip.u = u;
 
 % Constraint condition
 sys.descrip.is_constrained = false;
 
 % Sensors
-sys.descrip.y = i;
+sys.descrip.y = current;
 
 % State space representation
-sys.descrip.states = [q; i];
+sys.descrip.states = [q; current];
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
-
-% Decay time
-m_num = sys.descrip.model_params(1);
-b_num = sys.descrip.model_params(2);
-T = m_num/b_num;
 
 % Time [s]
 dt = 0.01;
 tf = 5;
 t = 0:dt:tf; 
 
-% Initia conditions [m; m/s]
-x0 = [0; 1];
+% Initial conditions [C, A]
+x0 = [0; 1e-3];
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);

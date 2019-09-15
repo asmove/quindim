@@ -1,6 +1,5 @@
 % Minimal example
 % @Author: Bruno Peixoto
-
 clear all
 close all
 clc
@@ -14,7 +13,8 @@ syms m b k g real;
 sys.descrip.syms = [m, b, k, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [1, 0, 9, 9.8];
+%sys.descrip.model_params = [1, 0.1, 1, 9.8];
+sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];
@@ -64,8 +64,8 @@ b_num = sys.descrip.model_params(2);
 T = m_num/b_num;
 
 % Time [s]
-dt = 0.01;
-tf = 5;
+dt = 0.001;
+tf = 1;
 t = 0:dt:tf; 
 
 % Initia conditions [m; m/s]
@@ -73,8 +73,7 @@ x0 = [0; 1];
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);
-t = sol.x.';
-x = sol.y.';
+x = sol';
 
 titles = {'$x$', '$\dot x$'};
 xlabels = {'$t$ [s]', '$t$ [s]'};

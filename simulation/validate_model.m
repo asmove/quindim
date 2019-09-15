@@ -8,8 +8,7 @@ function sol = validate_model(sys, t, x0, u0)
     cancel_sim = @(t, q_p) cancel_simulation(t, q_p, wb);
     
     % Mass matrix
-    opts = odeset('RelTol', 1e-7, 'AbsTol', 1e-7, 'Events', cancel_sim);
-    sol = ode45(df_, t, x0, opts);
+    sol = my_ode45(df_, t, x0);
     
     wb = evalin('base', 'wb');
     wb.close_window();

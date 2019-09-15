@@ -1,8 +1,8 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/RLC/code/main.m')
+clear all
+close all
+clc
+
+run('~/github/Robotics4fun/examples/RLC/code/main.m')
 
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
@@ -27,7 +27,8 @@ x0 = [0; 0];
 % Tracking values
 A = 127;
 w = 2*pi*60;
-q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
+%q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
+q_p_ref_fun = @(t) [1; 0; 0];
 
 % Initial conditions
 tf = 1;

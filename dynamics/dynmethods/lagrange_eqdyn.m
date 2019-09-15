@@ -12,7 +12,7 @@ function sys = lagrange_eqdyn(sys)
     sys.dyn.P = 0;
     sys.dyn.L = 0;
     sys.dyn.F = 0;
-        
+    
     % Kinetic, Potential, Lagrangian and Rayleigh of the bodies
     for i = 1:n
        [L, K, P] = lagrangian(bodies(i), sys.descrip.gravity);

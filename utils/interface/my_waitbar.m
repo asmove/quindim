@@ -131,7 +131,7 @@ classdef my_waitbar
             end
             
             waitbar(t/tf, obj.wb, obj.msg);
-            disp(':)')
+            
             obj.previous_t = tic;
         end
         
