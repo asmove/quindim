@@ -20,7 +20,8 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
 
     % Control output
     if(u_struct.is_sat)
-       switch_func = @(s) sat_sign(s, 0.1);
+        phi = evalin('base', 'phi');
+       switch_func = @(s) sat_sign(s, phi);
     else
         switch_func = @(s) sign(s);
     end

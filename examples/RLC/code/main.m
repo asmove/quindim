@@ -1,46 +1,44 @@
 % Minimal example
 % @Author: Bruno Peixoto
-
 clear all
 close all
 clc
 
 % The 'real' statement on end is important
 % for inner simplifications
-syms F q current ip real;
-syms R L C g real;
-syms u real;
+syms u Q I Ip real;
+syms m b k real;
 
 % Paramater symbolics of the system
-sys.descrip.syms = [R, L, C];
+sys.descrip.syms = [m, b, k];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [0.5, 19e-3, 25e-6];
+sys.descrip.model_params = [0.5, 19e-3, 1/25e-6];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; 0];
 sys.descrip.g = g;
 
 % Body inertia
-I = diag([L, L, L]);
+I = zeros(3, 3);
 
 % Position relative to body coordinate system
-L0 = zeros(3, 1);
+L = zeros(3, 1);
 
 % Bodies definition
-T = {T3d(0, [0, 0, 1].', [q; 0; 0])};
+T = {T3d(0, [0, 0, 1].', [x; 0; 0])};
 
-damper = build_damper(R, [0; 0; 0], [current; 0; 0]);
-spring = build_spring(1/C, [0; 0; 0], [q; 0; 0]);
-block = build_body(L, I, T, L0, damper, spring, ...
-                   q, current, ip, struct(''), []);
+damper = build_damper(b, [0; 0; 0], [xp; 0; 0]);
+spring = build_spring(k, [0; 0; 0], [x; 0; 0]);
+block = build_body(m, I, T, L, damper, spring, ...
+                   x, xp, xpp, struct(''), []);
 
 sys.descrip.bodies = block;
 
 % Generalized coordinates
-sys.kin.q = q;
-sys.kin.qp = current;
-sys.kin.qpp = ip;
+sys.kin.q = Q;
+sys.kin.qp = I;
+sys.kin.qpp = Ip;
 
 % External excitations
 sys.descrip.Fq = u;
@@ -50,31 +48,35 @@ sys.descrip.u = u;
 sys.descrip.is_constrained = false;
 
 % Sensors
-sys.descrip.y = current;
+sys.descrip.y = x;
 
 % State space representation
-sys.descrip.states = [q; current];
+sys.descrip.states = [x; xp];
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
+% Decay time
+m_num = sys.descrip.model_params(1);
+b_num = sys.descrip.model_params(2);
+T = m_num/b_num;
+
 % Time [s]
-dt = 0.01;
-tf = 5;
+tf = 0.05;
+dt = 0.0001;
 t = 0:dt:tf; 
 
-% Initial conditions [C, A]
-x0 = [0; 1e-3];
+% Initia conditions [m; m/s]
+x0 = [0; 0];
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);
-t = sol.x.';
-x = sol.y.';
+x = sol';
 
-titles = {'$q$', '$i$'};
+titles = {'', ''};
 xlabels = {'$t$ [s]', '$t$ [s]'};
-ylabels = {'$q$ [C]', '$i$ [A]'};
+ylabels = {'$Q$ [C]', '$i$ [A]'};
 grid_size = [2, 1];
 
 % Plot properties
@@ -86,10 +88,10 @@ plot_info.grid_size = grid_size;
 [hfigs_states, hfig_energies] = plot_sysprops(sys, t, x, plot_info);
 
 % Energies
-saveas(hfig_energies, '../imgs/energies.eps', 'epsc');
+saveas(hfig_energies, '../images/energies.eps', 'epsc');
 
 % States
 for i = 1:length(hfigs_states)
-   saveas(hfigs_states(i), ['../imgs/states', num2str(i), '.eps'], 'epsc'); 
+   saveas(hfigs_states(i), ['../images/states', num2str(i), '.eps'], 'epsc'); 
 end
 

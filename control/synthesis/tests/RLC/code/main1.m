@@ -1,6 +1,12 @@
+clear all
+close all
+clc
+
+run('~/github/Robotics4fun/examples/RLC/code/main.m')
+
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-imprecision = perc*ones(size(sys.descrip.syms))';
+imprecision = [0.1; 0.2; 0.99; 0];
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 
@@ -10,7 +16,7 @@ n = length(sys.kin.q);
 
 % Control action
 eta = ones(n, 1);
-poles = -10*ones(n, 1);
+poles = -5*ones(n, 1);
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
 
 len_params = length(sys.descrip.model_params);
@@ -21,13 +27,12 @@ x0 = [0; 0];
 % Tracking values
 A = 127;
 w = 2*pi*60;
-q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
-%q_p_ref_fun = @(t) [1; 0; 0];
+%q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
+q_p_ref_fun = @(t) [1; 0; 0];
 
 % Initial conditions
-tf = 5;
-dt = 0.01;
-tspan = 0:dt:tf;
+tf = 1;
+tspan = 0:0.01:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
 
@@ -49,7 +54,7 @@ u_n = zeros(t_len, m);
 
 for i = 1:t_len
     x_i = x(:, i);
-    x_di = q_p_ref_fun(tspan(i));
+    x_di = x_d;
     
     x_xd_i = [x_i; x_di];
     x_xd_s = [q_p_s; q_p_d_s];
@@ -89,7 +94,7 @@ lambda = u.lambda;
 
 for i = 1:t_len
     x_i = x(:, i);
-    x_di = q_p_ref_fun(tspan(i));
+    x_di = x_d;
     
     x_xd_i = [x_i; x_di];
     x_xd_s = [q_p_s; q_p_d_s];

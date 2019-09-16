@@ -1,6 +1,13 @@
+% clear all
+% close all
+% clc
+% 
+% run('~/github/Robotics4fun/examples/1_mass/code/main.m');
+
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-imprecision = perc*ones(size(sys.descrip.syms))';
+imprecision = [0; 0; 0; 0];
+%imprecision = [0.1; 0.2; 0.99; 0];
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 
@@ -9,8 +16,8 @@ rel_qqbar = sys.kin.q;
 n = length(sys.kin.q);
 
 % Control action
-eta = ones(n, 1);
-poles = -10*ones(n, 1);
+eta = 10000*ones(n, 1);
+poles = -1000*ones(n, 1);
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
 
 len_params = length(sys.descrip.model_params);
@@ -18,15 +25,17 @@ len_params = length(sys.descrip.model_params);
 % Initial values
 x0 = [0; 0];
 
+% Saturation parameter
+phi = 1;
+
 % Tracking values
-A = 127;
-w = 2*pi*60;
+A = 1;
+w = 2*pi*100;
 q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
-%q_p_ref_fun = @(t) [1; 0; 0];
 
 % Initial conditions
-tf = 5;
-dt = 0.01;
+tf = 0.01;
+dt = 1e-5;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
@@ -63,7 +72,7 @@ n = length(q_p);
 % States plot
 plot_config.titles = repeat_str('', n);
 plot_config.xlabels = repeat_str('t [s]', n);
-plot_config.ylabels = {'$x$ [m]', '$\dot{x}$ [m/s]'};
+plot_config.ylabels = {'$Q$ [C]', '$i$ [A]'};
 plot_config.grid_size = [1, 2];
 
 hfigs_x = my_plot(tspan, x', plot_config);
@@ -71,7 +80,7 @@ hfigs_x = my_plot(tspan, x', plot_config);
 % Input plot
 plot_config.titles = {'', ''};
 plot_config.xlabels = {'t [s]'};
-plot_config.ylabels = {'$u_1$ [N]'};
+plot_config.ylabels = {'$u$ [V]'};
 plot_config.grid_size = [1, 1];
 
 hfigs_u = my_plot(tspan, u_n, plot_config);
@@ -102,10 +111,10 @@ end
 hfigs_s = my_plot(tspan', s, plot_config);
 
 % States
-saveas(hfigs_x, ['../imgs/x_1_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_x, '../imgs/x.eps', 'epsc');
 
 % States
-saveas(hfigs_u, ['../imgs/u_1_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_u, '../imgs/u.eps', 'epsc');
 
 % Sliding function
-saveas(hfigs_s, ['../imgs/s_1_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_s, '../imgs/s.eps', 'epsc');
