@@ -7,11 +7,12 @@ params_lims = [(1-imprecision).*model_params, ...
 rel_qqbar = sys.kin.q;
 
 n = length(sys.kin.q);
+phi = 1;
 
 % Control action
-eta = ones(n, 1);
+eta = 0.1*ones(n, 1);
 poles = -10*ones(n, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, false);
 
 len_params = length(sys.descrip.model_params);
 
@@ -19,14 +20,11 @@ len_params = length(sys.descrip.model_params);
 x0 = [0; 0];
 
 % Tracking values
-A = 127;
-w = 2*pi*60;
-q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
-%q_p_ref_fun = @(t) [1; 0; 0];
+q_p_ref_fun = @(t) [1; 0; 0];
 
 % Initial conditions
-tf = 5;
-dt = 0.01;
+tf = 1;
+dt = 0.001;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
@@ -45,18 +43,6 @@ q_p_d_s = add_symsuffix([q_p_s; sys.kin.pp], '_d');
 
 [~, m] = size(sys.dyn.Z);
 
-u_n = zeros(t_len, m);
-
-for i = 1:t_len
-    x_i = x(:, i);
-    x_di = q_p_ref_fun(tspan(i));
-    
-    x_xd_i = [x_i; x_di];
-    x_xd_s = [q_p_s; q_p_d_s];
-    
-    u_n(i, :) = subs(u.output, x_xd_s, x_xd_i);
-end
-
 q_p = [sys.kin.q; sys.kin.p];
 n = length(q_p);
 
@@ -74,7 +60,8 @@ plot_config.xlabels = {'t [s]'};
 plot_config.ylabels = {'$u_1$ [N]'};
 plot_config.grid_size = [1, 1];
 
-hfigs_u = my_plot(tspan, u_n, plot_config);
+t_u = linspace(0, tf, length(u_control));
+hfigs_u = my_plot(t_u, u_control, plot_config);
 
 % Sliding function plot
 plot_config.titles = {''};
@@ -87,19 +74,8 @@ s = [];
 alpha_ = u.alpha;
 lambda = u.lambda;
 
-for i = 1:t_len
-    x_i = x(:, i);
-    x_di = q_p_ref_fun(tspan(i));
-    
-    x_xd_i = [x_i; x_di];
-    x_xd_s = [q_p_s; q_p_d_s];
-    
-    s_i = double(subs(u.s, x_xd_s, x_xd_i));
-    
-    s = [s; s_i];
-end
-
-hfigs_s = my_plot(tspan', s, plot_config);
+t_s = linspace(0, tf, length(sliding_s));
+hfigs_s = my_plot(t_s', sliding_s, plot_config);
 
 % States
 saveas(hfigs_x, ['../imgs/x_1_', int2str(100*perc), '.eps'], 'eps');

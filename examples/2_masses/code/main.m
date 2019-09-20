@@ -96,7 +96,7 @@ x0 = [0; 1; 0; 1];
 % Time [s]
 dt = 0.01;
 tf = 5;
-t = 0:dt:tf; 
+t = 0:dt:tf;
 
 [~, m] = size(sys.dyn.Z);
 

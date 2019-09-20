@@ -15,4 +15,7 @@ function sol = my_ode45(func, tspan, x0)
         sol(:, end+1) = x;
         x_1 = x;
     end
+    
+    wb = evalin('base', 'wb');
+    wb.close_window();
 end

@@ -7,8 +7,6 @@ function Fs = dynamics_uncertainties(fs, q_p, params_s, params_lims)
     params_max = params_lims(:, 2);
 
     abs_fs_fshat = expand(fs - fs_hat);
-
-    abs_fs_fshat     
    
     fs_len = length(fs);
     Fs = sym(zeros(fs_len, 1));
