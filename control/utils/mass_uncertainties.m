@@ -57,13 +57,13 @@ function D = supinf_matrix(matrix, q_p, params_syms, params_lims, is_min)
             label = sprintf('(%d, %d)', i, j);
             
             % Numerator and denominator for D matriq_p
-            maj_num = func_minmax(num, q_p, is_min, label);
+            maj_num = abs_func_maj(num, q_p, label);
             maj_num = vpa(subs(maj_num, params_syms, params_max));
             
-            maj_den = func_minmax(den, q_p, ~is_min, label);
-            maj_den = vpa(subs(maj_den, params_syms, params_min));
+            min_den = abs_func_min(den, q_p, is_min, label);
+            min_den = vpa(subs(min_den, params_syms, params_min));
             
-            D(i, j) = maj_num/maj_den;
+            D(i, j) = maj_num/min_den;
         end
     end
 end

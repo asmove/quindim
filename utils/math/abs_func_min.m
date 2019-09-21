@@ -1,4 +1,4 @@
-function expr_sup = func_minmax(expr, x, is_min, label)
+function expr_sup = abs_func_min(expr, x, is_min, label)
     expr = expand(expr);
     expr_strip = strsplit(char(expr));
     
@@ -24,6 +24,8 @@ function expr_sup = func_minmax(expr, x, is_min, label)
 
         expr_sym = sym(1);
         expr_x = sym(1);
+        expr_x_ = sym(1);
+        expr_x_acc = sym(1);
         
         for monome = monomes
             monome_sym = sym(monome);
@@ -40,23 +42,28 @@ function expr_sup = func_minmax(expr, x, is_min, label)
                 for bounded_func = bounded_funcs
                     if(all(ismember(char(bounded_func), char(monome))))
                         if(is_min)
+                            expr_x_ = expr_x_*sym(monome);
                             expr_x = expr_x*sym(0);
-                            break;
+                            
                         else
                             expr_x = expr_x*sym(1);
                         end
                     end
                 end
                 
-                expr_x = sym(expr_x*monome_sym);
+                expr_x = sym(expr_x*monome_sym);      
             end
         end
         
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));
         expr_sup = expr_sup + expr_i_sup;
         
+        expr_x_acc = expr_x_acc + expr_x_;
+        
         wb_outer = wb_outer.update_waitbar(i, length(exprs));
     end
+    
+    expr_x_acc
     
     wb_outer.close_window();
 end
