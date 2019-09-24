@@ -1,13 +1,13 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/1_mass/code/main.m');
+clear all
+close all
+clc
+
+run('main.m');
 
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-imprecision = [0; 0; 0; 0];
-%imprecision = [0.1; 0.2; 0.99; 0];
+imprecision = [0; 0; 0];
+%imprecision = [0.99; 0.1; 0.2];
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 
@@ -16,8 +16,8 @@ rel_qqbar = sys.kin.q;
 n = length(sys.kin.q);
 
 % Control action
-eta = 10000*ones(n, 1);
-poles = -1000*ones(n, 1);
+eta = 5*ones(n, 1);
+poles = -10*ones(n, 1);
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
 
 len_params = length(sys.descrip.model_params);
@@ -34,8 +34,8 @@ w = 2*pi*100;
 q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
 
 % Initial conditions
-tf = 0.01;
-dt = 1e-5;
+tf = 1e-3;
+dt = 1e-7;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
