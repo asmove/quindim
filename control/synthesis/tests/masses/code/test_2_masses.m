@@ -1,4 +1,4 @@
-perc = 10/100
+perc = 10/100;
 
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
