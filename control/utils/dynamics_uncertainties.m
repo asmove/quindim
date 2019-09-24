@@ -14,15 +14,13 @@ function Fs = dynamics_uncertainties(fs, q_p, params_s, params_lims)
         [num, den] = numden(abs_fs_fshat(i));
 
         % Numerator and denominator for f vector
-        num_sup = abs_func_maj(num, q_p, 'F calculation');
+        num_sup = triang_ineq(num, q_p, 'F calculation', ...
+                              [params_s; params_hat_s], ...
+                              [params_max; params_max], 0);
         
-        num_sup = subs(num_sup, params_s, params_max);
-        num_sup = subs(num_sup, params_hat_s, params_max);
-        
-        den_inf = abs_func_min(den, q_p, 1, 'F calculation');
-        
-        den_inf = subs(den_inf, params_s, params_min);
-        den_inf = subs(den_inf, params_hat_s, params_min);
+        den_inf = triang_ineq(den, q_p, 'F calculation', ...
+                              [params_s; params_hat_s], ...
+                              [params_min; params_min], 1);
         
         Fs(i) = num_sup./den_inf;
     end

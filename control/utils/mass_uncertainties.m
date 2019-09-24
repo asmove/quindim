@@ -15,27 +15,43 @@ function [D, I_m_tilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, param
     Mu_1 = inv(Mu);
     Ms_hat = sqrt(Ms_max*Ms_min);
     
-    D_Mu_sq = supinf_matrix(Mu, q_p, params_syms, params_lims, 0);
-    D_Mu_1_sq = supinf_matrix(Mu_1, q_p, params_syms, params_lims, 0);
-
-    D_Mu = abs(-eye(n) + sqrt(D_Mu_sq));
-    D_Mu_1 = abs(-eye(n) + sqrt(D_Mu_1_sq));
-
-    D_Mu = double(D_Mu);
-    D_Mu_1 = double(D_Mu_1);
-
+    % D calculation
+    D_Mu_sq_sup = supinf_matrix(Mu, q_p, params_syms, params_lims, 0);
+    D_Mu_1_sq_sup = supinf_matrix(Mu_1, q_p, params_syms, params_lims, 0);
+    
+    D_Mu_sup = abs(-eye(n) + sqrt(D_Mu_sq_sup));
+    D_Mu_1_sup = abs(-eye(n) + sqrt(D_Mu_1_sq_sup));
+    D_Mu_sup = double(D_Mu_sup);
+    D_Mu_1_sup = double(D_Mu_1_sup);
+        
     for i = 1:n
         for j = 1:n
-            if(D_Mu(i, j) > D_Mu_1(i, j))
-                D(i, j) = D_Mu(i, j);
+            if(D_Mu_sup(i, j) > D_Mu_1_sup(i, j))
+                D(i, j) = D_Mu_sup(i, j);
             else
-                D(i, j) = D_Mu_1(i, j);
+                D(i, j) = D_Mu_1_sup(i, j);
             end
         end
     end
     
-    I_m_tilde = abs(eye(n) - D);
+    % Dtilde calculation
+    D_Mu_sq_inf = supinf_matrix(Mu, q_p, params_syms, params_lims, 1);
+    D_Mu_1_sq_inf = supinf_matrix(Mu_1, q_p, params_syms, params_lims, 1);
     
+    D_Mu_inf = abs(sqrt(D_Mu_sq_inf));
+    D_Mu_1_inf = abs(sqrt(D_Mu_1_sq_inf));
+    D_Mu_inf = double(D_Mu_inf);
+    D_Mu_1_inf = double(D_Mu_1_inf);
+    
+    for i = 1:n
+        for j = 1:n
+            if(D_Mu_inf(i, j) < D_Mu_1_inf(i, j))
+                D(i, j) = D_Mu_inf(i, j);
+            else
+                D(i, j) = D_Mu_1_inf(i, j);
+            end
+        end
+    end
 end
 
 function D = supinf_matrix(matrix, q_p, params_syms, params_lims, is_min)
@@ -56,14 +72,19 @@ function D = supinf_matrix(matrix, q_p, params_syms, params_lims, is_min)
             
             label = sprintf('(%d, %d)', i, j);
             
-            % Numerator and denominator for D matriq_p
-            maj_num = abs_func_maj(num, q_p, label);
-            maj_num = vpa(subs(maj_num, params_syms, params_max));
+            if(is_min)
+                % Numerator and denominator for D matriq_p
+                num_lim = abs_func_min(num, q_p, label, params_syms);
+                den_lim = abs_func_maj(den, q_p, label, ...
+                                       params_lims, params_syms); 
+            else
+                % Numerator and denominator for D matriq_p
+                num_lim = abs_func_max(num, q_p, label, params_syms);
+                den_lim = abs_func_min(den, q_p, label, ...
+                                       params_lims, params_syms);
+            end
             
-            min_den = abs_func_min(den, q_p, is_min, label);
-            min_den = vpa(subs(min_den, params_syms, params_min));
-            
-            D(i, j) = maj_num/min_den;
+            D(i, j) = num_lim/den_lim;
         end
     end
 end

@@ -1,15 +1,14 @@
-function expr_sup = abs_func_min(expr, x, is_min, label)
+function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
     expr = expand(expr);
     expr_strip = strsplit(char(expr));
     
     i = 1:length(expr_strip);
 
     exprs = expr_strip(mod(i, 2) ~= 0);
-    
     bounded_funcs = {'sin', 'cos'};
     
     if(is_min)
-        goal = 'Minoration';
+        goal = 'Minoration'; 
     else
         goal = 'Majoration';
     end
@@ -17,15 +16,13 @@ function expr_sup = abs_func_min(expr, x, is_min, label)
     wb_outer = my_waitbar([label, ' - ', goal]);
     
     % Numerator expression
-    expr_sup = sym(0);
+    result = sym(0);
     for i = 1:length(exprs)
         expr_ = exprs(i);
         monomes = strsplit(char(expr_), '*');
 
         expr_sym = sym(1);
         expr_x = sym(1);
-        expr_x_ = sym(1);
-        expr_x_acc = sym(1);
         
         for monome = monomes
             monome_sym = sym(monome);
@@ -40,30 +37,26 @@ function expr_sup = abs_func_min(expr, x, is_min, label)
             else
                 % States of the system
                 for bounded_func = bounded_funcs
-                    if(all(ismember(char(bounded_func), char(monome))))
+                    is_bounded = ismember(char(bounded_func), char(monome));
+                    
+                    if(all(is_bounded))
                         if(is_min)
-                            expr_x_ = expr_x_*sym(monome);
-                            expr_x = expr_x*sym(0);
-                            
+                            expr_x = sym(0);
+                            break;
                         else
                             expr_x = expr_x*sym(1);
                         end
                     end
                 end
-                
-                expr_x = sym(expr_x*monome_sym);      
             end
         end
         
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));
-        expr_sup = expr_sup + expr_i_sup;
-        
-        expr_x_acc = expr_x_acc + expr_x_;
+        result = result + expr_i_sup;
         
         wb_outer = wb_outer.update_waitbar(i, length(exprs));
     end
     
-    expr_x_acc
-    
+    result = subs(result, symbs, params_eval);    
     wb_outer.close_window();
 end
