@@ -1,4 +1,4 @@
-function [D, I_m_tilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_lims)
+function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_lims)
     
     n = length(Ms);
     
@@ -11,44 +11,44 @@ function [D, I_m_tilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, param
     
     % inv(Mu) = I + inv(Ms_hat)
     % Mu = I + Ms_hat
-    Mu = Ms_max/Ms_min;
-    Mu_1 = inv(Mu);
+    Omega = Ms_max/Ms_min;
+    Omega_1 = inv(Omega);
     Ms_hat = sqrt(Ms_max*Ms_min);
     
     % D calculation
-    D_Mu_sq_sup = supinf_matrix(Mu, q_p, params_syms, params_lims, 0);
-    D_Mu_1_sq_sup = supinf_matrix(Mu_1, q_p, params_syms, params_lims, 0);
+    D_Omega_sq_sup = supinf_matrix(Omega, q_p, params_syms, params_lims, 0);
+    D_Omega_1_sq_sup = supinf_matrix(Omega_1, q_p, params_syms, params_lims, 0);
     
-    D_Mu_sup = abs(-eye(n) + sqrt(D_Mu_sq_sup));
-    D_Mu_1_sup = abs(-eye(n) + sqrt(D_Mu_1_sq_sup));
-    D_Mu_sup = double(D_Mu_sup);
-    D_Mu_1_sup = double(D_Mu_1_sup);
+    D_Omega_sup = abs(-eye(n) + sqrt(D_Omega_sq_sup));
+    D_Omega_1_sup = abs(-eye(n) + sqrt(D_Omega_1_sq_sup));
+    D_Omega_sup = double(D_Omega_sup);
+    D_Omega_1_sup = double(D_Omega_1_sup);
         
     for i = 1:n
         for j = 1:n
-            if(D_Mu_sup(i, j) > D_Mu_1_sup(i, j))
+            if(D_Omega_sup(i, j) > D_Omega_1_sup(i, j))
                 D(i, j) = D_Mu_sup(i, j);
             else
-                D(i, j) = D_Mu_1_sup(i, j);
+                D(i, j) = D_Omega_1_sup(i, j);
             end
         end
     end
     
     % Dtilde calculation
-    D_Mu_sq_inf = supinf_matrix(Mu, q_p, params_syms, params_lims, 1);
-    D_Mu_1_sq_inf = supinf_matrix(Mu_1, q_p, params_syms, params_lims, 1);
+    D_Omega_sq_inf = supinf_matrix(Omega, q_p, params_syms, params_lims, 1);
+    D_Omega_1_sq_inf = supinf_matrix(Omega_1, q_p, params_syms, params_lims, 1);
     
-    D_Mu_inf = abs(sqrt(D_Mu_sq_inf));
-    D_Mu_1_inf = abs(sqrt(D_Mu_1_sq_inf));
-    D_Mu_inf = double(D_Mu_inf);
-    D_Mu_1_inf = double(D_Mu_1_inf);
+    I_m_D_Omega_inf = abs(sqrt(D_Omega_sq_inf));
+    I_m_D_Omega_1_inf = abs(sqrt(D_Omega_1_sq_inf));
+    I_m_D_Omega_inf = double(I_m_D_Omega_inf);
+    I_m_D_Omega_1_inf = double(I_m_D_Omega_1_inf);
     
     for i = 1:n
         for j = 1:n
-            if(D_Mu_inf(i, j) < D_Mu_1_inf(i, j))
-                D(i, j) = D_Mu_inf(i, j);
+            if(I_m_D_Omega_inf(i, j) < I_m_D_Omega_1_inf(i, j))
+                Dtilde(i, j) = I_m_D_Omega_inf(i, j);
             else
-                D(i, j) = D_Mu_1_inf(i, j);
+                Dtilde(i, j) = I_m_D_Omega_1_inf(i, j);
             end
         end
     end
@@ -72,16 +72,21 @@ function D = supinf_matrix(matrix, q_p, params_syms, params_lims, is_min)
             
             label = sprintf('(%d, %d)', i, j);
             
+            % Minorate matrix
             if(is_min)
-                % Numerator and denominator for D matriq_p
-                num_lim = abs_func_min(num, q_p, label, params_syms);
-                den_lim = abs_func_maj(den, q_p, label, ...
-                                       params_lims, params_syms); 
+                num_lim = invtriang_ineq(num, q_p, label, ...
+                                         params_syms, params_lims, 1);
+                
+                den_lim = invtriang_ineq(den, q_p, label, ...
+                                         params_syms, params_lims, 0);
+            
+            % Majorate matrix
             else
-                % Numerator and denominator for D matriq_p
-                num_lim = abs_func_max(num, q_p, label, params_syms);
-                den_lim = abs_func_min(den, q_p, label, ...
-                                       params_lims, params_syms);
+                num_lim = triang_ineq(num, q_p, label, ...
+                                      params_syms, params_max, 0);
+                                  
+                den_lim = triang_ineq(den, q_p, label, ...
+                                      params_syms, params_min, 1);
             end
             
             D(i, j) = num_lim/den_lim;

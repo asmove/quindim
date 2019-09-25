@@ -74,22 +74,24 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
     
     result = 0;
     
-    func_opt = abs(abs(params_1) - abs(params_others));
+    phi = abs(abs(params_1) - abs(params_others));
     
     if(~is_min)
-        func_opt = -func_opt;
+        phi = -phi;
     end
     
-    func_obj = @(params) func_opt(params, func_opt, symbs);
+    func_obj = @(params) func_opt(params, phi, symbs);
+    func_cond = @(params) func_bounds(params, params_lims);
     
     params0 = (params_min + params_max)/2;
     options = optimoptions('fmincon','Algorithm','interior-point');
     
     % run interior-point algorithm
-    options = optimoptions('fmincon');
-    [opt_params, result] = fmincon(func_obj_1, params0, [], [], [], [], ...
+    options = optimoptions('fmincon', 'Display', 'final-detailed');
+    [opt_params, result] = fmincon(func_obj, params0, [], [], [], [], ...
                                     params_min, params_max, func_cond, ...
                                     options);
+                                
     if(~is_min)
         result = -result;
     end

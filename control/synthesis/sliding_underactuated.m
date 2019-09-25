@@ -54,15 +54,15 @@ function u = sliding_underactuated(sys, etas, poles, ...
     Fs = dynamics_uncertainties(fs_s, q_p, params_s, params_lims);
     
     % Mass matrix uncertainties
-    [D, I_m_tilde, Ms_hat_n] = mass_uncertainties(Ms_s, q_p, params_s, ...
+    [D, Dtilde, Ms_hat_n] = mass_uncertainties(Ms_s, q_p, params_s, ...
                                                   params_lims);
     
-    if(all(eig(I_m_tilde) > 1) || all(eig(I_m_tilde) < 0))
+    if(all(eig(Dtilde) > 1) || all(eig(Dtilde) < 0))
         error('D_tilde MUST have eigenvalues lower than 1 and greater than 0');
     end
                                             
     % Gains
-    k = simplify_(inv(I_m_tilde)*(Fs + D*abs(sr_p + fs_hat_n) + etas));
+    k = simplify_(inv(Dtilde)*(Fs + D*abs(sr_p + fs_hat_n) + etas));
     
     k = subs(k, params_hat_s, params_hat_n);
     K = vpa(diag(k));
@@ -85,7 +85,7 @@ function u = sliding_underactuated(sys, etas, poles, ...
     
     % Maximum and minimum of mass matrix and dynamic vector
     u.D = D;
-    u.I_m_tilde = I_m_tilde;
+    u.Dtilde = Dtilde;
     u.Fs = Fs;
     
     % Sliding surface

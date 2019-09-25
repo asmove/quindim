@@ -12,7 +12,7 @@ rel_qqbar = sys.kin.q(1);
 
 % Control action
 eta = ones(m, 1);
-poles = -5*ones(m, 1);
+poles = -ones(m, 1);
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
 
 len_params = length(sys.descrip.model_params);
@@ -45,16 +45,6 @@ q_p_d_s = add_symsuffix([q_p_s; sys.kin.pp], '_d');
 [~, m] = size(sys.dyn.Z);
 u_n = zeros(t_len, m);
 
-for i = 1:t_len
-    x_i = x(:, i);
-    x_di = x_d;
-    
-    x_xd_i = [x_i; x_di];
-    x_xd_s = [q_p_s; q_p_d_s];
-    
-    u_n(i, :) = subs(u.output, x_xd_s, x_xd_i);
-end
-
 q_p = [sys.kin.q; sys.kin.p];
 n = length(q_p);
 
@@ -73,7 +63,7 @@ plot_config.xlabels = {'$u_1$ [N]'};
 plot_config.ylabels = {'$u_1$ [N]'};
 plot_config.grid_size = [2, 1];
 
-hfigs_u = my_plot(tspan, u_n, plot_config);
+hfigs_u = my_plot(tspan, u_control, plot_config);
 
 % Sliding function plot
 plot_config.titles = {''};
@@ -86,19 +76,7 @@ s = [];
 alpha_ = u.alpha;
 lambda = u.lambda;
 
-for i = 1:t_len
-    x_i = x(:, i);
-    x_di = x_d;
-    
-    x_xd_i = [x_i; x_di];
-    x_xd_s = [q_p_s; q_p_d_s];
-    
-    s_i = double(subs(u.s, x_xd_s, x_xd_i));
-    
-    s = [s; s_i];
-end
-
-hfigs_s = my_plot(tspan', s, plot_config);
+hfigs_s = my_plot(tspan', sliding_s, plot_config);
 
 % States
 saveas(hfigs_x, ['../imgs/x_2_', int2str(100*perc), '.eps'], 'eps');
