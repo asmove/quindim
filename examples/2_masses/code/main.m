@@ -103,17 +103,14 @@ t = 0:dt:tf;
 % System modelling
 sol = validate_model(sys, t, x0, zeros(m, 1));
 
-x = sol.x.';
-y = sol.y.';
-
 plot_info.titles = {'$x_1$', '$\dot x_1$', '$x_2$', '$\dot x_2$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
 plot_info.ylabels = {'$x_1$ $[m]$', '$\dot x_1$ $[m/s]$', '$x_2$ $[m]$', '$\dot x_2$ $[m/s]$'};
 plot_info.grid_size = [2, 2];
 
 % States and energies plot
-hfigs_states = my_plot(x, y, plot_info);
-hfig_energies = plot_energies(sys, x, y);
+hfigs_states = my_plot(t, sol', plot_info);
+hfig_energies = plot_energies(sys, t, sol');
 
 % Energies
 saveas(hfig_energies, '../images/energies', 'epsc');

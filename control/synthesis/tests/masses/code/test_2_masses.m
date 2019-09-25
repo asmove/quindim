@@ -1,5 +1,3 @@
-perc = 10/100
-
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
 imprecision = perc*ones(size(sys.descrip.syms))';
@@ -23,9 +21,12 @@ x0 = [0; 0; 0; 0];
 % Tracking values
 x_xp_d = @(t) [1; 0; 0; 0; 0; 0];
 
+phi = 1;
+
 % Initial conditions
 tf = 10;
-tspan = 0:0.1:tf;
+dt = 0.01;
+tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
 
@@ -63,7 +64,8 @@ plot_config.xlabels = {'$u_1$ [N]'};
 plot_config.ylabels = {'$u_1$ [N]'};
 plot_config.grid_size = [2, 1];
 
-hfigs_u = my_plot(tspan, u_control, plot_config);
+t = linspace(0, tf, length(u_control));
+hfigs_u = my_plot(t, u_control, plot_config);
 
 % Sliding function plot
 plot_config.titles = {''};
@@ -76,7 +78,8 @@ s = [];
 alpha_ = u.alpha;
 lambda = u.lambda;
 
-hfigs_s = my_plot(tspan', sliding_s, plot_config);
+t = linspace(0, tf, length(sliding_s));
+hfigs_s = my_plot(t, sliding_s, plot_config);
 
 % States
 saveas(hfigs_x, ['../imgs/x_2_', int2str(100*perc), '.eps'], 'eps');
