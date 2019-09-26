@@ -6,13 +6,13 @@ params_lims = [(1-imprecision).*model_params, ...
 
 rel_qqbar = sys.kin.q;
 
-[m, n] = size(sys.dyn.Z);
+[m, ~] = size(sys.dyn.Z);
 phi = 1;
 
 % Control action
-eta = ones(m, 1);
-poles = -ones(m, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
+eta = 50*ones(m, 1);
+poles = -10*ones(m, 1);
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, false);
 
 len_params = length(sys.descrip.model_params);
 
@@ -23,7 +23,7 @@ x0 = [0; 0];
 q_p_ref_fun = @(t) [1; 0; 0];
 
 % Initial conditions
-tf = 2;
+tf = 0.5;
 dt = 0.001;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);

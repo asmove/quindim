@@ -13,7 +13,7 @@ syms m b k real;
 sys.descrip.syms = [m, b, k];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [0.5, 19e-3, 1/25e-6];
+sys.descrip.model_params = [0.5, 19e-3, 1/100e-6];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; 0];
@@ -70,28 +70,28 @@ t = 0:dt:tf;
 % Initia conditions [m; m/s]
 x0 = [0; 0];
 
-% System modelling
-sol = validate_model(sys, t, x0, 0);
-x = sol';
-
-titles = {'', ''};
-xlabels = {'$t$ [s]', '$t$ [s]'};
-ylabels = {'$Q$ [C]', '$i$ [A]'};
-grid_size = [2, 1];
-
-% Plot properties
-plot_info.titles = titles;
-plot_info.xlabels = xlabels;
-plot_info.ylabels = ylabels;
-plot_info.grid_size = grid_size;
-
-[hfigs_states, hfig_energies] = plot_sysprops(sys, t, x, plot_info);
-
-% Energies
-saveas(hfig_energies, '../images/energies.eps', 'epsc');
-
-% States
-for i = 1:length(hfigs_states)
-   saveas(hfigs_states(i), ['../images/states', num2str(i), '.eps'], 'epsc'); 
-end
+% % System modelling
+% sol = validate_model(sys, t, x0, 0);
+% x = sol';
+% 
+% titles = {'', ''};
+% xlabels = {'$t$ [s]', '$t$ [s]'};
+% ylabels = {'$Q$ [C]', '$i$ [A]'};
+% grid_size = [2, 1];
+% 
+% % Plot properties
+% plot_info.titles = titles;
+% plot_info.xlabels = xlabels;
+% plot_info.ylabels = ylabels;
+% plot_info.grid_size = grid_size;
+% 
+% [hfigs_states, hfig_energies] = plot_sysprops(sys, t, x, plot_info);
+% 
+% % Energies
+% saveas(hfig_energies, '../images/energies.eps', 'epsc');
+% 
+% % States
+% for i = 1:length(hfigs_states)
+%    saveas(hfigs_states(i), ['../images/states', num2str(i), '.eps'], 'epsc'); 
+% end
 

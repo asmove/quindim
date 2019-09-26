@@ -11,6 +11,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
         t_1 = t;
         dt = 0;
         wb = my_waitbar('Simulate underactuated');
+        u_acc = [];
     end
         
     q_p = x(1:end);
@@ -41,6 +42,8 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     plant = subs(plant, sys.descrip.u, u);
     
+    u_acc = [u_acc; u];
+    
     dx = double(subs(plant, q_p_s, q_p));
     
     u_acc = [u_acc; u];
@@ -51,6 +54,8 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     assignin('base', 'wb', wb);
     
     wb = wb.update_waitbar(t, tf);
+    
+    assignin('base', 'u_control', u_acc);
     
     dt = t - t_1;
     t_1 = t;
