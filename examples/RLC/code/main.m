@@ -7,31 +7,31 @@ clc
 % The 'real' statement on end is important
 % for inner simplifications
 syms u Q I Ip real;
-syms m b k real;
+syms L R k g real;
 
 % Paramater symbolics of the system
-sys.descrip.syms = [m, b, k];
+sys.descrip.syms = [L, R, k, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [0.5, 19e-3, 1/25e-6];
+sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; 0];
 sys.descrip.g = g;
 
 % Body inertia
-I = zeros(3, 3);
+Inertia = zeros(3, 3);
 
 % Position relative to body coordinate system
-L = zeros(3, 1);
+Lg = zeros(3, 1);
 
 % Bodies definition
-T = {T3d(0, [0, 0, 1].', [x; 0; 0])};
+T = {T3d(0, [0, 0, 1].', [Q; 0; 0])};
 
-damper = build_damper(b, [0; 0; 0], [xp; 0; 0]);
-spring = build_spring(k, [0; 0; 0], [x; 0; 0]);
-block = build_body(m, I, T, L, damper, spring, ...
-                   x, xp, xpp, struct(''), []);
+resistor = build_damper(R, [0; 0; 0], [I; 0; 0]);
+capacitor = build_spring(k, [0; 0; 0], [Q; 0; 0]);
+block = build_body(L, Inertia, T, Lg, resistor, capacitor, ...
+                   Q, I, Ip, struct(''), []);
 
 sys.descrip.bodies = block;
 
@@ -44,14 +44,18 @@ sys.kin.qpp = Ip;
 sys.descrip.Fq = u;
 sys.descrip.u = u;
 
+% External excitations
+sys.descrip.Fq = u;
+sys.descrip.u = u;
+
 % Constraint condition
 sys.descrip.is_constrained = false;
 
 % Sensors
-sys.descrip.y = x;
+sys.descrip.y = I;
 
 % State space representation
-sys.descrip.states = [x; xp];
+sys.descrip.states = [Q; I];
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
@@ -88,10 +92,12 @@ plot_info.grid_size = grid_size;
 [hfigs_states, hfig_energies] = plot_sysprops(sys, t, x, plot_info);
 
 % Energies
-saveas(hfig_energies, '../images/energies.eps', 'epsc');
+saveas(hfig_energies, '../imgs/energies.eps', 'epsc');
 
 % States
 for i = 1:length(hfigs_states)
-   saveas(hfigs_states(i), ['../images/states', num2str(i), '.eps'], 'epsc'); 
+   saveas(hfigs_states(i), ['../imgs/states', num2str(i), '.eps'], 'epsc'); 
 end
+
+
 

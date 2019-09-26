@@ -1,8 +1,8 @@
 % clear all
 % close all
 % clc
-% 
-% run('~/github/Robotics4fun/examples/1_mass/code/main.m');
+
+% run('~/github/Robotics4fun/examples/RLC/code/main.m');
 
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
@@ -16,9 +16,9 @@ rel_qqbar = sys.kin.q;
 n = length(sys.kin.q);
 
 % Control action
-eta = 10000*ones(n, 1);
-poles = -1000*ones(n, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
+eta = 10*ones(n, 1);
+poles = -10*ones(n, 1);
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, false);
 
 len_params = length(sys.descrip.model_params);
 
@@ -54,18 +54,6 @@ q_p_d_s = add_symsuffix([q_p_s; sys.kin.pp], '_d');
 
 [~, m] = size(sys.dyn.Z);
 
-u_n = zeros(t_len, m);
-
-for i = 1:t_len
-    x_i = x(:, i);
-    x_di = q_p_ref_fun(tspan(i));
-    
-    x_xd_i = [x_i; x_di];
-    x_xd_s = [q_p_s; q_p_d_s];
-    
-    u_n(i, :) = subs(u.output, x_xd_s, x_xd_i);
-end
-
 q_p = [sys.kin.q; sys.kin.p];
 n = length(q_p);
 
@@ -75,6 +63,7 @@ plot_config.xlabels = repeat_str('t [s]', n);
 plot_config.ylabels = {'$Q$ [C]', '$i$ [A]'};
 plot_config.grid_size = [1, 2];
 
+
 hfigs_x = my_plot(tspan, x', plot_config);
 
 % Input plot
@@ -83,7 +72,8 @@ plot_config.xlabels = {'t [s]'};
 plot_config.ylabels = {'$u$ [V]'};
 plot_config.grid_size = [1, 1];
 
-hfigs_u = my_plot(tspan, u_n, plot_config);
+t_ = linspace(0, tf, length(u_control))';
+hfigs_u = my_plot(t_, u_control, plot_config);
 
 % Sliding function plot
 plot_config.titles = {''};
@@ -96,19 +86,8 @@ s = [];
 alpha_ = u.alpha;
 lambda = u.lambda;
 
-for i = 1:t_len
-    x_i = x(:, i);
-    x_di = q_p_ref_fun(tspan(i));
-    
-    x_xd_i = [x_i; x_di];
-    x_xd_s = [q_p_s; q_p_d_s];
-    
-    s_i = double(subs(u.s, x_xd_s, x_xd_i));
-    
-    s = [s; s_i];
-end
-
-hfigs_s = my_plot(tspan', s, plot_config);
+t_ = linspace(0, tf, length(u_control))';
+hfigs_s = my_plot(t_, sliding_s, plot_config);
 
 % States
 saveas(hfigs_x, '../imgs/x.eps', 'epsc');
