@@ -46,6 +46,8 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     dx = double(subs(plant, q_p_s, q_p));
     
+    u
+    
     u_acc = [u_acc; u];
     s_acc = [s_acc; s_n];
     
