@@ -11,7 +11,10 @@ rel_qqbar = sys.kin.q(1);
 % Control action
 eta = 100*ones(m, 1);
 poles = -10*ones(m, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, false);
+
+is_sat = true;
+
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, is_sat);
 
 len_params = length(sys.descrip.model_params);
 
@@ -24,7 +27,7 @@ x_xp_d = @(t) [1; 0; 0; 0; 0; 0];
 phi = 1;
 
 % Initial conditions
-tf = 1;
+tf = 0.5;
 dt = 0.001;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
@@ -81,11 +84,17 @@ lambda = u.lambda;
 t = linspace(0, tf, length(sliding_s));
 hfigs_s = my_plot(t, sliding_s, plot_config);
 
+if(is_sat)
+    posfix = '_sat';
+else
+    posfix = '_deg';
+end
+
 % States
-saveas(hfigs_x, ['../imgs/x_2_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_x, ['../imgs/x_2_', int2str(100*perc), posfix, '.eps'], 'eps');
 
 % Control input
-saveas(hfigs_u, ['../imgs/u_2_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_u, ['../imgs/u_2_', int2str(100*perc), posfix, '.eps'], 'eps');
 
 % Sliding function
-saveas(hfigs_s, ['../imgs/s_2_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_s, ['../imgs/s_2_', int2str(100*perc), posfix, '.eps'], 'eps');

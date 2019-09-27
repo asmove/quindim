@@ -12,7 +12,7 @@ phi = 1;
 % Control action
 eta = 50*ones(m, 1);
 poles = -10*ones(m, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, false);
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
 
 len_params = length(sys.descrip.model_params);
 
@@ -77,11 +77,17 @@ lambda = u.lambda;
 t_s = linspace(0, tf, length(sliding_s));
 hfigs_s = my_plot(t_s', sliding_s, plot_config);
 
-% States
-saveas(hfigs_x, ['../imgs/x_1_', int2str(100*perc), '.eps'], 'eps');
+if(is_sat)
+    posfix = '_sat';
+else
+    posfix = '_deg';
+end
 
 % States
-saveas(hfigs_u, ['../imgs/u_1_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_x, ['../imgs/x_1_', int2str(100*perc), posfix, '.eps'], 'eps');
+
+% States
+saveas(hfigs_u, ['../imgs/u_1_', int2str(100*perc), posfix, '.eps'], 'eps');
 
 % Sliding function
-saveas(hfigs_s, ['../imgs/s_1_', int2str(100*perc), '.eps'], 'eps');
+saveas(hfigs_s, ['../imgs/s_1_', int2str(100*perc), posfix, '.eps'], 'eps');

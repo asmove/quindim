@@ -1,8 +1,8 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/furuta_pendulum/code/main.m');
+clear all
+close all
+clc
+
+run('~/github/Robotics4fun/examples/furuta_pendulum/code/main.m');
 
 % Params and parameters estimation
 perc = 10/100;
@@ -13,7 +13,7 @@ imprecision = zeros(length(sys.descrip.model_params));
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 
-rel_qqbar = sys.kin.q;
+rel_qqbar = sys.kin.q(1);
 
 n = length(sys.kin.q);
 m = length(sys.descrip.u);
@@ -21,7 +21,7 @@ m = length(sys.descrip.u);
 % Control action
 eta = ones(m, 1);
 poles = -ones(m, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, true);
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, false);
 
 len_params = length(sys.descrip.model_params);
 
@@ -74,7 +74,8 @@ plot_config.xlabels = {'t [s]'};
 plot_config.ylabels = {'$u$ [V]'};
 plot_config.grid_size = [1, 1];
 
-hfigs_u = my_plot(tspan, u_control, plot_config);
+t = linspace(0, tf, length(u_control));
+hfigs_u = my_plot(t, u_control, plot_config);
 
 % Sliding function plot
 plot_config.titles = {''};
@@ -87,7 +88,8 @@ s = [];
 alpha_ = u.alpha;
 lambda = u.lambda;
 
-hfigs_s = my_plot(tspan', sliding_s, plot_config);
+t = linspace(0, tf, length(sliding_s));
+hfigs_s = my_plot(t, sliding_s, plot_config);
 
 % States
 saveas(hfigs_x, '../imgs/x.eps', 'epsc');
