@@ -114,56 +114,58 @@ function hfigs = my_plot(t, x, plot_config)
             ylabel(ylabels{idx}, 'interpreter', 'latex');
             grid;
             
-            is_multiplot = ~isempty(find(pos_multiplots == idx));
-            is_multiplot
-            if(is_multiplot)
-                if(g <= length(pos_multiplots))    
-                    if(pos_multiplots(g) == k)
-                        if(iscell(legends))
-                            legends_i = legends;
-                        else
-                            legends_i = legends(f);
-                        end
+            if(is_subplotable)
+                is_multiplot = ~isempty(find(pos_multiplots == idx));
 
-                        if(is_first)
-                            h_legends{end + 1} = legends_i{1};
-                            is_first = false;
+                if(is_multiplot)
+                    if(g <= length(pos_multiplots))    
+                        if(pos_multiplots(g) == k)
+                            if(iscell(legends))
+                                legends_i = legends;
+                            else
+                                legends_i = legends(f);
+                            end
+
+                            if(is_first)
+                                h_legends{end + 1} = legends_i{1};
+                                is_first = false;
+                                h = h+1;
+                            end
+
+                            h_legends{end + 1} = legends_i{h};
+
+                            hold on;
+
+                            plot(t, tail_x(:, f+h-2), markers{h});
+
+                            f = f+1;
+                            g = g+1;
                             h = h+1;
                         end
-
-                        h_legends{end + 1} = legends_i{h};
-
-                        hold on;
-
-                        plot(t, tail_x(:, f+h-2), markers{h});
-
-                        f = f+1;
-                        g = g+1;
-                        h = h+1;
                     end
-                end
-                
-                if(h > length(pos_multiplots))
-                    hold off;
 
-                    legend(h_legends);
-                    is_multiplot = false;
-                    h_legends = {};
+                    if(h > length(pos_multiplots))
+                        hold off;
 
-                    f = 1;
-                    h = 1;
+                        legend(h_legends);
+                        is_multiplot = false;
+                        h_legends = {};
 
-                elseif(pos_multiplots(h) ~= k)
-                    hold off;
+                        f = 1;
+                        h = 1;
 
-                    legend(h_legends);
-                    is_multiplot = false;
-                    h_legends = {};
+                    elseif(pos_multiplots(h) ~= k)
+                        hold off;
 
-                    f = 1;
-                    h = 1;
+                        legend(h_legends);
+                        is_multiplot = false;
+                        h_legends = {};
 
-                    multiplot = false;
+                        f = 1;
+                        h = 1;
+
+                        multiplot = false;
+                    end
                 end
             end
             

@@ -96,7 +96,6 @@ function hfigs = my_plot(t, x, plot_config)
     k = 1;
     
     is_first = true;
-    is_multiplot = false;
     
     while(i <= n_windows)
         hfig = my_figure();
@@ -115,9 +114,10 @@ function hfigs = my_plot(t, x, plot_config)
             ylabel(ylabels{idx}, 'interpreter', 'latex');
             grid;
             
-            if(is_subplotable)
-                
-                
+            is_multiplot = ~isempty(find(pos_multiplots == idx));
+            
+            
+            if(is_multiplot)
                 if(g <= length(pos_multiplots))    
                     if(pos_multiplots(g) == k)
                         if(iscell(legends))
@@ -143,32 +143,27 @@ function hfigs = my_plot(t, x, plot_config)
                         h = h+1;
                     end
                 end
-            end
-            
-            if(h > length(pos_multiplots))
-                if(is_multiplot)
-                    hold off;
                 
+                if(h > length(pos_multiplots))
+                    hold off;
+
                     legend(h_legends);
                     is_multiplot = false;
                     h_legends = {};
 
                     f = 1;
                     h = 1;
-                    
-                    multiplot = false;
-                end
-            elseif(pos_multiplots(h) ~= k)
-                if(is_multiplot)
+
+                elseif(pos_multiplots(h) ~= k)
                     hold off;
-                
+
                     legend(h_legends);
                     is_multiplot = false;
                     h_legends = {};
 
                     f = 1;
                     h = 1;
-                    
+
                     multiplot = false;
                 end
             end
