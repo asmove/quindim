@@ -10,7 +10,7 @@ rel_qqbar = sys.kin.q;
 phi = 1;
 
 % Control action
-eta = 100*ones(m, 1);
+eta = 50*ones(m, 1);
 poles = -10*ones(m, 1);
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, is_sat);
 
