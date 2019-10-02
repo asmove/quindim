@@ -73,27 +73,59 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
     params_max = params_lims(:, 2);
     
     result = 0;
+    phi_minmax = 0;
+    is_first = true;
     
-    phi = abs(abs(params_1) - abs(params_others));
+    for i = 1:length(exprs_i_acc)
+        params_1 = exprs_i_acc(i);
+        params_others = sym(0);
+        
+        for j = 1:length(exprs_i_acc)
+            if(i ~= j)
+                params_others = params_others + exprs_i_acc(j);
+            end
+        end
+        
+        phi = abs(abs(params_1) - abs(params_others));
     
-    if(~is_min)
-        phi = -phi;
-    end
-    
-    func_obj = @(params) func_opt(params, phi, symbs);
-    func_cond = @(params) func_bounds(params, params_lims);
-    
-    params0 = (params_min + params_max)/2;
-    options = optimoptions('fmincon','Algorithm','interior-point');
-    
-    % run interior-point algorithm
-    options = optimoptions('fmincon', 'Display', 'final-detailed');
-    [opt_params, result] = fmincon(func_obj, params0, [], [], [], [], ...
-                                    params_min, params_max, func_cond, ...
-                                    options);
-                                
-    if(~is_min)
-        result = -result;
+        if(~is_min)
+            phi = -phi;
+        end
+
+        func_obj = @(params) func_opt(params, phi, symbs);
+        func_cond = @(params) func_bounds(params, params_lims);
+
+        params0 = (params_min + params_max)/2;
+        options = optimoptions('fmincon','Algorithm','interior-point');
+
+        % run interior-point algorithm
+        options = optimoptions('fmincon', 'Display', 'final-detailed');
+        [opt_params, result] = fmincon(func_obj, params0, [], [], [], [], ...
+                                        params_min, params_max, func_cond, ...
+                                        options);
+                                    
+        if(~is_min)
+            result = -result;
+        end
+        
+        if(is_first)
+            phi_minmax = result;
+            is_first = false;
+        else
+            if(is_min)
+                if(result < phi_minmax)
+                    phi_minmax = result;
+                else
+                    continue
+                end
+            else
+                if(result > phi_minmax)
+                    phi_minmax = result;
+                else
+                    continue
+                end
+            end
+        end
     end
     
     wb_outer.close_window();

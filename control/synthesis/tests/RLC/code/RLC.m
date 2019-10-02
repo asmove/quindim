@@ -1,12 +1,6 @@
-% clear all
-% close all
-% clc
-
-% run('~/github/Robotics4fun/examples/RLC/code/main.m');
-
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-imprecision = [0; 0; 0];
+imprecision = [0; 0; 0; 0];
 %imprecision = [0.99; 0.1; 0.2];
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
@@ -18,24 +12,23 @@ n = length(sys.kin.q);
 % Control action
 eta = 10*ones(n, 1);
 poles = -10*ones(n, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, false);
+u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, is_sat);
 
 len_params = length(sys.descrip.model_params);
 
 % Initial values
 x0 = [0; 0];
 
-% Saturation parameter
-phi = 1;
+
 
 % Tracking values
-A = 1;
+A = 0.1;
 w = 2*pi*100;
-q_p_ref_fun = @(t) [-A*cos(w*t)/w; A*sin(w*t); A*w*cos(w*t)];
+q_p_ref_fun = @(t) [A*sin(w*t)/w; A*cos(w*t); -A*w*sin(w*t)];
 
 % Initial conditions
 tf = 1e-3;
-dt = 1e-7;
+dt = 1e-6;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
@@ -63,7 +56,6 @@ plot_config.xlabels = repeat_str('t [s]', n);
 plot_config.ylabels = {'$Q$ [C]', '$i$ [A]'};
 plot_config.grid_size = [1, 2];
 
-
 hfigs_x = my_plot(tspan, x', plot_config);
 
 % Input plot
@@ -86,14 +78,20 @@ s = [];
 alpha_ = u.alpha;
 lambda = u.lambda;
 
-t_ = linspace(0, tf, length(u_control))';
+t_ = linspace(0, tf, length(sliding_s))';
 hfigs_s = my_plot(t_, sliding_s, plot_config);
 
-% States
-saveas(hfigs_x, '../imgs/x.eps', 'epsc');
+if(is_sat)
+    is_sat_str = '_sat';
+else
+    is_sat_str = '_deg';
+end
 
 % States
-saveas(hfigs_u, '../imgs/u.eps', 'epsc');
+saveas(hfigs_x, ['../imgs/x_', int2str(phi), is_sat_str, '.eps'], 'epsc');
+
+% States
+saveas(hfigs_u, ['../imgs/u_', int2str(phi), is_sat_str, '.eps'], 'epsc');
 
 % Sliding function
-saveas(hfigs_s, '../imgs/s.eps', 'epsc');
+saveas(hfigs_s, ['../imgs/s_', int2str(phi), is_sat_str, '.eps'], 'epsc');

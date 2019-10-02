@@ -20,15 +20,16 @@ len_params = length(sys.descrip.model_params);
 x0 = [0; 0];
 
 % Tracking values
-q_p_ref_fun = @(t) [1; 0; 0];
+x_d = @(t) [1; 0];
+x_xp_d = @(t) [x_d(t); 0];
 
 % Initial conditions
 tf = 0.5;
 dt = 0.001;
 tspan = 0:dt:tf;
-df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
-sol = my_ode45(df_h, tspan, x0);
 
+df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
+sol = my_ode45(df_h, tspan, x0);
 [m, ~] = size(sys.dyn.Z);
 
 % Plot part
@@ -45,6 +46,7 @@ q_p_d_s = add_symsuffix([q_p_s; sys.kin.pp], '_d');
 
 q_p = [sys.kin.q; sys.kin.p];
 n = length(q_p);
+
 
 % States plot
 plot_config.titles = repeat_str('', n);

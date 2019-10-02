@@ -1,39 +1,23 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/1_mass/code/main.m');
-% 
-perc = 0;
+clear all
+close all
+clc
 
-is_sat = false;
-run('./test_1_mass.m');
+run('~/github/Robotics4fun/examples/1_mass/code/main.m');
 
-% is_sat = true;
-% run('./test_1_mass.m');
-% 
-% perc = 0;
-% 
-% is_sat = false;
-% run('./test_1_mass.m');
-% 
-% is_sat = true;
-% run('./test_1_mass.m');
-% 
-% run('~/github/Robotics4fun/examples/2_masses/code/main.m');
-% 
-% perc = 0;
-% is_sat = false;
-% run('./test_2_mass.m');
-% 
-% is_sat = true;
-% run('./test_2_mass.m');
-% 
-% perc = 50/100;
-% 
-% is_sat = false;
-% run('./test_1_mass.m');
-% 
-% is_sat = true;
-% run('./test_1_mass.m');
+percs = [0, 0.5];
+is_sat_opts = [false, true];
+
+for perc = perc
+    for is_sat = is_sat_opts
+        run('./test_1_mass.m');
+    end
+end
+
+run('~/github/Robotics4fun/examples/2_masses/code/main.m');
+
+for perc = perc
+    for is_sat = is_sat_opts
+        run('./test_2_masses.m');
+    end
+end
 

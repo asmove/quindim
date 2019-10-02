@@ -9,10 +9,8 @@ rel_qqbar = sys.kin.q(1);
 [n, m] = size(sys.dyn.Z);
 
 % Control action
-eta = 100*ones(m, 1);
+eta = 50*ones(m, 1);
 poles = -10*ones(m, 1);
-
-is_sat = true;
 
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, is_sat);
 
@@ -22,13 +20,14 @@ len_params = length(sys.descrip.model_params);
 x0 = [0; 0; 0; 0];
 
 % Tracking values
-x_xp_d = @(t) [1; 0; 0; 0; 0; 0];
+x_d = @(t) [1; 0; 0; 0];
+x_xp_d = @(t) [x_d(t); 0; 0];
 
 phi = 1;
 
 % Initial conditions
 tf = 0.5;
-dt = 0.0001;
+dt = 0.001;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);

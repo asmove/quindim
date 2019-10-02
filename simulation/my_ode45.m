@@ -3,7 +3,7 @@ function sol = my_ode45(func, tspan, x0)
     x_1 = x0;
     
     dt = tspan(2) - tspan(1);
-    for t = tspan(2:end)
+    for t = tspan(1:end-1)
         k1 = func(t, x_1);
         k2 = func(t + dt/2, x_1 + dt*k1/2);
         

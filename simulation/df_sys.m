@@ -7,11 +7,17 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     [n, m] = size(sys.dyn.Z);
     
-    if((isempty(dt) && isempty(t_1) && isempty(wb)) || (~isgraphics(wb.wb)))
+    if((isempty(dt) && isempty(t_1) && isempty(wb)) ||...
+        (~isgraphics(wb.wb)))
         t_1 = t;
         dt = 0;
         wb = my_waitbar('Simulate underactuated');
         u_acc = [];
+    end
+    
+    if(t == 0)
+       s_acc = [];
+       u_acc = [];
     end
         
     q_p = x(1:end);
