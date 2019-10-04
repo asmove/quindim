@@ -11,9 +11,9 @@ function manifold = manifold_params(manifold)
     N_u = jacobian(N, x_u);
     N_v = jacobian(N, x_v);
     
-    e = -manifold.metric();
-    f = -manifold.metric();
-    g = -manifold.metric();
+    e = -manifold.metric(N_u, x_u);
+    f = -manifold.metric(N_v, x_u);
+    g = -manifold.metric(N_v, x_v);
     
     E = manifold.metric(x_u, x_u);
     F = manifold.metric(x_u, x_v);
@@ -41,6 +41,16 @@ function manifold = manifold_params(manifold)
     Gamma_2_12 = Gamma(4);
     Gamma_1_22 = Gamma(5);
     Gamma_2_22 = Gamma(6);
+    
+    manifold.E = e;
+    manifold.F = f;
+    manifold.G = g;
+    
+    manifold.e = E;
+    manifold.f = F;
+    manifold.g = G;
+    
+    manifold.K = K;
     
     manifold.Gamma_1_11 = Gamma_1_11;
     manifold.Gamma_2_11 = Gamma_2_11;

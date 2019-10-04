@@ -1,5 +1,5 @@
 function sol = get_geodesic(tspan, manifold, x0, vars)
-    
-
+    manifold = manifold_params(manifold);
+    dx = ;
     sol = bvp5c(@geodesic, @manifold_bounds, x0);
 end
