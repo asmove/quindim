@@ -1,8 +1,9 @@
-function dx = geodesic(t, vars, manifold)
-    u = vars(1);
-    v = vars(2);
-    zeta = vars(3);
-    eta = vars(4);
+function dx = geodesic(t, vars, manifold, tf)
+    persistent wb_;
+    
+    if(isempty(wb_))
+        wb_ = my_waitbar('Calculating geodesic...');
+    end
     
     u = sym('u');
     v = sym('v');
@@ -30,8 +31,10 @@ function dx = geodesic(t, vars, manifold)
     
     dx = [zeta; 
           eta; 
-          -Gamma_1_11*zeta^2 - 2*Gamma_1_11*zeta*eta - Gamma_1_11*eta^2;
-          -Gamma_2_11*zeta^2 - 2*Gamma_2_11*zeta*eta - Gamma_2_11*eta^2];
+          simplify_(-Gamma_1_11*zeta^2 - 2*Gamma_1_12*zeta*eta - Gamma_1_22*eta^2);
+          simplify_(-Gamma_2_11*zeta^2 - 2*Gamma_2_12*zeta*eta - Gamma_2_22*eta^2)];
+    
     dx = subs(dx, [u; v; eta; zeta], vars);
-    vars
+    
+    wb_ = wb_.update_waitbar(t, tf);
 end

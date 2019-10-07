@@ -11,17 +11,20 @@ function manifold = manifold_params(manifold)
     cross_uv = cross(x_u, x_v);
     N = cross_uv/norm(cross_uv);
     
-    N_u = diff(N, u);
-    N_v = diff(N, v);
-
-    e = -manifold.metric(N_u, x_u);
-    f = -manifold.metric(N_v, x_u);
-    g = -manifold.metric(N_v, x_v);
+    x_uu = diff(x_u, u);
+    x_uv = diff(x_u, v);
+    x_vv = diff(x_v, v);
+    
+    % First and second forms
+    e = manifold.metric(N, x_uu);
+    f = manifold.metric(N, x_uv);
+    g = manifold.metric(N, x_vv);
     
     E = manifold.metric(x_u, x_u);
     F = manifold.metric(x_u, x_v);
     G = manifold.metric(x_v, x_v);
     
+    % Curvature
     K = (e*g - f^2)/(E*G - F^2);
     
     E_u = diff(E, u);
@@ -39,8 +42,7 @@ function manifold = manifold_params(manifold)
     Gamma = Gamma_EFFG\b_EFFG;
     
     exprs = {x_u, x_v, cross_uv, ...
-             N, N_u, N_v, ...
-             e, f, g, E, F, G, K, ...
+             N, e, f, g, E, F, G, K, ...
              E_u, E_v, F_u, F_v, G_u, G_v};
     expr_simp = simplify_(exprs);
     
@@ -51,13 +53,13 @@ function manifold = manifold_params(manifold)
     Gamma_1_22 = Gamma(5);
     Gamma_2_22 = Gamma(6);
     
-    manifold.E = e;
-    manifold.F = f;
-    manifold.G = g;
+    manifold.E = simplify_(e);
+    manifold.F = simplify_(f);
+    manifold.G = simplify_(g);
     
-    manifold.e = E;
-    manifold.f = F;
-    manifold.g = G;
+    manifold.e = simplify_(E);
+    manifold.f = simplify_(F);
+    manifold.g = simplify_(G);
     
     manifold.K = K;
     
@@ -67,3 +69,12 @@ function manifold = manifold_params(manifold)
     manifold.Gamma_2_12 = Gamma_2_12;
     manifold.Gamma_1_22 = Gamma_1_22;
     manifold.Gamma_2_22 = Gamma_2_22;
+    
+    manifold.x_u = x_u;
+    manifold.x_v = x_v;
+    
+    manifold.x_uu = x_uu;
+    manifold.x_uv = x_uv;
+    manifold.x_vv = x_vv;
+    
+    manifold.N = vpa(N);
