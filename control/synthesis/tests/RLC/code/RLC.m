@@ -1,7 +1,12 @@
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-imprecision = [0; 0; 0; 0];
-%imprecision = [0.99; 0.1; 0.2];
+
+if(is_imprecise)
+    imprecision = [0.99; 0.1; 0.2; 0];
+else
+    imprecision = [0; 0; 0; 0];
+end
+
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 

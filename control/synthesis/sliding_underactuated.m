@@ -84,9 +84,9 @@ function u = sliding_underactuated(sys, etas, poles, ...
     u.K = K;
     
     % Maximum and minimum of mass matrix and dynamic vector
-    u.D = D;
-    u.Dtilde = Dtilde;
-    u.Fs = Fs;
+    u.D = double(D);
+    u.Dtilde = double(Dtilde);
+    u.Fs = double(Fs);
     
     % Sliding surface
     u.s = s;

@@ -40,6 +40,8 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     s_n = subs(u_struct.s, symbs, nums);
     
+    double(s_n)
+    
     u = subs(-inv(u_struct.Ms_hat)*(u_struct.fs_hat_n + u_struct.sr_p + ...
                                     u_struct.K*switch_func(s_n)), ...
                                     symbs, nums);

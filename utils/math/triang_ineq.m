@@ -32,7 +32,7 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
             
             % Parameters of the plant
             if(is_not_x || isempty(monome_vars))
-                expr_sym = sym(expr_sym*monome);
+                expr_sym = sym(expr_sym)*sym(monome);
             
             else
                 % States of the system
@@ -52,6 +52,7 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
         end
         
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));
+        
         result = result + expr_i_sup;
         
         wb_outer = wb_outer.update_waitbar(i, length(exprs));
