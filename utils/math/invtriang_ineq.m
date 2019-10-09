@@ -115,12 +115,14 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
             if(is_min)
                 if(result < phi_minmax)
                     phi_minmax = result;
+                    i
                 else
                     continue
                 end
             else
                 if(result > phi_minmax)
                     phi_minmax = result;
+                    i
                 else
                     continue
                 end

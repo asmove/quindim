@@ -2,7 +2,7 @@
 model_params = sys.descrip.model_params.';
 
 if(is_imprecise)
-    imprecision = [0.99; 0.1; 0.2];
+    imprecision = [0.99; 0.1; 0.2; 0];
 else
     imprecision = [0; 0; 0; 0];
 end
