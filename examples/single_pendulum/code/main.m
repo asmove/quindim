@@ -40,7 +40,7 @@ sys.descrip.model_params = [1, 0, 0, 9.8, 1];
 sys.descrip.gravity = [0; -g; 0];
 sys.descrip.g = g;
 
-sys.descrip.bodies = pendulum;
+sys.descrip.bodies = {pendulum};
 
 % Generalized coordinates
 sys.kin.q = th;

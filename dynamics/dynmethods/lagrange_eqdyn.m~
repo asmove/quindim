@@ -16,7 +16,7 @@ function sys = lagrange_eqdyn(sys)
     % Kinetic, Potential, Lagrangian and Rayleigh of the bodies
     for i = 1:n
        [L, K, P] = lagrangian(bodies{i}, sys.descrip.gravity);
-       F = rayleigh_energy(bodies{i});
+       F = rayleigh_energy(bodies(i));
        
        % Required energy components
        body_dyn.L = L;
@@ -24,7 +24,7 @@ function sys = lagrange_eqdyn(sys)
        body_dyn.P = P;
        body_dyn.F = F;
        
-       sys.descrip.bodies{i}.dyn = body_dyn;
+       sys.descrip.bodies(i).dyn = body_dyn;
        
        % System energy components
        sys.dyn.K = sys.dyn.K + K;

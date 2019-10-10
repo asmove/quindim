@@ -85,7 +85,7 @@ sys.descrip.model_params = [m0_n, L0_n, L0g_n, ...
 sys.descrip.gravity = [0; 0; -g];
 sys.descrip.g = g;
 
-sys.descrip.bodies = [bar1, bar2];
+sys.descrip.bodies = {bar1, bar2};
 
 % Generalized coordinates
 sys.kin.q = [th0; th1];

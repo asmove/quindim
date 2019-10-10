@@ -53,7 +53,7 @@ sys.descrip.syms = [m1, b1, k1, m2, b2, k2, g];
 % Paramater symbolics of the system
 sys.descrip.model_params = [1, 1, 1, 1, 1, 1, 9.8];
 
-sys.descrip.bodies = [body1, body2];
+sys.descrip.bodies = {body1, body2};
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];

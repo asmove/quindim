@@ -16,10 +16,8 @@ function dx = geodesic(t, vars, manifold, tf)
     zeta = vars(4);
     
     vars_s = [u_s; v_s; eta_s; zeta_s];
-    
-    if(abs(v) < 1e-2)
-        vars(2) = 1e-2;
-        v = 1e-2;
+    if(v == 0)
+        v = 
     end
     
     Gamma_1_11 = subs(manifold.Gamma_1_11, vars_s, vars);

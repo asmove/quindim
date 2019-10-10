@@ -38,7 +38,7 @@ previous = struct('');
 wheel = build_body(m, I, Ts, L, {}, {}, ...
                    sys.kin.q, sys.kin.qp, sys.kin.qpp, ...
                    previous, []);
-sys.descrip.bodies = wheel;
+sys.descrip.bodies = {wheel};
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];

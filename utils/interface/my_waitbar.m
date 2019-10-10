@@ -15,14 +15,14 @@ classdef my_waitbar
         t_end_str = '';
         
         % Real time
-        %t_real_vec = [];
+        t_real_vec = [];
         
         % Real time
         tf = 0;
         tf_real_vec = [];
                 
         speed = 0;
-        %speed_vec = [];
+        speed_vec = [];
          
         wb = [];
         
@@ -116,8 +116,11 @@ classdef my_waitbar
             obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
                               obj.t_curr_str, obj.t_end_str);
             
-%             obj.t_real_vec = [obj.t_real_vec, obj.t_real];
-%             obj.speed_vec = [obj.speed_vec; obj.speed];
+ % Uncomment this block if you wish to plot speed and time consuming
+ % vectors
+             obj.t_real_vec = [obj.t_real_vec, obj.t_real];
+             obj.speed_vec = [obj.speed_vec; obj.speed];
+            
             obj.tf_real_vec = [obj.tf_real_vec, t_f];
             
             waitbar(t/tf, obj.wb, obj.msg);
@@ -128,6 +131,7 @@ classdef my_waitbar
         
         function close_window(obj)
             h = obj.find_handle();
+            obj.tf_real_vec
             
             % Erase waitbar
             tf = obj.tf_real_vec(end);

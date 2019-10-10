@@ -33,7 +33,7 @@ capacitor = build_spring(k, [0; 0; 0], [Q; 0; 0]);
 block = build_body(L, Inertia, T, Lg, resistor, capacitor, ...
                    Q, I, Ip, struct(''), []);
 
-sys.descrip.bodies = block;
+sys.descrip.bodies = {block};
 
 % Generalized coordinates
 sys.kin.q = Q;

@@ -33,7 +33,7 @@ spring = build_spring(k, [0; 0; 0], [x; 0; 0]);
 block = build_body(m, I, T, L, damper, spring, ...
                    x, xp, xpp, struct(''), []);
 
-sys.descrip.bodies = block;
+sys.descrip.bodies = {block};
 
 % Generalized coordinates
 sys.kin.q = x;

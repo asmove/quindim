@@ -28,16 +28,14 @@ Lg_R = [Lg_x; Lg_y; 0];
 
 % Bodies transformations
 T0 = T3d(th, [0; 0; 1], [x; y; 0]);
-T1 = T3d(0, [0; 0; 1], [0; 0; 0]);
+T1 = T3d(0, [0; 0; 1], [L; 0; 0]);
 T2 = T3d(2*pi/3, [0; 0; 1], [L; 0; 0]);
-T3 = T2*T3d(0, [0; 0; 1], [L; 0; 0]);
-T4 = T3d(4*pi/3, [0; 0; 1], [0; 0; 0]);
-T5 = T4*T3d(0, [0; 0; 1], [L; 0; 0]);
+T3 = T3d(4*pi/3, [0; 0; 1], [L; 0; 0]);
 
 % Body 1 and 2 related transformation matrices
 Ts_R = {T0};
-Ts_r1 = {T0, T1, T2};
-Ts_r2 = {T0, T3};
+Ts_r1 = {T0, T1};
+Ts_r2 = {T0, T2};
 Ts_r3 = {T0, T3};
 
 % Previous body - Inertial, in this case
