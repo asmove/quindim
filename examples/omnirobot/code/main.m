@@ -1,6 +1,5 @@
 % Omnirobot
 % @Author: Bruno Peixoto
-
 close all
 clear all
 clc
@@ -28,15 +27,19 @@ Lg_R = [Lg_x; Lg_y; 0];
 
 % Bodies transformations
 T0 = T3d(th, [0; 0; 1], [x; y; 0]);
-T1 = T3d(0, [0; 0; 1], [L; 0; 0]);
-T2 = T3d(2*pi/3, [0; 0; 1], [L; 0; 0]);
-T3 = T3d(4*pi/3, [0; 0; 1], [L; 0; 0]);
+T1 = T3d(th1, [1; 0; 0], [L; 0; 0]);
+
+T2 = T3d(2*pi/3, [0; 0; 1], [0; 0; 0]);
+T3 = T2*T3d(th2, [1; 0; 0], [L; 0; 0]);
+
+T4 = T3d(4*pi/3, [0; 0; 1], [0; 0; 0]);
+T5 = T4*T3d(th3, [1; 0; 0], [L; 0; 0]);
 
 % Body 1 and 2 related transformation matrices
 Ts_R = {T0};
 Ts_r1 = {T0, T1};
-Ts_r2 = {T0, T2};
-Ts_r3 = {T0, T3};
+Ts_r2 = {T0, T2, T3};
+Ts_r3 = {T0, T4, T5};
 
 % Previous body - Inertial, in this case
 previous_R = struct('');
@@ -67,7 +70,7 @@ states_main = th1;
 speed_main = th1p;
 accel_main = th1pp;
 
-wheel_1 = build_body(m_R, I_R, Ts_R, Lg_R, damper1, {}, ...
+wheel_1 = build_body(m_r, I_r, Ts_r1, Lg_r, damper1, {}, ...
                      th1, th1p, th1pp, previous_r1, params_r1);
 
 previous_r2 = main_body;
@@ -76,7 +79,7 @@ states_main = th2;
 speed_main = th2p;
 accel_main = th2pp;
 
-wheel_2 = build_body(m_R, I_R, Ts_R, Lg_R, damper2, {}, ...
+wheel_2 = build_body(m_r, I_r, Ts_r2, Lg_r, damper2, {}, ...
                      th2, th2p, th2pp, previous_r2, params_r2);
                  
 previous_r3 = main_body;
@@ -85,7 +88,7 @@ states_main = th3;
 speed_main = th3p;
 accel_main = th3pp;
 
-wheel_3 = build_body(m_R, I_R, Ts_R, Lg_R, damper3, {}, ...
+wheel_3 = build_body(m_r, I_r, Ts_r3, Lg_r, damper3, {}, ...
                      th3, th3p, th3pp, previous_r3, params_r3);
               
 % Without spring and damping
@@ -122,7 +125,7 @@ sys.descrip.model_params = [m_r_n, L_n, Lg_x_n, Lg_y_n, ...
 sys.descrip.gravity = [0; 0; -g];
 sys.descrip.g = g;
 
-sys.descrip.bodies = [main_body, wheel_1, wheel_2, wheel_3];
+sys.descrip.bodies = {main_body, wheel_1, wheel_2, wheel_3};
 
 % Generalized coordinates
 sys.kin.q = [x; y; th; th1; th2; th3];
@@ -147,8 +150,8 @@ sys.descrip.y = [th1; th2; th3];
 sys.descrip.states = [sys.kin.q; sys.kin.p];
 
 p1 = point(T0*T1, [0; 0; 0]);
-p2 = point(T0*T2, [0; 0; 0]);
-p3 = point(T0*T3, [0; 0; 0]);
+p2 = point(T0*T2*T3, [0; 0; 0]);
+p3 = point(T0*T4*T5, [0; 0; 0]);
 
 R0 = rot3d(th, [0; 0; 1]);
 R1 = rot3d(0, [0; 0; 1]);
@@ -175,7 +178,7 @@ sys.descrip.unhol_constraints = [dot(u1, j1) - th1p*R; ...
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
-% % Initia conditions [m; m/s]
+% % Initial conditions [m; m/s]
 % x0 = [0; pi/3; 0; 0];
 % 
 % % Time [s]
