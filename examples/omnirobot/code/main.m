@@ -1,6 +1,5 @@
 % Omnirobot
 % @Author: Bruno Peixoto
-
 close all
 clear all
 clc
@@ -28,11 +27,14 @@ Lg_R = [Lg_x; Lg_y; 0];
 
 % Bodies transformations
 T0 = T3d(th, [0; 0; 1], [x; y; 0]);
-T1 = T3d(0, [0; 0; 1], [0; 0; 0]);
-T2 = T3d(2*pi/3, [0; 0; 1], [L; 0; 0]);
-T3 = T2*T3d(0, [0; 0; 1], [L; 0; 0]);
+
+T1 = T3d(th1, [1; 0; 0], [L; 0; 0]);
+
+T2 = T3d(2*pi/3, [0; 0; 1], [0; 0; 0]);
+T3 = T2*T3d(th2, [1; 0; 0], [L; 0; 0]);
+
 T4 = T3d(4*pi/3, [0; 0; 1], [0; 0; 0]);
-T5 = T4*T3d(0, [0; 0; 1], [L; 0; 0]);
+T5 = T4*T3d(th3, [1; 0; 0], [L; 0; 0]);
 
 % Body 1 and 2 related transformation matrices
 Ts_R = {T0};
@@ -69,7 +71,7 @@ states_main = th1;
 speed_main = th1p;
 accel_main = th1pp;
 
-wheel_1 = build_body(m_R, I_R, Ts_R, Lg_R, damper1, {}, ...
+wheel_1 = build_body(m_r, I_r, Ts_r1, Lg_r, damper1, {}, ...
                      th1, th1p, th1pp, previous_r1, params_r1);
 
 previous_r2 = main_body;
@@ -78,7 +80,7 @@ states_main = th2;
 speed_main = th2p;
 accel_main = th2pp;
 
-wheel_2 = build_body(m_R, I_R, Ts_R, Lg_R, damper2, {}, ...
+wheel_2 = build_body(m_r, I_r, Ts_r2, Lg_r, damper2, {}, ...
                      th2, th2p, th2pp, previous_r2, params_r2);
                  
 previous_r3 = main_body;
@@ -87,14 +89,14 @@ states_main = th3;
 speed_main = th3p;
 accel_main = th3pp;
 
-wheel_3 = build_body(m_R, I_R, Ts_R, Lg_R, damper3, {}, ...
+wheel_3 = build_body(m_r, I_r, Ts_r3, Lg_r, damper3, {}, ...
                      th3, th3p, th3pp, previous_r3, params_r3);
               
 % Without spring and damping
 sys.descrip.syms = [m_r, L, Lg_x, Lg_y, ...
-                    m_R, diag(I_r)', diag(I_R)', ...
-                    b1, b2, b3, g];
-r = 1;
+                    m_R, diag(I_r).', diag(I_R).', ...
+                    b1, b2, b3, g, R];
+R = 1;
 m_r_n = 1;
 m_R_n = 1;
 L_n = 1;
@@ -119,7 +121,7 @@ g_n = 9.8;
 sys.descrip.model_params = [m_r_n, L_n, Lg_x_n, Lg_y_n, ...
                             m_R_n, I0_1_n, I0_2_n, I0_3_n, ...
                             I1_1_n, I1_2_n, I1_3_n, ...
-                            b1_n, b2_n, b3_n, g];
+                            b1_n, b2_n, b3_n, g, R];
 
 sys.descrip.gravity = [0; 0; -g];
 sys.descrip.g = g;
@@ -149,8 +151,8 @@ sys.descrip.y = [th1; th2; th3];
 sys.descrip.states = [sys.kin.q; sys.kin.p];
 
 p1 = point(T0*T1, [0; 0; 0]);
-p2 = point(T0*T2, [0; 0; 0]);
-p3 = point(T0*T3, [0; 0; 0]);
+p2 = point(T0*T2*T3, [0; 0; 0]);
+p3 = point(T0*T4*T5, [0; 0; 0]);
 
 R0 = rot3d(th, [0; 0; 1]);
 R1 = rot3d(0, [0; 0; 1]);
@@ -177,35 +179,34 @@ sys.descrip.unhol_constraints = [dot(u1, j1) - th1p*R; ...
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
-% % Initia conditions [m; m/s]
-% x0 = [0; pi/3; 0; 0];
-% 
-% % Time [s]
-% dt = 0.001;
-% tf = 5;
-% t = 0:dt:tf; 
-% 
-% % System modelling
-% sol = validate_model(sys, t, x0, 0);
-% 
-% x = sol.x;
-% y = sol.y.';
-% 
-% plot_info.titles = {'$\theta_0$', '$\theta_1$', ...
-%                     '$\dot \theta_0$', '$\dot \theta_1$'};
-% plot_info.xlabels = {'$t$ [s]', '$t$ [s]', ...
-%                      '$t$ [s]', '$t$ [s]'};
-% plot_info.ylabels = {'$\theta_0$', '$\theta_1$', ...
-%                     '$\dot \theta_0$', '$\dot \theta_1$'};
-% plot_info.grid_size = [2, 2];
-% 
-% % States and energies plot
-% hfigs_states = my_plot(x, y, plot_info);
-% hfig_energies = plot_energies(sys, x, y);
-% 
-% % Energies
-% saveas(hfig_energies, '../images/energies', 'epsc');
-% 
-% for j = 1:length(hfigs_states)
-%    saveas(hfigs_states(j), ['../images/states', num2str(i)], 'epsc'); 
-% end
+% Initial conditions [m; m/s]
+x0 = [0; 0; 0; 0; 0; 0; 1; 1; 1];
+u0 = [0; 0; 0];
+
+% Time [s]
+dt = 0.01;
+tf = 5;
+t = 0:dt:tf; 
+
+% System modelling
+sol = validate_model(sys, t, x0, u0);
+
+plot_info.titles = {'', '', '', '', '', '', '', '', ''};
+plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
+                     '$t$ [s]', '$t$ [s]', '$t$ [s]', ...
+                     '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info.ylabels = {'$x$', '$y$', '$\theta$', ...
+                    '$\theta_1$', '$\theta_2$', '$\theta_3$', ...
+                    '$\dot \theta_1$', '$\dot \theta_2$', '$\dot \theta_3$'};
+plot_info.grid_size = [3, 3];
+
+% States and energies plot
+hfigs_states = my_plot(t, sol', plot_info);
+hfig_energies = plot_energies(sys, t, sol);
+
+% Energies
+saveas(hfig_energies, '../imgs/energies', 'epsc');
+
+for j = 1:length(hfigs_states)
+   saveas(hfigs_states(j), ['../imgs/states', num2str(i)], 'epsc'); 
+end

@@ -37,7 +37,8 @@ function sys = kinematic_model(sys)
         
         % Center of mass velocity
         p_cg = sys.descrip.bodies{i}.p_cg0;
-        sys.descrip.bodies{i}.v_cg = jacobian(p_cg, x.')*xp;
+
+        sys.descrip.bodies{i}.v_cg = simplify_(jacobian(p_cg, x.')*xp);
         
         v_cg = sys.descrip.bodies{i}.v_cg;
         
@@ -45,7 +46,8 @@ function sys = kinematic_model(sys)
         R = body_curr.T(1:3, 1:3);
 
         omega_ = omega(R, x, xp);
-        sys.descrip.bodies{i}.omega = omega_;
+        
+        sys.descrip.bodies{i}.omega = simplify_(omega_);
         
         if(i ~= n_bodies)
             sys.descrip.bodies{i+1}.previous_body = sys.descrip.bodies{i}; 

@@ -7,8 +7,8 @@ function sys = dyn_matrices(sys, helper)
     sys.dyn.f = simplify_(friction(sys, helper));
     sys.dyn.U = simplify_(-jacobian(helper.l_r, u));
 
-    sys.dyn.nu = simplify_(helper.l_r - sys.dyn.M*sys.kin.pp) - ...
-                          sys.dyn.g - sys.dyn.f + sys.dyn.U*sys.descrip.u;
+    sys.dyn.nu = simplify_(simplify_(helper.l_r - sys.dyn.M*sys.kin.pp) - ...
+                          sys.dyn.g - sys.dyn.f + sys.dyn.U*sys.descrip.u);
     
     % Control dynamic matrices
     sys.dyn.H = sys.dyn.M;
