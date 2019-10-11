@@ -46,7 +46,7 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     
     % Quick hack: double subs
     dq = subs(dq_p, uq_s, uq_n);
-    
+
     dq = double(vpa(dq));
     
     % Time elapsed
