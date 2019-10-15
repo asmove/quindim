@@ -27,7 +27,7 @@ function sys = constrain_system(sys, A)
     p1p = C1*p + C1p*pp;
     
     sys = update_jacobians(sys, C1);
-    
+
     % Update energies
     sys.dyn.K = subs(sys.dyn.K, sys.kin.p, C1*p);
     sys.dyn.L = subs(sys.dyn.L, sys.kin.p, C1*p);
@@ -37,14 +37,31 @@ function sys = constrain_system(sys, A)
     sys.dyn.h = subs(C1'*sys.dyn.h, sys.kin.p, C1*p);
     sys.dyn.H = C1'*sys.dyn.H*C1;
     invH = inv(sys.dyn.H);
+    
     sys.dyn.M = sys.dyn.H;
     sys.dyn.nu = subs(C1'*sys.dyn.nu, sys.kin.p, C1*p);
     sys.dyn.U = C1'*sys.dyn.U;
     
     sys.dyn.states = [sys.kin.q; p];
     sys.dyn.W = simplify_(chol(sys.dyn.H, 'lower', 'nocheck'));
-    sys.dyn.Z = C1.'*sys.dyn.Z;
-    sys.dyn.f = [C*p; -invH*sys.dyn.h];
+    Z = C1.'*sys.dyn.Z;
+    sys.dyn.Z = Z;
+    
+    identity = eye(size(sys.dyn.H));
+    
+    qp = C*p;
+    pp_ = invH*(-sys.dyn.h + sys.dyn.Z*sys.descrip.u);
+    dstates = [qp; pp_];
+    
+    f = [C*p; -invH*sys.dyn.h];
+    G = equationsToMatrix(dstates, sys.descrip.u);
+    u = sys.descrip.u;
+    
+    sys.dyn.plant = f + G*u;
+    
+    sys.dyn.f = f;
+    sys.dyn.G = G;
+    sys.dyn.u = u;
     
     sys.dyn.eqdyns = sys.dyn.H*pp + sys.dyn.h == sys.dyn.Z*sys.descrip.u;
     

@@ -27,10 +27,24 @@ function u = sliding_underactuated(sys, etas, poles, ...
     
     q_a = q(1:m);
     q_u = q(m+1:n);
-    p_a = p(1:m);
-    p_u = p(m+1:n);
     
-    q_p = [q; p];
+    if(length(sys.kin.C) ~= 1)
+        [m, ~] = size(sys.kin.C{1});
+        
+        Cs = eye(m);
+        for i = 1:length(sys.kin.C)
+            Cs = Cs*sys.kin.C{i};
+        end
+    else
+        Cs = sys.kin.C;
+    end
+    
+    if(length(p) ~= 1)
+        p = p{end};
+    end
+    
+    qp = Cs*p;
+    q_p = [q; qp];
     
     % Sliding constant matrices
     [alpha_a, alpha_u, lambda_a, lambda_u] = alpha_lambda(sys, poles, ...

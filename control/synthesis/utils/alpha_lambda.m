@@ -19,7 +19,18 @@ function [alpha_a, alpha_u, ...
     
     % Convergence on the manifold
     C = eig_to_matrix(poles);
+    
+    if(length(sys.kin.C) ~= 1)
+        [a, ~] = size(sys.kin.C{1});
         
+        Cs = eye(a);
+        for i = 1:length(sys.kin.C)
+            Cs = Cs*sys.kin.C{i};
+        end
+    else
+        Cs = sys.kin.C;
+    end
+    
     alpha_ = D;
     lambda_ = -C*D;
     

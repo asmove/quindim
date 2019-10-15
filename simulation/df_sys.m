@@ -19,14 +19,44 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
        s_acc = [];
        u_acc = [];
     end
-        
-    q_p = x(1:end);
-    q_p_s = [sys.kin.q; sys.kin.C*sys.kin.p];
     
-    q_p_s = [sys.kin.q; sys.kin.p];
-    q_p_d_s = add_symsuffix([q_p_s; sys.kin.Cp*sys.kin.p + ...
-                             sys.kin.C*sys.kin.pp], '_d');
-
+    % States and velocities
+    q = sys.kin.q;
+    
+    if(length(sys.kin.p) ~= 1)
+        p = sys.kin.p{end};
+        pp = sys.kin.pp{end};
+    else
+        p = sys.kin.p;
+        pp = sys.kin.pp;
+    end    
+    
+    if(length(sys.kin.C) ~= 1)
+        [m, ~] = size(sys.kin.C{1});
+        
+        C = eye(m);
+        for i = 1:length(sys.kin.C)
+            C = C*sys.kin.C{i};
+        end
+    else
+        C = sys.kin.C;
+    end
+    
+    Cp = sys.kin.Cp;
+    
+    q_p = x(1:end);
+    q_p_s = [q; C*p];
+    
+    q_d = add_symsuffix(q, '_d');
+    p_d = add_symsuffix(p, '_d');
+    pp_d = add_symsuffix(pp, '_d');
+    
+    q_p_s = [q; p];
+    q_p_pp = [q; p; pp];
+    q_p_pp_d = [q_d; p_d; pp_d];
+    
+    q_p_d_s = subs(q_p_s, q_p_pp, q_p_pp_d);
+    
     % Control output
     if(u_struct.is_sat)
         phi = evalin('base', 'phi');
@@ -40,15 +70,14 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     s_n = subs(u_struct.s, symbs, nums);
     
-    double(s_n)
-    
     u = subs(-inv(u_struct.Ms_hat)*(u_struct.fs_hat_n + u_struct.sr_p + ...
                                     u_struct.K*switch_func(s_n)), ...
                                     symbs, nums);
     
-    plant = subs(sys.dyn.plant, sys.descrip.syms, sys.descrip.model_params);
-    
-    plant = subs(plant, sys.descrip.u, u);
+    u = subs(u, sys.descrip.syms, sys.descrip.model_params);
+                                
+    plant = subs(sys.dyn.plant, sys.descrip.u, u);
+    plant = subs(plant, sys.descrip.syms, sys.descrip.model_params);
     
     u_acc = [u_acc; u];
     
@@ -62,8 +91,6 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     assignin('base', 'wb', wb);
     
     wb = wb.update_waitbar(t, tf);
-    
-    assignin('base', 'u_control', u_acc);
     
     dt = t - t_1;
     t_1 = t;
