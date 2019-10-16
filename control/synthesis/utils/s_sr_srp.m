@@ -6,7 +6,7 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
     p = sys.kin.p;
     pp = sys.kin.pp;
     
-    if(length(sys.kin.C) ~= 1)
+    if((length(sys.kin.C) ~= 1) && (iscell(sys.kin.C)))
         [a, ~] = size(sys.kin.C{1});
         
         Cs = eye(a);
@@ -19,7 +19,7 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
     
     Cp = sys.kin.Cp;
     
-    if(length(p) ~= 1)
+    if((length(p) ~= 1) && (iscell(sys.kin.C)))
         p = p{end};
         pp = pp{end};
     end
@@ -36,7 +36,7 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
 
     qpp_a = qpp(1:m);
     qpp_u = qpp(m+1:end);
-    pp
+    
     q_d = add_symsuffix(q, '_d');
     p_d = add_symsuffix(p, '_d');
     pp_d = add_symsuffix(pp, '_d');
@@ -72,7 +72,7 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
         error('Overactuated systems are not implemented!')
     end
     
-    if(length(sys.kin.C) ~= 1)
+    if(length(sys.kin.C) ~= 1) && (iscell(sys.kin.C))
         [m, ~] = size(sys.kin.C{1});
         
         C = eye(m);

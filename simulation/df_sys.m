@@ -23,7 +23,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     % States and velocities
     q = sys.kin.q;
     
-    if(length(sys.kin.p) ~= 1)
+    if((length(sys.kin.p) ~= 1) && (iscell(sys.kin.p)))
         p = sys.kin.p{end};
         pp = sys.kin.pp{end};
     else
@@ -31,7 +31,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
         pp = sys.kin.pp;
     end    
     
-    if(length(sys.kin.C) ~= 1)
+    if((length(sys.kin.C) ~= 1) && (iscell(sys.kin.p)))
         [m, ~] = size(sys.kin.C{1});
         
         C = eye(m);

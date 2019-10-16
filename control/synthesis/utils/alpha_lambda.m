@@ -20,7 +20,7 @@ function [alpha_a, alpha_u, ...
     % Convergence on the manifold
     C = eig_to_matrix(poles);
     
-    if(length(sys.kin.C) ~= 1)
+    if((length(sys.kin.C) ~= 1) && (iscell(sys.kin.C)))
         [a, ~] = size(sys.kin.C{1});
         
         Cs = eye(a);
