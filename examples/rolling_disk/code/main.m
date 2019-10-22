@@ -36,7 +36,7 @@ previous = struct('');
 wheel = build_body(m, I, Ts, L, {}, {}, ...
                    sys.kin.q, sys.kin.qp, sys.kin.qpp, ...
                    previous, []);
-sys.descrip.bodies = wheel;
+sys.descrip.bodies = {wheel};
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];
@@ -83,7 +83,7 @@ sys = constrain_system(sys, A);
 
 % Time [s]
 dt = 0.1;
-tf = 10 ;
+tf = 10;
 t = 0:dt:tf; 
 
 % Initial conditions [m; m/s]
@@ -93,8 +93,8 @@ x0 = [1, 1, pi/4, 0, 1, 1]';
 % System modelling
 sol = validate_model(sys, t, x0, [0; 0]);
 
-x = sol.x.';
-y = sol.y.';
+x = t';
+y = sol';
 
 % Generalized coordinates
 plot_info_q.titles = {'$x$', '$y$', '$\theta$', '$\phi$'};
