@@ -72,15 +72,12 @@ sys = dynamic_model(sys);
 x0 = [pi/3; 0];
 
 % Time [s]
-dt = 0.001;
+dt = 0.01;
 tf = 5;
 t = 0:dt:tf; 
 
 % System modelling
 sol = validate_model(sys, t, x0, 0);
-
-x = sol.x;
-y = sol.y.';
 
 plot_info.titles = {'$\theta$', '$\dot \theta$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]'};
@@ -88,8 +85,8 @@ plot_info.ylabels = {'$\theta$ $[rad]$', '$\dot \theta$ $[rad/s]$'};
 plot_info.grid_size = [2, 1];
 
 % States and energies plot
-hfigs_states = my_plot(x, y, plot_info);
-hfig_energies = plot_energies(sys, x, y);
+hfigs_states = my_plot(t, sol', plot_info);
+hfig_energies = plot_energies(sys, t, sol');
 
 % Energies
 saveas(hfig_energies, '../images/energies', 'epsc');

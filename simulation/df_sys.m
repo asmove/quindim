@@ -55,8 +55,6 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     q_p_pp = [q; p; pp];
     q_p_pp_d = [q_d; p_d; pp_d];
     
-    q_p_d_s = subs(q_p_s, q_p_pp, q_p_pp_d);
-    
     % Control output
     if(u_struct.is_sat)
         phi = evalin('base', 'phi');
@@ -65,9 +63,9 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
         switch_func = @(s) sign(s);
     end
     
-    symbs = [q_p_s; q_p_d_s];
+    symbs = [q_p_s; q_p_pp_d];
     nums = [q_p; q_p_ref_fun(t)];
-    
+
     s_n = subs(u_struct.s, symbs, nums);
     
     u = subs(-inv(u_struct.Ms_hat)*(u_struct.fs_hat_n + u_struct.sr_p + ...

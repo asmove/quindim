@@ -1,41 +1,35 @@
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-
-if(is_imprecise)
-    imprecision = [0.99; 0.1; 0.2; 0];
-else
-    imprecision = [0; 0; 0; 0];
-end
-
+imprecision = perc*ones(size(sys.descrip.syms))';
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 
 rel_qqbar = sys.kin.q;
 
-n = length(sys.kin.q);
+[m, ~] = size(sys.dyn.Z);
+phi = 300;
 
 % Control action
-eta = 10*ones(n, 1);
-poles = -10*ones(n, 1);
+eta = ones(m, 1);
+poles = -ones(m, 1);
 u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, is_sat);
 
 len_params = length(sys.descrip.model_params);
 
 % Initial values
-x0 = [0; 0.1];
+x0 = [0; 0];
 
 % Tracking values
-A = 0.1;
-w = 2*pi*100;
-q_p_ref_fun = @(t) [A*sin(w*t)/w; A*cos(w*t); -A*w*sin(w*t)];
+x_d = @(t) [pi; 0];
+x_xp_d = @(t) [x_d(t); 0];
 
 % Initial conditions
-tf = 1e-3;
-dt = 1e-5;
+tf = 5;
+dt = 0.01;
 tspan = 0:dt:tf;
-df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
-sol = my_ode45(df_h, tspan, x0);
 
+df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
+sol = my_ode45(df_h, tspan, x0);
 [m, ~] = size(sys.dyn.Z);
 
 % Plot part
@@ -56,7 +50,7 @@ n = length(q_p);
 % States plot
 plot_config.titles = repeat_str('', n);
 plot_config.xlabels = repeat_str('t [s]', n);
-plot_config.ylabels = {'$Q$ [C]', '$i$ [A]'};
+plot_config.ylabels = {'$\theta$ [m]', '$\dot{\theta}$ [m/s]'};
 plot_config.grid_size = [1, 2];
 
 hfigs_x = my_plot(tspan, x', plot_config);
@@ -64,11 +58,11 @@ hfigs_x = my_plot(tspan, x', plot_config);
 % Input plot
 plot_config.titles = {'', ''};
 plot_config.xlabels = {'t [s]'};
-plot_config.ylabels = {'$u$ [V]'};
+plot_config.ylabels = {'$u$ [N]'};
 plot_config.grid_size = [1, 1];
 
-t_ = linspace(0, tf, length(u_control))';
-hfigs_u = my_plot(t_, u_control, plot_config);
+t_u = linspace(0, tf, length(u_control));
+hfigs_u = my_plot(t_u, u_control, plot_config);
 
 % Sliding function plot
 plot_config.titles = {''};
@@ -81,20 +75,20 @@ s = [];
 alpha_ = u.alpha;
 lambda = u.lambda;
 
-t_ = linspace(0, tf, length(sliding_s))';
-hfigs_s = my_plot(t_, sliding_s, plot_config);
+t_s = linspace(0, tf, length(sliding_s));
+hfigs_s = my_plot(t_s', sliding_s, plot_config);
 
-if(is_sat)
-    is_sat_str = '_sat';
+if(u.is_sat)
+    posfix = '_sat';
 else
-    is_sat_str = '_deg';
+    posfix = '_deg';
 end
 
 % States
-saveas(hfigs_x, ['../imgs/x_', int2str(phi), is_sat_str, '.eps'], 'epsc');
+saveas(hfigs_x, ['../imgs/x_', int2str(100*perc), posfix, '.eps'], 'eps');
 
 % States
-saveas(hfigs_u, ['../imgs/u_', int2str(phi), is_sat_str, '.eps'], 'epsc');
+saveas(hfigs_u, ['../imgs/u_', int2str(100*perc), posfix, '.eps'], 'eps');
 
 % Sliding function
-saveas(hfigs_s, ['../imgs/s_', int2str(phi), is_sat_str, '.eps'], 'epsc');
+saveas(hfigs_s, ['../imgs/s_', int2str(100*perc), posfix, '.eps'], 'eps');
