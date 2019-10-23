@@ -40,12 +40,11 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     s_n = subs(u_struct.s, symbs, nums);
     
-    double(s_n)
-    
     u = subs(-inv(u_struct.Ms_hat)*(u_struct.fs_hat_n + u_struct.sr_p + ...
                                     u_struct.K*switch_func(s_n)), ...
                                     symbs, nums);
-    
+    u = inv(u_struct.V.')*u;
+                                
     plant = subs(sys.dyn.plant, sys.descrip.syms, sys.descrip.model_params);
     
     plant = subs(plant, sys.descrip.u, u);

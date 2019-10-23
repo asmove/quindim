@@ -6,7 +6,7 @@ params_lims = [(1-imprecision).*model_params, ...
 
 rel_qqbar = sys.kin.q;
 
-[m, ~] = size(sys.dyn.Z);
+[~, m] = size(sys.dyn.Z);
 phi = 1;
 
 % Control action
