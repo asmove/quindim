@@ -19,7 +19,7 @@ function [alpha_a, alpha_u, ...
     
     % Convergence on the manifold
     C = eig_to_matrix(poles);
-    
+
     alpha_ = D;
     lambda_ = -C*D;
     

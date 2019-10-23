@@ -22,9 +22,7 @@ u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, is_sat);
 len_params = length(sys.descrip.model_params);
 
 % Initial values
-x0 = [0; 0];
-
-
+x0 = [0; 0.1];
 
 % Tracking values
 A = 0.1;
@@ -33,7 +31,7 @@ q_p_ref_fun = @(t) [A*sin(w*t)/w; A*cos(w*t); -A*w*sin(w*t)];
 
 % Initial conditions
 tf = 1e-3;
-dt = 1e-6;
+dt = 1e-5;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);
