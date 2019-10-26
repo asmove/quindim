@@ -2,48 +2,29 @@
 % close all
 % clc
 % 
-% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
-% 
-% % Params and parameters estimation
-% perc = 0;
-% is_sat = 0;
-% 
-% model_params = sys.descrip.model_params.';
-% imprecision = perc*ones(size(sys.descrip.syms))';
-% params_lims = [(1-imprecision).*model_params, ...
-%                (1+imprecision).*model_params];
-% 
-% rel_qqbar = sys.kin.q(1:2);
-% 
-% [m, ~] = size(sys.dyn.Z);
-% phi = 1;
-% 
-% % Control action
-% eta = 50*ones(m, 1);
-% poles = -10*ones(m, 1);
-% u = sliding_underactuated(sys, eta, poles, ...
-%                             params_lims, rel_qqbar, is_sat);
-% 
-% len_params = length(sys.descrip.model_params);
-% 
-% % Initial values
-% x0 = [1; 1; 0; 0; 0; 0];
-% 
-% % Tracking values
-% x_d = @(t) [0; 0];
-% x_xp_d = @(t) [x_d(t); 0; 0; 0; 0];
-% 
-% % Initial conditions
-% tf = 0.5;
-% dt = 0.001;
-% tspan = 0:dt:tf;
-% 
-% df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
-% sol = my_ode45(df_h, tspan, x0);
-% [m, ~] = size(sys.dyn.Z);
-% 
-% % Plot part
-% img_path = '../imgs/';
+% %run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+% run('C:\Users\brunolnetto\Documents\github\Robotics4fun\examples\rolling_disk\code\main.m')
+
+len_params = length(sys.descrip.model_params);
+
+% Initial values
+x0 = [1; 0; pi/4; 0];
+
+% Initial conditions
+tf = 5;
+dt = 0.1;
+tspan = 0:dt:tf;
+
+V = 0.5*(sys.kin.q(1)^2 + sys.kin.q(2)^2);
+Eta = ones(2, 1);
+Eta = diag(Eta);
+
+df_h = @(t, q) df_unhol(t, q, sys, tf, Eta, V);
+sol = my_ode45(df_h, tspan, x0);
+[m, ~] = size(sys.dyn.Z);
+
+% Plot part
+img_path = '../imgs/';
 
 x = sol(1:end, :);
 
@@ -58,7 +39,6 @@ else
 end    
 
 q_p_s = [sys.kin.q; p];
-q_p_d_s = add_symsuffix([q_p_s; pp], '_d');
 
 [~, m] = size(sys.dyn.Z);
 
@@ -68,48 +48,24 @@ n = length(q_p);
 % States plot
 n = length(sys.kin.q) + length(sys.kin.p{2});
 plot_config.titles = repeat_str('', n);
-plot_config.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]', ...
-                       '$t$ [s]', '$t$ [s]'};
-plot_config.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$', ...
-                      '$\omega_{\theta}$', '$\omega_{\phi}$'};
-plot_config.grid_size = [3, 2];
+plot_config.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_config.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
+plot_config.grid_size = [2, 2];
 
 hfigs_x = my_plot(tspan, x', plot_config);
 
 % Input plot
 plot_config.titles = {'', ''};
 plot_config.xlabels = {'t [s]'};
-plot_config.ylabels = {'$u_1$ [N]'};
+plot_config.ylabels = {'$u$ [N.m]'};
 plot_config.grid_size = [1, 1];
 
 t_u = linspace(0, tf, length(u_control));
 hfigs_u = my_plot(t_u, u_control, plot_config);
 
-% Sliding function plot
-plot_config.titles = {''};
-plot_config.xlabels = {'t [s]'};
-plot_config.ylabels = {'Sliding function $s$'};
-plot_config.grid_size = [1, 1];
-
-s = [];
-
-alpha_ = u.alpha;
-lambda = u.lambda;
-
-t_s = linspace(0, tf, length(sliding_s));
-hfigs_s = my_plot(t_s', sliding_s, plot_config);
-
-if(u.is_sat)
-    posfix = '_sat';
-else
-    posfix = '_deg';
-end
+% States
+saveas(hfigs_x, ['../imgs/x.eps'], 'eps');
 
 % States
-saveas(hfigs_x, ['../imgs/x_1_', int2str(100*perc), posfix, '.eps'], 'eps');
+saveas(hfigs_u, ['../imgs/u.eps'], 'eps');
 
-% States
-saveas(hfigs_u, ['../imgs/u_1_', int2str(100*perc), posfix, '.eps'], 'eps');
-
-% Sliding function
-saveas(hfigs_s, ['../imgs/s_1_', int2str(100*perc), posfix, '.eps'], 'eps');
