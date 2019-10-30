@@ -1,54 +1,59 @@
-function dx = df_unhol(t, q, sys, tf, Eta, V)
+function dx = df_unhol(t, q, sys, tf, Eta)
     persistent wb;
     persistent u_acc;
     
     [n, m] = size(sys.dyn.Z);
     
     if((isempty(wb)) || (~isgraphics(wb.wb)))
-        wb = my_waitbar('Simulate underactuated');
+        wb = my_waitbar('Control of wheel');
         u_acc = [];
-    end
-    
-    % States and velocities
-    q_ = sys.kin.q;
-    
-    if((length(sys.kin.p) ~= 1) && (iscell(sys.kin.p)))
-        p = sys.kin.p{end};
-    else
-        p = sys.kin.p;
-    end    
+    end 
     
     if((length(sys.kin.C) ~= 1) && (iscell(sys.kin.p)))
-        [m, ~] = size(sys.kin.C{1});
-        
-        C = eye(m);
-        for i = 1:length(sys.kin.C)
-            C = C*sys.kin.C{i};
-        end
+    [m, ~] = size(sys.kin.C{1});
+
+    C = eye(m);
+    for i = 1:length(sys.kin.C)
+        C = C*sys.kin.C{i};
+    end
     else
         C = sys.kin.C;
     end
+
+    syms rho gamma_;
+    syms x y;
     
+    % States and velocities
+    sys.kin.q
+    q_ = [rho; gamma_; sys.kin.q(3); sys.kin.q(4)];
+    
+    transf = [rho*cos(gamma_); rho*sin(gamma_)];
+    J = jacobian(transf);
+    
+    sys.kin.q = [rho; gamma_; sys.kin.q(3); sys.kin.q(4)];
+    
+    Cc = C(1:2, :);
+    Ca = C(3:end, :);
+
+    C = [inv(J)*Cc; Ca];
+    C = simplify_(subs(C, [x; y], transf));
+
     q_p = q(1:end);      
-       
-    symbs = q_;
-    nums = q;
+    
+    V = 0.5*sys.kin.q(1)^2;
     
     Vx = jacobian(V, sys.kin.q);
     
-    u = -Eta*sign(C.'*Vx.');
-    u = subs(u, sys.descrip.syms, sys.descrip.model_params);
-
-    u = subs(u, q_, q);
-                                
-    plant = subs(C*p, p, u);
+    p = -Eta*C.'*Vx.';
+    plant = simplify_(C*p);
+    
     plant = subs(plant, sys.descrip.syms, sys.descrip.model_params);
+    dx = subs(plant, q_, q);
     
-    u_acc = [u_acc; u];
+    u = subs(p, sys.descrip.syms, sys.descrip.model_params);
+    u
     
-    dx = double(subs(plant, symbs, nums));
-    
-    u_acc = [u_acc; u];
+    u_acc = [u_acc, u];
     
     assignin('base', 'u_control', u_acc);
     assignin('base', 'wb', wb);

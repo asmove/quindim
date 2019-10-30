@@ -113,7 +113,7 @@ plot_info_p.grid_size = [2, 1];
 hfigs_speeds = my_plot(x, y(:, 5:6), plot_info_p);
 
 % Energies plot
-hfig_energies = plot_energies(sys, x, y);
+hfig_energies = plot_energies(sys, x, y');
 hfig_consts = plot_constraints(sys, x, y);
 
 % Images

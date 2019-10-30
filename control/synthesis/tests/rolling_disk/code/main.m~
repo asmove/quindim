@@ -1,14 +1,14 @@
-clear all
-close all
-clc
-
-run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+% clear all
+% close all
+% clc
+% 
+% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 % run('C:\Users\brunolnetto\Documents\github\Robotics4fun\examples\rolling_disk\code\main.m')
 
 len_params = length(sys.descrip.model_params);
 
 % Initial conditions 
-tf = 1;
+tf = 0.5;
 dt = 0.01;
 tspan = 0:dt:tf;
 
@@ -18,11 +18,9 @@ Eta = diag(Eta);
 % Initial values
 x0 = [1; pi; 0; 0];
 
-df_h = @(t, q) df_unhol(t, q, sys, tf, Eta);
+df_h = @(t, q) df_unhol(t, q, sys, tf, Eta, V);
 sol = my_ode45(df_h, tspan, x0);
 [m, ~] = size(sys.dyn.Z);
-
-V = 0.5*sys.kin.q(1)^2;
 
 Vs = zeros(length(sol), 1);
 for i = 1:length(sol)
@@ -71,8 +69,8 @@ hfigs_u = my_plot(t_u, u_control', plot_config);
 
 % States plot
 plot_config.titles = repeat_str('', 1);
-plot_config.xlabels = {'$\rho$'};
-plot_config.ylabels = {'$\gamma$'};
+plot_config.xlabels = {'$x$'};
+plot_config.ylabels = {'$y$'};
 plot_config.grid_size = [1, 1];
 x = x';
 hfigs_x = my_plot(x(:, 1), x(:, 2), plot_config);
