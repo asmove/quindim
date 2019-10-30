@@ -34,10 +34,9 @@ function dx = geodesic(t, vars, manifold, tf)
           eta; 
           -Gamma_1_11*zeta^2 - 2*Gamma_1_12*zeta*eta - Gamma_1_22*eta^2;
           Gamma_2_11*zeta^2 - 2*Gamma_2_12*zeta*eta - Gamma_2_22*eta^2];
-    
+
     dx = subs(dx, vars_s, vars);
-    
+
     wb_ = wb_.update_waitbar(t, tf);
-    
     assignin('base', 'wb_', wb_);
 end

@@ -62,8 +62,8 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
         % Auxiliary variable
         sr = -alpha_a*qp_a_d + lambda_a*error_a ;
     elseif(m < n)
-        s = alpha_a*errorp_a + lambda_a*error_a +...
-        alpha_u*error_u + lambda_u*errorp_u;
+        s = alpha_a*errorp_a + alpha_u*errorp_u + ...
+            lambda_a*error_a + lambda_u*error_u;
     
         % Auxiliary variable
         sr = -alpha_a*qp_a_d - alpha_u*qp_u_d +...

@@ -1,6 +1,6 @@
 function expr_simp = simplify_(exprs, timeout)
     if(nargin == 1)
-        timeout = 10;
+        timeout = 5;
     end
     
     expr_simp = [];

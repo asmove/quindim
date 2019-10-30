@@ -27,7 +27,7 @@ function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_l
     for i = 1:n
         for j = 1:n
             if(D_Omega_sup(i, j) > D_Omega_1_sup(i, j))
-                D(i, j) = D_Mu_sup(i, j);
+                D(i, j) = D_Omega_sup(i, j);
             else
                 D(i, j) = D_Omega_1_sup(i, j);
             end
@@ -67,7 +67,7 @@ function D = supinf_matrix(matrix, q_p, params_syms, params_lims, is_min)
     for i = 1:n
         for j = 1:n
             a_ij = matrix(i, j);
-
+            
             [num, den] = numden(expand(a_ij));
             
             label = sprintf('(%d, %d)', i, j);
