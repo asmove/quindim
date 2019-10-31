@@ -8,7 +8,7 @@ function [alpha_a, alpha_u, ...
     end
     
     q = sys.kin.q;
-    p = sys.kin.p;
+    p = sys.kin.p{end};
     
     q_a = q(1:m);
     q_u = q(m+1:n);

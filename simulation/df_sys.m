@@ -23,13 +23,8 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     % States and velocities
     q = sys.kin.q;
     
-    if((length(sys.kin.p) ~= 1) && (iscell(sys.kin.p)))
-        p = sys.kin.p{end};
-        pp = sys.kin.pp{end};
-    else
-        p = sys.kin.p;
-        pp = sys.kin.pp;
-    end    
+    p = sys.kin.p{end};
+    pp = sys.kin.pp{end};
     
     if((length(sys.kin.C) ~= 1) && (iscell(sys.kin.p)))
         [m, ~] = size(sys.kin.C{1});
@@ -39,7 +34,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
             C = C*sys.kin.C{i};
         end
     else
-        C = sys.kin.C;
+        C = sys.kin.C{end};
     end
     
     Cp = sys.kin.Cp;
@@ -65,7 +60,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     symbs = [q_p_s; q_p_pp_d];
     nums = [q_p; q_p_ref_fun(t)];
-
+    
     s_n = subs(u_struct.s, symbs, nums);
     
     u = subs(-inv(u_struct.Ms_hat)*(u_struct.fs_hat_n + u_struct.sr_p + ...
@@ -73,12 +68,13 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
                                     symbs, nums);
 
     u = inv(u_struct.V.')*u;
-                                
-    plant = subs(sys.dyn.plant, sys.descrip.syms, sys.descrip.model_params);
+    u
+    plant = subs(sys.dyn.plant, ...
+                 sys.descrip.syms, sys.descrip.model_params);
     
     plant = subs(plant, sys.descrip.u, u);
     
-    u_acc = [u_acc; u];
+    u_acc = [u_acc; u'];
     
     dx = double(subs(plant, q_p_s, q_p));
     

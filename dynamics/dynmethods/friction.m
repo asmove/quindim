@@ -3,6 +3,7 @@ function friction = friction(sys, helper)
     for body = sys.descrip.bodies
         body = body{1};
         for damper = body.dampers
+            damper = damper{1};
             if isempty(symvar(damper.b))
                 continue;
             else
