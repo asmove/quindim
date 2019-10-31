@@ -67,9 +67,9 @@ sys.descrip.states = [x; y; th; phi];
 T12 = T1*T2;
 T = T12*T3;
 R12 = T12(1:3, 1:3);
-R = T(1:3, 1:3);
+R_ = T(1:3, 1:3);
 
-JJ = R.'*I*R;
+JJ = R_.'*I*R_;
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
@@ -79,47 +79,51 @@ sys.descrip.is_constrained = true;
 
 Jw = sys.dyn.Jw;
 
-sys.descrip.unhol_constraints = dot(JJ*[thp; phip], [0; 0; 1]);
+v_cg = sys.descrip.bodies{1}.v_cg;
+omega_ = omega(R_, sys.kin.q, sys.kin.qp);
+
+constraints = v_cg + cross(omega_, R12*[0; 0; -R]);
+sys.descrip.unhol_constraints = simplify_(constraints(1:2));
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
-% % Time [s]
-% dt = 0.1;
-% tf = 10;
-% t = 0:dt:tf; 
-% 
-% % Initial conditions [m; m/s]
-% x0 = [1, 1, 0, 0]';
-% 
-% % System modelling
-% sol = validate_model(sys, t, x0, [0; 0]);
-% 
-% x = t';
-% y = sol';
-% 
-% % Generalized coordinates
-% plot_info_q.titles = {'$x$', '$y$', '$\theta$', '$\phi$'};
-% plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-% plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
-% plot_info_q.grid_size = [2, 2];
-% 
-% hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
-% 
-% plot_info_p.titles = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
-% plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
-% plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
-% plot_info_p.grid_size = [2, 1];
-% 
-% % States plot
-% hfigs_speeds = my_plot(x, y(:, 5:6), plot_info_p);
-% 
-% % Energies plot
-% hfig_energies = plot_energies(sys, x, y');
-% hfig_consts = plot_constraints(sys, x, y);
-% 
-% % Images
-% saveas(hfig_energies, '../images/energies', 'epsc');
-% saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
-% saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 
+% Time [s]
+dt = 0.1;
+tf = 10;
+t = 0:dt:tf; 
+
+% Initial conditions [m; m/s]
+x0 = [1, 1, 0, 0, 1, 1]';
+
+% System modelling
+sol = validate_model(sys, t, x0, [0; 0]);
+
+x = t';
+y = sol';
+
+% Generalized coordinates
+plot_info_q.titles = {'$x$', '$y$', '$\theta$', '$\phi$'};
+plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
+plot_info_q.grid_size = [2, 2];
+
+hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
+
+plot_info_p.titles = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
+plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
+plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
+plot_info_p.grid_size = [2, 1];
+
+% States plot
+hfigs_speeds = my_plot(x, y(:, 5:6), plot_info_p);
+
+% Energies plot
+hfig_energies = plot_energies(sys, x, y');
+hfig_consts = plot_constraints(sys, x, y);
+
+% Images
+saveas(hfig_energies, '../images/energies', 'epsc');
+saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
+saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 

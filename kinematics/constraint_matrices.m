@@ -8,6 +8,7 @@ function [A, C] = constraint_matrices(sys)
         if(is_unholonomic && ~is_holonomic)
             constraints = sys.descrip.unhol_constraints;
             A = jacobian(constraints, sys.kin.qp);
+            
             C = simplify_(null(A));
             
         % Holonomic constraitns

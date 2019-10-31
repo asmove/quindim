@@ -51,9 +51,9 @@ function sys = lagrange_eqdyn(sys)
     dF_dqp = jacobian(F, qp).';
     
     % Nummerical energies 
-    C = sys.kin.C;
-    p = sys.kin.p;
-    pp = sys.kin.pp;
+    C = sys.kin.C{1};
+    p = sys.kin.p{1};
+    pp = sys.kin.pp{1};
     
     sys.dyn.K = subs(sys.dyn.K, sys.kin.qp, C*p);
     sys.dyn.F = subs(sys.dyn.F, sys.kin.qp, C*p);

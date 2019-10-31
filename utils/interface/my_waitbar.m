@@ -116,8 +116,8 @@ classdef my_waitbar
             obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
                               obj.t_curr_str, obj.t_end_str);
             
- % Uncomment this block if you wish to plot speed and time consuming
- % vectors
+             % Uncomment this block if you wish to plot speed and time consuming
+             % vectors
              obj.t_real_vec = [obj.t_real_vec, obj.t_real];
              obj.speed_vec = [obj.speed_vec; obj.speed];
             
