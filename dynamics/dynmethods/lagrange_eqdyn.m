@@ -66,7 +66,7 @@ function sys = lagrange_eqdyn(sys)
     
     % Generalized velocities derivaives
     % in term of quasi-velocities
-    qp_ = C*sys.kin.p;
+    qp_ = C*p;
     qpp_ = C*pp + Cp*p;
     
     qp = sys.kin.qp;

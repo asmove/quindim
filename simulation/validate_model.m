@@ -52,9 +52,6 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     % Time elapsed
     dt = toc(t0);
     
-    t
-    tf
-    
     wb_ = wb_.update_waitbar(t, tf);
     assignin('base', 'wb', wb_)
 end
