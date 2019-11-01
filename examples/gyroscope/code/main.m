@@ -115,7 +115,7 @@ sys.kin.p = sys.kin.qp;
 sys.kin.pp = sys.kin.qpp;
 
 % External excitations
-sys.descrip.Fq = [T1; T2; 0; 0];
+sys.descrip.Fq = [0; 0; T1; T2];
 sys.descrip.u = [T1; T2];
 
 % Constraint condition
@@ -141,7 +141,8 @@ tf = 5;
 t = 0:dt:tf; 
 
 % System modelling
-u0 = [0; 0; 0; 0];
+[~, m] = size(sys.dyn.Z);
+u0 = zeros(m, 1);
 sol = validate_model(sys, t, x0, u0);
 
 x = t;

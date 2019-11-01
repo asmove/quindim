@@ -66,8 +66,8 @@ function sys = kinematic_model(sys)
     end
     
     % System jacobian
-    sys.dyn.Jv = Jv;
-    sys.dyn.Jw = Jw;
+    sys.dyn.Jv = simplify_(Jv);
+    sys.dyn.Jw = simplify_(Jw);
     
     % Constrain the system by provided constraints
     sys = constraints_props(sys);
