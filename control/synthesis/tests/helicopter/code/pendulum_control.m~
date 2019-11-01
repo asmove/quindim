@@ -60,15 +60,15 @@ hfigs_states = my_plot(tspan, x', plot_info);
 
 % Input plot
 plot_config.titles = {'', ''};
-plot_config.xlabels = {'t [s]', 't [s]'};
-plot_config.ylabels = {'$u_1$ [N]', '$u_2$ [N]'};
-plot_config.grid_size = [2, 1];
+plot_config.xlabels = {'t [s]'};
+plot_config.ylabels = {'$u$ [N]'};
+plot_config.grid_size = [1, 1];
 
 t_u = linspace(0, tf, length(u_control));
 hfigs_u = my_plot(t_u, double(u_control), plot_config);
 
 % Sliding function plot
-plot_config.titles = {'', ''};
+plot_config.titles = {''};
 plot_config.xlabels = {'t [s]', 't [s]'};
 plot_config.ylabels = {'Sliding function $s_1$', 'Sliding function $s_2$'};
 plot_config.grid_size = [2, 1];
@@ -83,7 +83,7 @@ else
 end
 
 % States
-saveas(hfigs_states, ['../imgs/x_', int2str(100*perc), posfix, '.eps'], 'eps');
+saveas(hfigs_x, ['../imgs/x_', int2str(100*perc), posfix, '.eps'], 'eps');
 
 % States
 saveas(hfigs_u, ['../imgs/u_', int2str(100*perc), posfix, '.eps'], 'eps');

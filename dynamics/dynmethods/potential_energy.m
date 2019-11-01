@@ -1,8 +1,7 @@
 function U = potential_energy(body, gravity)
     % Gravitational energy
     U = -body.m*body.p_cg0.'*gravity;
-    body.p_cg0
-    gravity
+    
     % Springs
     Pk = sym(0);
     for spring = body.springs
