@@ -20,41 +20,68 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
     for i = 1:length(exprs)
         expr_ = exprs(i);
         monomes = strsplit(char(expr_), '*');
-
+        
         expr_sym = sym(1);
         expr_x = sym(1);
         
-        for monome = monomes
-            if(contains(monome, '(') || contains(monome, ')'))
+        n_monomes = length(monomes);
+        
+        must_jump = false;
+        for j = 1:n_monomes
+            
+            if(must_jump)
+                must_jump = false;
                 continue;
-            else
-                monome_sym = sym(monome);
-                monome_vars = symvar(monome_sym);
-
-                is_not_x = ~all(ismember(monome_vars, x));
-
-                % Parameters of the plant
-                if(is_not_x || isempty(monome_vars))
-                    expr_sym = sym(expr_sym)*sym(monome);
-
-                else
-                    % States of the system
-                    for bounded_func = bounded_funcs
-                        is_bounded = ismember(char(bounded_func), char(monome));
-
-                        if(all(is_bounded))
-                            if(is_min)
-                                expr_x = sym(0);
-                                break;
-                            else
-                                expr_x = expr_x*sym(1);
-                            end
-                        end
-                    end
-                end 
             end
             
+            monome = monomes{j};
+
+            for bounded_func = bounded_funcs
+                has_left_parenthesis = ~isempty(findstr(char('('), ...
+                                                        char(monome)));
+                has_right_parenthesis = ~isempty(findstr(char(')'), ...
+                                                        char(monome)));
+                                                    
+                has_sin_cos = ~isempty(findstr(char(bounded_func), ...
+                                                 char(monome)));
+                if(has_sin_cos && ...
+                   has_left_parenthesis && ... 
+                   ~has_right_parenthesis)
+                    
+                    monome = [monome, '*', monomes{j+1}];
+                    
+                    must_jump = true;
+                    break;
+                end
+            end
+            
+            monome_sym = sym(monome);
+            monome_vars = symvar(monome_sym);
+
+            is_not_x = ~all(ismember(monome_vars, x));
+
+            % Parameters of the plant
+            if(is_not_x || isempty(monome_vars))
+                expr_sym = sym(expr_sym)*sym(monome);
+
+            else
+                % States of the system
+                for bounded_func = bounded_funcs
+                    is_bounded = ismember(char(bounded_func), char(monome));
+
+                    if(all(is_bounded))
+                        if(is_min)
+                            expr_x = sym(0);
+                            break;
+                        else
+                            expr_x = expr_x*sym(1);
+                        end
+                    end
+                end
+            end
         end
+        
+        disp('1')
         
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));
         

@@ -24,7 +24,7 @@ x_d = @(t) [0; 0];
 x_xp_d = @(t) [x_d(t); 0; 0; 0; 0];
 
 % Initial conditions
-tf = 1;
+tf = 0.5;
 dt = 0.001;
 tspan = 0:dt:tf;
 

@@ -131,7 +131,6 @@ classdef my_waitbar
         
         function close_window(obj)
             h = obj.find_handle();
-            obj.tf_real_vec
             
             % Erase waitbar
             tf = obj.tf_real_vec(end);

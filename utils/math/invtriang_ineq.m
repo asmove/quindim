@@ -30,8 +30,37 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
         
         no_x = true;
         
-        i = 1;
-        for monome = monomes
+        n_monomes = length(monomes);
+        must_jump = false;
+        
+        for i = 1:n_monomes
+            if(must_jump)
+                must_jump = false;
+                continue;
+            end
+            
+            monome = monomes{i};
+            
+            for bounded_func = bounded_funcs
+                has_left_parenthesis = ~isempty(findstr(char('('), ...
+                                                        char(monome)));
+                has_right_parenthesis = ~isempty(findstr(char(')'), ...
+                                                        char(monome)));
+                                                    
+                has_sin_cos = ~isempty(findstr(char(bounded_func), ...
+                                                 char(monome)));
+                                             
+                if(has_sin_cos && ...
+                   has_left_parenthesis && ... 
+                   ~has_right_parenthesis)
+                    
+                    monome = [monome, '*', monomes{i+1}];
+                    
+                    must_jump = true;
+                    break;
+                end
+            end
+            
             monome_sym = sym(monome);
             monome_vars = symvar(monome_sym);
             
@@ -80,9 +109,9 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
         params_1 = exprs_i_acc(i);
         params_others = sym(0);
         
-        for j = 1:length(exprs_i_acc)
-            if(i ~= j)
-                params_others = params_others + exprs_i_acc(j);
+        for k = 1:length(exprs_i_acc)
+            if(i ~= k)
+                params_others = params_others + exprs_i_acc(k);
             end
         end
         
@@ -100,7 +129,7 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
 
         % run interior-point algorithm
         options = optimoptions('fmincon', 'Display', 'final-detailed');
-        [opt_params, result] = fmincon(func_obj, params0, [], [], [], [], ...
+        [~, result] = fmincon(func_obj, params0, [], [], [], [], ...
                                         params_min, params_max, func_cond, ...
                                         options);
                                     
@@ -115,14 +144,12 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
             if(is_min)
                 if(result < phi_minmax)
                     phi_minmax = result;
-                    i
                 else
                     continue
                 end
             else
                 if(result > phi_minmax)
-                    phi_minmax = result;
-                    i
+                    phi_minmax = result;                    
                 else
                     continue
                 end
