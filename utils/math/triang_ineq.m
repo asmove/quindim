@@ -25,30 +25,35 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
         expr_x = sym(1);
         
         for monome = monomes
-            monome_sym = sym(monome);
-            monome_vars = symvar(monome_sym);
-            
-            is_not_x = ~all(ismember(monome_vars, x));
-            
-            % Parameters of the plant
-            if(is_not_x || isempty(monome_vars))
-                expr_sym = sym(expr_sym)*sym(monome);
-            
+            if(contains(monome, '(') || contains(monome, ')'))
+                continue;
             else
-                % States of the system
-                for bounded_func = bounded_funcs
-                    is_bounded = ismember(char(bounded_func), char(monome));
-                    
-                    if(all(is_bounded))
-                        if(is_min)
-                            expr_x = sym(0);
-                            break;
-                        else
-                            expr_x = expr_x*sym(1);
+                monome_sym = sym(monome);
+                monome_vars = symvar(monome_sym);
+
+                is_not_x = ~all(ismember(monome_vars, x));
+
+                % Parameters of the plant
+                if(is_not_x || isempty(monome_vars))
+                    expr_sym = sym(expr_sym)*sym(monome);
+
+                else
+                    % States of the system
+                    for bounded_func = bounded_funcs
+                        is_bounded = ismember(char(bounded_func), char(monome));
+
+                        if(all(is_bounded))
+                            if(is_min)
+                                expr_x = sym(0);
+                                break;
+                            else
+                                expr_x = expr_x*sym(1);
+                            end
                         end
                     end
-                end
+                end 
             end
+            
         end
         
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));

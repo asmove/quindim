@@ -6,8 +6,8 @@ params_lims = [(1-imprecision).*model_params, ...
 
 rel_qqbar = sys.kin.q;
 
-[m, ~] = size(sys.dyn.Z);
-phi = 100;
+[~, m] = size(sys.dyn.Z);
+phi = 50;
 
 % Control action
 eta = ones(m, 1);
@@ -24,8 +24,8 @@ x_d = @(t) [0; 0];
 x_xp_d = @(t) [x_d(t); 0; 0; 0; 0];
 
 % Initial conditions
-tf = 5;
-dt = 0.01;
+tf = 1;
+dt = 0.001;
 tspan = 0:dt:tf;
 
 df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);

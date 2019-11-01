@@ -1,115 +1,98 @@
-% Double Single example
 % @Author: Bruno Peixoto
-
 close all
 clear all
 clc
 
 % The 'real' statement on end is important for inner simplifications
-syms F m_b m_p Lg L b_b b_p g real;
-syms x xp xpp real;
+syms F_th F_phi m Lg_y Lg_z L b_th b_phi g real;
 syms th thp thpp real;
+syms phi phip phipp real;
 
 % Body inertia
 is_diag_b = true;
-I_b = inertia_tensor('b', is_diag_b);
-
-is_diag_p = true;
-I_p = inertia_tensor('p', is_diag_p);
+I = inertia_tensor('b', is_diag_b);
 
 % Position relative to body coordinate system
-Lg_ = [0; Lg; 0];
+Lg_ = [0; Lg_y; Lg_z];
 
 % Bodies transformations
-T1 = T3d(0, [0; 0; 1], [x; 0; 0]);
-T2 = T3d(pi/2 - th, [0; 0; 1], [0; 0; 0]);
+T1 = T3d(th, [0; 0; 1], [0; 0; 0]);
+T2 = T3d(phi, [1; 0; 0], [0; 0; 0]);
 
 % Body 1 and 2 related transformation matrices
-T_bs = {T1};
-T_ps = {T1, T2};
+Ts = {T1, T2};
 
 % Previous body - Inertial, in this case
-previous_b = struct('');
+previous = struct('');
 
-params_b = [m_b, Lg];
-params_p = [m_p, L, Lg];
+params = [m Lg_y Lg_z L b_th b_phi g];
 
 % Damper and springs
-damper_b = build_damper(b_b, [0; 0; 0], [xp; 0; 0]);
+damper_th = build_damper(b_th, [0; 0; 0], [0; 0; thp]);
+damper_phi = build_damper(b_phi, [0; 0; 0], [0; 0; thp]);
 
-bar = build_body(m_b, I_b, T_bs, zeros(3, 1), damper_b, {}, ...
-                  x, xp, xpp, previous_b, params_b);
-              
-previous_p = bar;
+dampers = {damper_th, damper_phi};
 
-damper_p = build_damper(b_p, [0; 0; 0], [0; 0; thp]);
-pendulum = build_body(m_p, I_p, T_ps, Lg_, damper_p, {}, ...
-                      th, thp, thpp, previous_p, params_p);
+Lg_ = [0; Lg_y; Lg_z];
 
-Ib_1 = I_b(1, 1);
-Ib_2 = I_b(2, 2);
-Ib_3 = I_b(3, 3);
-Ip_1 = I_p(1, 1);
-Ip_2 = I_p(2, 2);
-Ip_3 = I_p(3, 3);
+bar = build_body(m, I, Ts, Lg_, dampers, {}, ...
+                  [th, phi], [thp, phip], [thpp, phipp], ...
+                  previous, params);
+
+I_1 = I(1, 1);
+I_2 = I(2, 2);
+I_3 = I(3, 3);
               
 % Without spring and damping
-sys.descrip.syms = [m_b, m_p, L, Lg, ...
-                    Ib_1, Ib_2, Ib_3, ...
-                    Ip_1, Ip_2, Ip_3, ...
-                    b_b, b_p, g];
-m_b_n = 1;
-m_p_n = 1;
-L_n = 1;
-Lg_n = 0.5;
-Ib_1_n = 0.1;
-Ib_2_n = 0.1;
-Ib_3_n = 0.1;
-Ip_1_n = 0.1;
-Ip_2_n = 0.1;
-Ip_3_n = 0.1;
-b_b_n = 0;
-b_p_n = 0;
+sys.descrip.syms = [m I_1 I_2 I_3 Lg_y Lg_z L b_th b_phi g];
+
+m_n = 1;
+I_1_n = 0.1;
+I_2_n = 0.1;
+I_3_n = 0.1;
+Lg_y_n = 1;
+Lg_z_n = 1;
+L_n = 2;
+b_th_n = 0.1;
+b_phi_n = 0.1;
 g_n = 9.8;
 
-sys.descrip.model_params = [m_b_n, m_p_n, L_n, Lg_n, ...
-                            Ib_1_n, Ib_2_n, Ib_3_n, ...
-                            Ip_1_n, Ip_2_n, Ip_3_n, ...
-                            b_b_n, b_p_n, g_n];
+sys.descrip.model_params = [m_n I_1_n I_2_n I_3_n ...
+                            Lg_y_n Lg_z_n L_n b_th_n b_phi_n g_n];
 
-sys.descrip.gravity = [0; -g; 0];
+sys.descrip.gravity = [0; 0; -g];
 sys.descrip.g = g;
 
-sys.descrip.bodies = {bar, pendulum};
+sys.descrip.bodies = {bar};
 
 % Generalized coordinates
-sys.kin.q = [x; th];
-sys.kin.qp = [xp; thp];
-sys.kin.qpp = [xpp; thpp];
+sys.kin.q = [th; phi];
+sys.kin.qp = [thp; phip];
+sys.kin.qpp = [thpp; phipp];
 
 % Generalized coordinates
-sys.kin.p = [xp; thp];
-sys.kin.pp = [xpp; thpp];
+sys.kin.p = [th; phi];
+sys.kin.pp = [thp; phip];
 
 % External excitations
-sys.descrip.Fq = [F; 0];
-sys.descrip.u = F;
+sys.descrip.Fq = [F_th; F_phi];
+sys.descrip.u = [F_th; F_phi];
 
 % Constraint condition
 sys.descrip.is_constrained = false;
 
 % Sensors
-sys.descrip.y = [x; th];
+sys.descrip.y = [th; phi];
 
 % State space representation
-sys.descrip.states = [th; x; thp; xp];
+sys.descrip.states = [th; phi; thp; phip];
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Initia conditions [m; m/s]
-x0 = [0; pi/3; 0; 0];
+x0 = [pi/3; pi/3; 0; 0];
 
 % Time [s]
 dt = 0.05;
@@ -117,17 +100,18 @@ tf = 5;
 t = 0:dt:tf; 
 
 % System modelling
-sol = validate_model(sys, t, x0, 0);
+u0 = [0; 0];
+sol = validate_model(sys, t, x0, u0);
 
 x = t;
 y = sol';
 
-plot_info.titles = {'$x$', '$\theta$',  ...
-                    '$\dot x$', '$\dot \theta$'};
+plot_info.titles = {'$\theta$', '$\phi$', ...
+                    '$\dot \theta$', '$\dot \phi$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', ...
                      '$t$ [s]', '$t$ [s]'};
-plot_info.ylabels = {'$x$', '$\theta$', ...
-                    '$\dot x$', '$\dot \theta$'};
+plot_info.ylabels = {'$\theta$', '$\phi$', ...
+                    '$\dot \theta$', '$\dot \phi$'};
 plot_info.grid_size = [2, 2];
 
 % States and energies plot

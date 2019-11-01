@@ -1,8 +1,8 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/helicopter/code/main.m');
+clear all
+close all
+clc
+ 
+run('~/github/Robotics4fun/examples/inverted_pendulum/code/main.m');
 
 percs = [0 0.5];
 is_sat_opts = [false, true];
