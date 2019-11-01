@@ -104,7 +104,7 @@ function hfigs = my_plot(t, x, plot_config)
         for j = 1:nrows*ncols
             id_plot = ind2sub([nrows, ncols], j);
 
-            idx = i+j-1;
+            idx = (i-1)*nrows*ncols + j;
 
             h_subplot = subplot(nrows, ncols, id_plot);
             
@@ -173,7 +173,7 @@ function hfigs = my_plot(t, x, plot_config)
         end
 
         hfigs = [hfigs; hfig];
-        i = i + nrows*ncols;
+        i = i + 1;
     end
 
     % Unelegant but efficient way to divide the plot window
