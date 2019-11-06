@@ -1,0 +1,126 @@
+% Author: Bruno Peixoto
+% Date: 30/10/19
+
+clear all
+close all
+clc
+
+syms g f_phi;
+
+% Body 1
+syms m_b m_w R Lg real;
+syms phi th r real;
+syms phip thp rp real;
+syms phipp thpp rpp real;
+
+I_b = sym('I_b_', );
+
+I_b = inertia_tensor('_b', true);
+I_w = inertia_tensor('_w', true);
+
+% Rotations to body
+T1 = T3d(phi, [0; 0; 1], [0; 0; 0]);
+T2 = T3d(th, [0; 0; 1], [r; 0; 0]);
+T_w = T1;
+T_b = {T1, T2};
+
+% CG position relative to body coordinate system
+L = [Lg; 0; 0];
+
+% Generalized coordinates
+sys.kin.q = [phi; th; r];
+sys.kin.qp = [phip; thp; r];
+sys.kin.qpp = [phipp; thpp; r];
+
+% Previous body
+previous = struct('');
+
+bar = build_body(m_b, I_b, Tb, Lg, {}, {}, ...
+                 sys.kin.q, sys.kin.qp, sys.kin.qpp, ...
+                 previous, []);
+               
+wheel = build_body(m_w, I_w, Ts, L, {}, {}, ...
+                   sys.kin.q, sys.kin.qp, sys.kin.qpp, ...
+                   bar, []);
+               
+sys.descrip.bodies = {bar, wheel};
+
+% Gravity utilities
+sys.descrip.gravity = [0; 0; -g];
+sys.descrip.g = g;
+
+% Paramater symbolics of the system
+sys.descrip.syms = [m_b, m_w, R, Lg, Is.', g];
+
+% Penny data
+m_num = 1;
+R_num = 1;
+sys.descrip.model_params = [m_num, R_num, ...
+                            0.4*m_num*R_num^2, ...
+                            0.4*m_num*R_num^2, ...
+                            0.4*m_num*R_num^2, ...
+                            9.8];
+
+% External excitations
+sys.descrip.Fq = [f_phi; 0; 0];
+sys.descrip.u = f_phi;
+
+% Constraint condition
+sys.descrip.is_constrained = true;
+
+% State space representation
+sys.descrip.states = [phi; th; r];
+
+% Kinematic and dynamic model
+sys = kinematic_model(sys);
+
+% Constraint condition
+sys.descrip.is_constrained = true;
+
+v_cg = sys.descrip.bodies{1}.v_cg;
+omega_ = omega(R_, sys.kin.q, sys.kin.qp);
+
+sys.descrip.unhol_constraints = rp - thp*R;
+
+% Kinematic and dynamic model
+sys = kinematic_model(sys);
+sys = dynamic_model(sys);
+
+% Time [s]
+dt = 0.1;
+tf = 10;
+t = 0:dt:tf; 
+
+% Initial conditions [m; m/s]
+x0 = [1, 1, 0, 0, 1, 1]';
+
+% System modelling
+sol = validate_model(sys, t, x0, [0; 0]);
+
+x = t';
+y = sol';
+
+% % Generalized coordinates
+% plot_info_q.titles = {'$x$', '$y$', '$\theta$', '$\phi$'};
+% plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+% plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
+% plot_info_q.grid_size = [2, 2];
+% 
+% hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
+% 
+% plot_info_p.titles = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
+% plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
+% plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
+% plot_info_p.grid_size = [2, 1];
+% 
+% % States plot
+% hfigs_speeds = my_plot(x, y(:, 5:6), plot_info_p);
+% 
+% % Energies plot
+% hfig_energies = plot_energies(sys, x, y');
+% hfig_consts = plot_constraints(sys, x, y);
+% 
+% % Images
+% saveas(hfig_energies, '../images/energies', 'epsc');
+% saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
+% saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 

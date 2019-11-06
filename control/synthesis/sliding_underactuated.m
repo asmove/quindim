@@ -73,6 +73,7 @@ function u = sliding_underactuated(sys, etas, poles, ...
     params_hat_n = (params_min + params_max)/2;
     
     fs_hat_s = subs(fs_s, params_s, params_hat_s);
+    fs_hat_s
     fs_hat_n = subs(fs_hat_s, params_hat_s, params_hat_n);
 
     % Dynamics uncertainties

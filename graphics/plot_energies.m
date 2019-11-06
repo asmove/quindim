@@ -1,6 +1,5 @@
 function [hfig, K, P, F, T] = plot_energies(sys, time, states)    
     n = length(time);
-    
     sym_zeros = sym(zeros(n, 1));
     
     K = sym_zeros;
