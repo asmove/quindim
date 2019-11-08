@@ -1,6 +1,12 @@
 % Differential robot
 % @Author: Bruno Peixoto
-close all
+
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
+
 clear all
 clc
 
@@ -100,7 +106,7 @@ accel_r = thrpp;
 
 params_r = [];
 
-wheel_r = build_body(m_r, I_r, Ts_r, Lg_r, damper_r, {}, ...
+wheel_r = build_body(m_r, I_r, Ts_r, Lg_r, {damper_r}, {}, ...
                      states_r, speed_r, accel_r, ...
                      previous_r, params_r);
 
@@ -111,7 +117,7 @@ states_l = thl;
 speed_l = thlp;
 accel_l = thlpp;
 
-wheel_l = build_body(m_r, I_r, Ts_l, Lg_r, damper_l, {}, ...
+wheel_l = build_body(m_r, I_r, Ts_l, Lg_r, {damper_l}, {}, ...
                      states_l, speed_l, accel_l, ...
                      previous_l, params_l);
 
@@ -122,7 +128,7 @@ states_f = beta;
 speed_f = betap;
 accel_f = betapp;
 
-front_support = build_body(m_f, I_f, Ts_f, Lg_f, damper_f, {}, ...
+front_support = build_body(m_f, I_f, Ts_f, Lg_f, {damper_f}, {}, ...
                      states_f, speed_f, accel_f, ...
                      previous_f, params_f);
 
@@ -133,7 +139,7 @@ states_s = ths;
 speed_s = thsp;
 accel_s = thspp;
 
-wheel_s = build_body(m_s, I_s, Ts_s, Lg_s, damper_s, {}, ...
+wheel_s = build_body(m_s, I_s, Ts_s, Lg_s, {damper_s}, {}, ...
                      states_s, speed_s, accel_s, ...
                      previous_s, params_s);
                

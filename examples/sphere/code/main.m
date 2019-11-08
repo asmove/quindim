@@ -1,7 +1,12 @@
 % Author: Bruno Peixoto
 % Date: 30/10/19
 
-clear all
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
+
 close all
 clc
 

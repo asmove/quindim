@@ -28,7 +28,6 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
         
         must_jump = false;
         for j = 1:n_monomes
-            
             if(must_jump)
                 must_jump = false;
                 continue;
@@ -80,8 +79,6 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
                 end
             end
         end
-        
-        disp('1')
         
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));
         

@@ -9,6 +9,6 @@ is_sat_opts = [false, true];
 
 for perc = percs
     for is_sat = is_sat_opts
-        run('./pendulum_control.m');
+        run('./helicopter_control.m');
     end
 end

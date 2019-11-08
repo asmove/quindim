@@ -1,8 +1,13 @@
 % Double Single example
 % @Author: Bruno Peixoto
 
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
+
 close all
-clear all
 clc
 
 % The 'real' statement on end is important for inner simplifications
@@ -30,7 +35,7 @@ params = [];
 damper = build_damper(b, [0; 0; 0], [thp; 0; 0]);
 spring = build_spring(k, [0; 0; 0], [th; 0; 0]);
 
-pendulum = build_body(m, I, Ts, L, damper, spring, ...
+pendulum = build_body(m, I, Ts, L, {damper}, {spring}, ...
                       th, thp, thpp, previous, params);
 
 % Without spring and damping

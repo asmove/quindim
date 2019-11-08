@@ -1,6 +1,7 @@
 classdef my_waitbar
     properties
         idx = tic;
+        waitbar_id = 0;
         
         time_mask = '%3.0f %% - %.4f [%%/s] [%s - %s]';
         msg = '';
@@ -55,6 +56,13 @@ classdef my_waitbar
         function obj = my_waitbar(name)
             obj.name = name;
             
+            persistent n_waitbars;
+            n_waitbars = n_waitbars + 1;
+            
+            if(isempty(n_waitbars))
+                obj.waitbar_id = n_waitbars;
+            end
+            
             obj.t_curr_str = datestr(seconds(0), 'HH:MM:SS');
             obj.t_end_str = datestr(seconds(0), 'HH:MM:SS');
             
@@ -73,6 +81,7 @@ classdef my_waitbar
         
         function h = find_handle(obj)
             h = findall(0,'type','figure','tag','TMWWaitbar');
+            h = h(obj.waitbar_id);
         end
         
         function delete(obj)

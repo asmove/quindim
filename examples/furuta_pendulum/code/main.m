@@ -1,7 +1,12 @@
 % Double Single example
 % @Author: Bruno Peixoto
 
-close all
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
+
 clear all
 clc
 
@@ -44,7 +49,7 @@ bar1 = build_body(m0, I0, T0s, L0g_, {}, {}, ...
               
 previous2 = bar1;
               
-bar2 = build_body(m1, I1, T1s, L1g_, damper, {}, ...
+bar2 = build_body(m1, I1, T1s, L1g_, {damper}, {}, ...
                   th1, th1p, th1pp, previous2, params2);
 
 I0_1 = I0(1, 1);

@@ -21,11 +21,11 @@ I_w = diag(I_w);
 
 % Rotations to body
 T1 = T3d(phi, [0; 0; 1], [0; 0; 0]);
-T2 = T3d(th, [0; 0; 1], [r; 0; 0]);
-T_w = {T1};
-T_b = {T1, T2};
+T2 = T3d(th, [0; 0; 1], [r; R; 0]);
+T_b = {T1};
+T_w = {T1, T2};
 
-% CG position relative to body coordinate system
+% CG position of the bar to body coordinate system
 L = [Lg; 0; 0];
 
 % Generalized coordinates
@@ -65,8 +65,28 @@ sys.descrip.is_constrained = true;
 sys.descrip.states = [phi; th];
 
 % Constraint condition
+sys.descrip.is_constrained = false;
+
+% Kinematic and dynamic model
+sys = kinematic_model(sys);
+
 sys.descrip.is_constrained = true;
-sys.descrip.unhol_constraints = rp - thp*R;
+
+% Velocity from wheel equal to bar
+T_b = sys.descrip.bodies{1}.T;
+T_bw = sys.descrip.bodies{2}.T;
+R_b = T_b(1:3, 1:3);
+R_bw = T_bw(1:3, 1:3);
+
+v_bar_contact = r*dvecdt(T_b(1:3, 1), sys.kin.q, sys.kin.qp);
+
+p_w = point(T_b, [r; R; 0]);
+v_wheel_center = dvecdt(p_w, sys.kin.q, sys.kin.qp);
+omega_w = omega(R_bw, sys.kin.q, sys.kin.qp);
+v_wheel_contact = v_wheel_center + cross(omega_w, R_b*[0; -R; 0]);
+
+constraints = v_wheel_contact - v_bar_contact;
+sys.descrip.unhol_constraints = {simplify_(constraints(1:2))};
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);

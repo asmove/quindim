@@ -1,6 +1,11 @@
 % Minimal example
 % @Author: Bruno Peixoto
-clear all
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
+
 close all
 clc
 
@@ -30,7 +35,7 @@ T = {T3d(0, [0, 0, 1].', [Q; 0; 0])};
 
 resistor = build_damper(R, [0; 0; 0], [I; 0; 0]);
 capacitor = build_spring(k, [0; 0; 0], [Q; 0; 0]);
-block = build_body(L, Inertia, T, Lg, resistor, capacitor, ...
+block = build_body(L, Inertia, T, Lg, {resistor}, {capacitor}, ...
                    Q, I, Ip, struct(''), []);
 
 sys.descrip.bodies = {block};

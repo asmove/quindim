@@ -1,6 +1,4 @@
 function p = point(T, d)
-    T
-    d
     p_ = T*[d; 1];
     p = formula(p_);
     p = simplify(p);

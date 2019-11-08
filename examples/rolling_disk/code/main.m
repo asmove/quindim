@@ -1,7 +1,12 @@
 % Author: Bruno Peixoto
 % Date: 08/01/19
 
-clear all
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
+
 close all
 clc
 
@@ -74,7 +79,9 @@ sys = kinematic_model(sys);
 
 % Simplification due ill-formed column
 % It may appear depending of the system
-sys.kin.C(:, 1) = sin(th)*sys.kin.C(:, 1);
+C = sys.kin.C{1};
+C(:,1) = sin(th)*C(:,1);
+sys.kin.C = {C};
 
 sys = dynamic_model(sys);
 

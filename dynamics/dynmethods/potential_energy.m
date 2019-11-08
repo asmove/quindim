@@ -5,6 +5,7 @@ function U = potential_energy(body, gravity)
     % Springs
     Pk = sym(0);
     for spring = body.springs
+        spring = spring{1};
         curr = spring.head;
         prev = spring.tail;
         K = spring.k;

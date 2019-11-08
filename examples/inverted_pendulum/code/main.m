@@ -1,6 +1,11 @@
 % @Author: Bruno Peixoto
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
+
 close all
-clear all
 clc
 
 % The 'real' statement on end is important for inner simplifications
