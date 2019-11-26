@@ -5,6 +5,7 @@ function expr_simp = simplify_(exprs, timeout)
     
     expr_simp = [];
     
+    t0 = tic;
     if(iscell(exprs))
         for expr = exprs
             expr = simplify(expand(sym(expr)), ...
@@ -17,4 +18,6 @@ function expr_simp = simplify_(exprs, timeout)
                         'Seconds', timeout, ...
                         'Criterion', 'preferReal');
     end
+    dt = toc(t0)
+    
 end

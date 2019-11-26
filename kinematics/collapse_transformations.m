@@ -3,6 +3,7 @@ function T = collapse_transformations(Ts)
     
     for i = 1:length(Ts)
         T_ = Ts{i};
+        
         T = simplify_(T*T_);
     end
 end

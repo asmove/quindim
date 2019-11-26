@@ -14,6 +14,4 @@ function sys = dyn_matrices(sys, helper)
     sys.dyn.H = sys.dyn.M;
     sys.dyn.h = simplify_(sys.dyn.nu + sys.dyn.g + sys.dyn.f);
     sys.dyn.Z = simplify_(sys.dyn.U);
-    
-    sys.dyn.W = simplify_(chol(sys.dyn.H, 'lower', 'nocheck'));
 end
