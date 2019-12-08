@@ -12,7 +12,7 @@ function sys = lagrange_eqdyn(sys)
     sys.dyn.P = 0;
     sys.dyn.L = 0;
     sys.dyn.F = 0;
-    
+
     % Kinetic, Potential, Lagrangian and Rayleigh of the bodies
     for i = 1:n
        [L, K, P] = lagrangian(bodies{i}, sys.descrip.gravity);
@@ -38,11 +38,15 @@ function sys = lagrange_eqdyn(sys)
     
     % Dynamic equations of the system   
     L = sys.dyn.L;
+    K = sys.dyn.K;
+    P = sys.dyn.P;
     F = sys.dyn.F;
+
     Fq = sys.descrip.Fq;
     
     % Derivative of L respective to q
     dL_dq = jacobian(L, q).';
+    dK_dq = jacobian(K, q).';
        
     % Derivative of L respective to qp
     dL_dqp = jacobian(L, qp).';
@@ -51,14 +55,15 @@ function sys = lagrange_eqdyn(sys)
     dF_dqp = jacobian(F, qp).';
     
     % Nummerical energies 
-    C = sys.kin.C{1};
+    C = collapse_C(sys);
+    sys.kin.C = C;
     p = sys.kin.p{1};
     pp = sys.kin.pp{1};
     
+    sys.dyn.P = subs(sys.dyn.P, sys.kin.qp, C*p);
     sys.dyn.K = subs(sys.dyn.K, sys.kin.qp, C*p);
     sys.dyn.F = subs(sys.dyn.F, sys.kin.qp, C*p);
-    sys.dyn.total_energy = subs(sys.dyn.total_energy, ...
-                                sys.kin.qp, C*p);
+    sys.dyn.total_energy = subs(sys.dyn.total_energy, sys.kin.qp, C*p);    
     
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.kin.q, qp);
@@ -68,7 +73,7 @@ function sys = lagrange_eqdyn(sys)
     % in term of quasi-velocities
     qp_ = C*p;
     qpp_ = C*pp + Cp*p;
-    
+
     qp = sys.kin.qp;
     qpp = sys.kin.qpp;
     
@@ -88,11 +93,17 @@ function sys = lagrange_eqdyn(sys)
     
     % Dynamic equation respective to generalized coordinate qi
     helper.l_r = simplify_(leqdyns - reqdyns);
+    
     helper.leqdyns = simplify_(leqdyns);
     helper.reqdyns = simplify_(reqdyns);
+    helper.dLdq = dL_dq;
+    helper.dKdq = dK_dq;
+    helper.Cp = Cp;
+    helper.ddt_dL_dqp = ddt_dL_dqp;
     sys.dyn.eqdyns = helper.leqdyns == helper.reqdyns;
     
     % Main matrices
     sys = dyn_matrices(sys, helper);
+    
 end
 

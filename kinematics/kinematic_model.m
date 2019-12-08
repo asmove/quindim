@@ -33,7 +33,6 @@ function sys = kinematic_model(sys)
         body_curr = sys.descrip.bodies{i};
         
         % Center of mass position
-        body_curr.p_cg
         sys.descrip.bodies{i}.p_cg0 = point(body_curr.T, body_curr.p_cg);
         
         % Center of mass velocity

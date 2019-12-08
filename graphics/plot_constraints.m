@@ -2,7 +2,6 @@ function hfig = plot_constraints(sys, time, states)
     [m, ~] = size(sys.kin.A);
     
     n_q = length(sys.kin.q);
-    n_p = length(sys.kin.p);
     
     n_t = length(time);
     unhol = zeros(n_t, n_p);
@@ -26,36 +25,43 @@ function hfig = plot_constraints(sys, time, states)
     
     unhol = zeros(n_t, n_As);
     
-    for j = n_p:-1:1
-        A_curr = sys.kin.A{j};
+    n_p = length(sys.kin.p);
+    
+    As = sys.kin.A;
+    
+    for i = 1:length(As)
+        A_i = As{i};
+        p_i = sys.kin.p{i};
         
-        [n_pi, ~] = size(A_curr);
+        [n_conts, n_p] = size(A_i);
         
-        if(j == 1)
-            p_s_curr = qp_s;
-        else
-            p_s_curr = sys.kin.p{j-1};
-        end
-        
-        C = sys.kin.C{j};
-        
-        Aqps = [Aqps; A_curr*p_s_curr];
-        
-        for k = 1:n_pi
-            for i = 1:n_t
-                q_n = q(i, :);
-
-                p_n = vpa(subs(C*p_n_curr, [q_s', syms], [q_n, model_params]));
-
-                qp_pars_s = [q_s; p_s_curr; syms.'];
-                qp_pars_n = [q_n'; p_n(:, i); model_params'];
-                consts = vpa(subs(A_curr*p_s_curr, ...
-                                  qp_pars_s, qp_pars_n));
-                
-                unhol(i, j+k-1) = double(consts(k));
+        for j = 1:n_conts
+            [n_pi, ~] = size(A_i);
+                        
+            C = sys.kin.C{j};
+            
+            Aqps = [Aqps; A_i*p_i];
+            
+            for k = 1:n_pi
+                for i = 1:n_t
+                    q_n = q(i, :);
+                    
+                    p_n = vpa(subs(C*p_n_curr, ...
+                              [q_s', syms], ...
+                              [q_n, model_params]));
+                    
+                    qp_pars_s = [q_s; p_s_curr; syms.'];
+                    qp_pars_n = [q_n'; p_n(:, i); model_params'];
+                    
+                    consts = vpa(subs(A_curr*p_s_curr, ...
+                        qp_pars_s, qp_pars_n));
+                    
+                    unhol(i, j+k-1) = double(consts(k));
+                end
             end
-        end        
-        p_n_curr = vpa(subs(C*p_n_curr, syms, model_params));
+            
+            p_n_curr = vpa(subs(C*p_n_curr, syms, model_params));
+        end
     end
         
     titles = {};

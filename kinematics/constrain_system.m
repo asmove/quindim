@@ -19,8 +19,11 @@ function sys = constrain_system(sys, A)
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.kin.q, sys.kin.qp);
     
-    sys.kin.A = {A0, A1};
-    sys.kin.C = {C0, C1};
+    sys.kin.As{end} = A1;
+    sys.kin.Cs{end} = C1;
+    
+    sys.kin.C = sys.kin.C*C1;
+    
     sys.kin.Cp = Cp;
     
     C1p = dmatdt(C1, sys.kin.q, C*p);
@@ -29,8 +32,6 @@ function sys = constrain_system(sys, A)
     sys = update_jacobians(sys, C1);
 
     % Update energies
-    sys.kin.p
-    C1*p
     sys.dyn.K = subs(sys.dyn.K, sys.kin.p{end}, C1*p);
     sys.dyn.L = subs(sys.dyn.L, sys.kin.p{end}, C1*p);
     sys.dyn.F = subs(sys.dyn.F, sys.kin.p{end}, C1*p);
@@ -58,7 +59,7 @@ function sys = constrain_system(sys, A)
     f = [C*p; -invH*sys.dyn.h];
     G = equationsToMatrix(dstates, sys.descrip.u);
     u = sys.descrip.u;
-    
+
     sys.dyn.plant = f + G*u;
     
     sys.dyn.f = f;

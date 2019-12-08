@@ -1,5 +1,9 @@
 function sol = validate_model(sys, t, x0, u0)
-    n = length(sys.kin.q);
+    [n, m] = size(sys.kin.C);
+    
+    if(length(x0) ~= n + m)
+        error('Initial values MUST have the same length as states!')
+    end
     
     % Waitbar for the simulation
     wb = my_waitbar('Mechanical system - Simulation');
@@ -28,26 +32,37 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     if(isempty(wb_))
         wb_ = wb;
     end
-
+    
+    [n, m] = size(sys.kin.C);
     t0 = tic;
     
-    dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
-    dq_p = subs(sys.dyn.f, sys.descrip.syms, sys.descrip.model_params);
+    symbs = sys.descrip.syms;
+    m_params = sys.descrip.model_params;
     
+    C_num = subs(sys.kin.C, symbs, m_params);
+    H_num = subs(sys.dyn.H, symbs, m_params);
+    h_num = subs(sys.dyn.h, symbs, m_params);
+    Z_num = subs(sys.dyn.Z, symbs, m_params);
+
     if(iscell(sys.kin.p))
         p = sys.kin.p{end};
     else
         p = sys.kin.p;
     end
     
-    qp = [sys.kin.q; p];
-    uq_s = [sys.descrip.u; qp];
-    uq_n = [u0; q_p];
+    q_num = q_p(1:n);
+    p_num = q_p(n+1:end);
     
-    % Quick hack: double subs
-    dq = subs(dq_p, uq_s, uq_n);
-
-    dq = double(vpa(dq));
+    qp_s = [sys.kin.q; p];
+    qp_n = [q_num; p_num];
+    
+    C_num = subs(C_num, qp_s, qp_n);
+    H_num = subs(H_num, qp_s, qp_n);
+    h_num = subs(h_num, qp_s, qp_n);
+    Z_num = subs(Z_num, qp_s, qp_n);
+            
+    Hinv = double(H_num\eye(m));
+    dq = double([C_num*p_num; Hinv*(-h_num + Z_num*u0)]);    
     
     % Time elapsed
     dt = toc(t0);

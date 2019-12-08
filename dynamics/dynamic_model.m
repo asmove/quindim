@@ -9,7 +9,7 @@ function sys = dynamic_model(sys)
     
     % TOFIX: Allow Gibbs-appel and Lagrange
     method = 'lagrange';
-
+    
     % Dynamic equations
     sys = eqdyns(sys, method);
 end

@@ -2,6 +2,9 @@ function sys = constraints_props(sys)
     % Constraint velocity matrix and its complementary
     [A, C] = constraint_matrices(sys);
     
+    sys.kin.As = {A};
+    sys.kin.Cs = {C};
+    
     sys.kin.A = {A};
     sys.kin.C = {C};
     

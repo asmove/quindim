@@ -32,4 +32,6 @@ function [A, C] = constraint_matrices(sys)
             error(msg);
         end
     end
+    
+    C = dedenominatorify(C);
 end

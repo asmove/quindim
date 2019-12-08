@@ -18,6 +18,4 @@ function expr_simp = simplify_(exprs, timeout)
                         'Seconds', timeout, ...
                         'Criterion', 'preferReal');
     end
-    dt = toc(t0)
-    
 end

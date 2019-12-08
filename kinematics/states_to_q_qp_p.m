@@ -15,10 +15,7 @@ function [q, qp, p] = states_to_q_qp_p(sys, states)
     
     qp = zeros(n_t, n_q);
     
-    C = sys.kin.C{1};
-    for i = 2:length(sys.kin.C)
-        C = C*sys.kin.C{i};
-    end
+    C = sys.kin.C;
     
     for i = 1:n_t
         q_i = q_n(i, :);
