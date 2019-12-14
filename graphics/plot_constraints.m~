@@ -30,7 +30,6 @@ function hfig = plot_constraints(sys, time, states)
     
     As = sys.kin.A;
     
-    acc = 0;
     % Each constraint line
     for i = 1:length(As)
         A_s = As{i};
@@ -69,11 +68,9 @@ function hfig = plot_constraints(sys, time, states)
 
                 consts = vpa(subs(A_s*p_s, qp_pars_s, qp_pars_n));
 
-                unhol(i, acc + j) = double(consts(j));
+                unhol(i, j+k-1) = double(consts(k));
             end
         end
-        
-        acc = acc + n_const;
     end
         
     titles = {};
