@@ -76,8 +76,10 @@ t = 0:dt:tf;
 % Initia conditions [m; m/s]
 x0 = [0; 1];
 
+u_func = @(t, x) 0;
+
 % System modelling
-sol = validate_model(sys, t, x0, 0);
+sol = validate_model(sys, t, x0, u_func);
 x = sol';
 
 titles = {'$x$', '$\dot x$'};

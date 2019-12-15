@@ -147,7 +147,9 @@ t = 0:dt:tf;
 
 % System modelling
 [~, m] = size(sys.dyn.Z);
-u0 = zeros(m, 1);
+
+u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+
 sol = validate_model(sys, t, x0, u0);
 
 x = t;

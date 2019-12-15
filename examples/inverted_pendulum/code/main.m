@@ -120,7 +120,8 @@ tf = 5;
 t = 0:dt:tf; 
 
 % System modelling
-sol = validate_model(sys, t, x0, 0);
+u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+sol = validate_model(sys, t, x0, u_func);
 
 x = t;
 y = sol';

@@ -82,7 +82,8 @@ tf = 5;
 t = 0:dt:tf; 
 
 % System modelling
-sol = validate_model(sys, t, x0, 0);
+u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+sol = validate_model(sys, t, x0, u_func);
 
 plot_info.titles = {'$\theta$', '$\dot \theta$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]'};

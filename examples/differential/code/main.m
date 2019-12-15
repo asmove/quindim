@@ -235,35 +235,35 @@ sys.descrip.unhol_constraints = [dot(u_r, i_r) - thrp*R; ...
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
-% % Initial conditions [m; m/s]
-% [x; y; th; thr; thl; beta; ths];
-% x0 = [0; 0; 0; 0; 0; 0; 0; 1; 1; 1];
-% u0 = [0; 0; 0];
-% 
-% % Time [s]
-% dt = 0.01;
-% tf = 5;
-% t = 0:dt:tf; 
-% 
-% % System modelling
-% sol = validate_model(sys, t, x0, u0);
-% 
-% plot_info.titles = {'', '', '', '', '', '', '', '', ''};
-% plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
-%                      '$t$ [s]', '$t$ [s]', '$t$ [s]', ...
-%                      '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-% plot_info.ylabels = {'$x$', '$y$', '$\theta$', ...
-%                     '$\theta_1$', '$\theta_2$', '$\theta_3$', ...
-%                     '$\dot \theta_1$', '$\dot \theta_2$', '$\dot \theta_3$'};
-% plot_info.grid_size = [3, 3];
-% 
-% % States and energies plot
-% hfigs_states = my_plot(t, sol', plot_info);
-% hfig_energies = plot_energies(sys, t, sol);
-% 
-% % Energies
-% saveas(hfig_energies, '../imgs/energies', 'epsc');
-% 
-% for j = 1:length(hfigs_states)
-%    saveas(hfigs_states(j), ['../imgs/states', num2str(i)], 'epsc'); 
-% end
+% Initial conditions [m; m/s]
+x0 = [0; 0; 0; 0; 0; 0; 0; 1; 1; 1];
+
+% Time [s]
+dt = 0.01;
+tf = 5;
+t = 0:dt:tf; 
+
+u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+
+% System modelling
+sol = validate_model(sys, t, x0, u_func);
+
+plot_info.titles = {'', '', '', '', '', '', '', '', ''};
+plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
+                     '$t$ [s]', '$t$ [s]', '$t$ [s]', ...
+                     '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info.ylabels = {'$x$', '$y$', '$\theta$', ...
+                    '$\theta_1$', '$\theta_2$', '$\theta_3$', ...
+                    '$\dot \theta_1$', '$\dot \theta_2$', '$\dot \theta_3$'};
+plot_info.grid_size = [3, 3];
+
+% States and energies plot
+hfigs_states = my_plot(t, sol', plot_info);
+hfig_energies = plot_energies(sys, t, sol);
+
+% Energies
+saveas(hfig_energies, '../imgs/energies', 'epsc');
+
+for j = 1:length(hfigs_states)
+   saveas(hfigs_states(j), ['../imgs/states', num2str(i)], 'epsc'); 
+end

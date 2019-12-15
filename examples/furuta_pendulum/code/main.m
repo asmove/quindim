@@ -126,27 +126,29 @@ dt = 0.001;
 tf = 5;
 t = 0:dt:tf; 
 
-% % System modelling
-% sol = validate_model(sys, t, x0, 0);
-% 
-% x = sol.x;
-% y = sol.y.';
-% 
-% plot_info.titles = {'$\theta_0$', '$\theta_1$', ...
-%                     '$\dot \theta_0$', '$\dot \theta_1$'};
-% plot_info.xlabels = {'$t$ [s]', '$t$ [s]', ...
-%                      '$t$ [s]', '$t$ [s]'};
-% plot_info.ylabels = {'$\theta_0$', '$\theta_1$', ...
-%                     '$\dot \theta_0$', '$\dot \theta_1$'};
-% plot_info.grid_size = [2, 2];
-% 
-% % States and energies plot
-% hfigs_states = my_plot(x, y, plot_info);
-% hfig_energies = plot_energies(sys, x, y);
-% 
-% % Energies
-% saveas(hfig_energies, '../images/energies', 'epsc');
-% 
-% for j = 1:length(hfigs_states)
-%    saveas(hfigs_states(j), ['../images/states', num2str(i)], 'epsc'); 
-% end
+u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+
+% System modelling
+sol = validate_model(sys, t, x0, 0);
+
+x = sol.x;
+y = sol.y.';
+
+plot_info.titles = {'$\theta_0$', '$\theta_1$', ...
+                    '$\dot \theta_0$', '$\dot \theta_1$'};
+plot_info.xlabels = {'$t$ [s]', '$t$ [s]', ...
+                     '$t$ [s]', '$t$ [s]'};
+plot_info.ylabels = {'$\theta_0$', '$\theta_1$', ...
+                    '$\dot \theta_0$', '$\dot \theta_1$'};
+plot_info.grid_size = [2, 2];
+
+% States and energies plot
+hfigs_states = my_plot(x, y, plot_info);
+hfig_energies = plot_energies(sys, x, y);
+
+% Energies
+saveas(hfig_energies, '../images/energies', 'epsc');
+
+for j = 1:length(hfigs_states)
+   saveas(hfigs_states(j), ['../images/states', num2str(i)], 'epsc'); 
+end

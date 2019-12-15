@@ -1,4 +1,4 @@
-function sol = validate_model(sys, t, x0, u0)
+function sol = validate_model(sys, t, x0, u_func)
     [n, m] = size(sys.kin.C);
     
     if(length(x0) ~= n + m)
@@ -8,7 +8,7 @@ function sol = validate_model(sys, t, x0, u0)
     % Waitbar for the simulation
     wb = my_waitbar('Mechanical system - Simulation');
     
-    df_ = @(t_, q_p) df(t_, q_p, sys, t(end), u0, wb);
+    df_ = @(t_, q_p) df(t_, q_p, sys, t(end), u_func, wb);
     cancel_sim = @(t, q_p) cancel_simulation(t, q_p, wb);
     
     % Mass matrix
@@ -26,7 +26,7 @@ function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
     direction = 0;
 end
 
-function dq = df(t, q_p, sys, tf, u0, wb)
+function dq = df(t, q_p, sys, tf, u_func, wb)
     persistent wb_;
     
     if(isempty(wb_))
@@ -62,7 +62,8 @@ function dq = df(t, q_p, sys, tf, u0, wb)
     Z_num = subs(Z_num, qp_s, qp_n);
             
     Hinv = double(H_num\eye(m));
-    dq = double([C_num*p_num; Hinv*(-h_num + Z_num*u0)]);    
+
+    dq = double([C_num*p_num; Hinv*(-h_num + Z_num*u_func(t, q_p))]);    
     
     % Time elapsed
     dt = toc(t0);

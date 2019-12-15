@@ -99,14 +99,16 @@ T = m_num/b_num;
 x0 = [0; 1; 0; 1];
 
 % Time [s]
-dt = 0.01;
+dt = 0.1;
 tf = 1;
 t = 0:dt:tf;
 
 [~, m] = size(sys.dyn.Z);
 
+u_func = @(t, x) zeros(m, 1);
+
 % System modelling
-sol = validate_model(sys, t, x0, zeros(m, 1));
+sol = validate_model(sys, t, x0, u_func);
 
 plot_info.titles = {'$x_1$', '$\dot x_1$', '$x_2$', '$\dot x_2$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};

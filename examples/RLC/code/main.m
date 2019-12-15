@@ -73,14 +73,15 @@ T = m_num/b_num;
 
 % Time [s]
 tf = 0.05;
-dt = 0.0001;
+dt = 0.001;
 t = 0:dt:tf; 
 
 % Initia conditions [m; m/s]
-x0 = [0; 0];
+x0 = [0; 1];
 
 % System modelling
-sol = validate_model(sys, t, x0, 0);
+u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+sol = validate_model(sys, t, x0, u_func);
 x = sol';
 
 titles = {'', ''};

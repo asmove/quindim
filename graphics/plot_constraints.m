@@ -76,7 +76,7 @@ function hfig = plot_constraints(sys, time, states)
         acc = acc + n_const;
     end
         
-    titles = {};
+    consts_label = {};
     xlabels = {};
     
     acc = 0;
@@ -89,19 +89,18 @@ function hfig = plot_constraints(sys, time, states)
             
             constraint = latex(Aqps(idx));
             
-            titles{end+1} = sprintf('Constraint %d - $%s$', ...
+            consts_label{end+1} = sprintf('Constraint %d - $%s$', ...
                                     idx, constraint);
             xlabels{end+1} = '$t$ [s]';
         end
         
         acc = acc + m;
     end
-        
-    plot_info.titles = titles;
+    
+    plot_info.titles = repeat_str('', length(consts_label));
     plot_info.xlabels = xlabels;
-    plot_info.ylabels = titles;
+    plot_info.ylabels = consts_label;
     plot_info.grid_size = [2, 1];
-    size(unhol)
     
     hfig = my_plot(time, unhol, plot_info);
 end
