@@ -55,7 +55,7 @@ function sys = lagrange_eqdyn(sys)
     dF_dqp = jacobian(F, qp).';
     
     % Nummerical energies 
-    C = collapse_C(sys);
+    C = collapse_C(sys.kin.Cs, qp);
     sys.kin.C = C;
     p = sys.kin.p{1};
     pp = sys.kin.pp{1};

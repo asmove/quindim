@@ -16,7 +16,7 @@ function hfig = plot_constraints(sys, time, states)
     [q, qp, p] = states_to_q_qp_p(sys, states);
     
     Aqps = sym([]);
-    p_n = p';
+    p_n_curr = p';
     
     n_As = 0;
     for i = 1:length(sys.kin.A)
@@ -34,64 +34,62 @@ function hfig = plot_constraints(sys, time, states)
     % Each constraint line
     for i = length(As):-1:1
         A_s = As{i};
-        C = sys.kin.Cs(i);
-        C = C{1};
         
-        % Previous velocity
         if(i == 1)
             p_s_1 = sys.kin.qp;
         else 
             p_s_1 = sys.kin.p{i-1};
         end
         
-        % Current velocity
         p_s = sys.kin.p{i};
         
         [n_const, n_p] = size(A_s);
-                
+        
         % Each constraint line
         for j = 1:n_const
             [n_pi, ~] = size(A_s);
+            
+            C = sys.kin.Cs(j);
             
             Aqps = [Aqps; A_s*p_s_1];
             
             % States and speeds timewise
             q_n = states(:, 1:n_q)';
-            p_n_1 = zeros(n_p, n_t);
-            C
+            p_n = zeros(n_t, n_p);
+            
             for k = 1:n_t
                 q_i = q_n(:, k);
-                p_i = p_n(:, k);
+                p_i = p_n_curr(:, k);
                 
-                syms_params = [q_s.', p_s.',  syms];
-                num_params = [q_i', p_i', model_params];
-                
-                p_n_1(:, k) = double(subs(C*p_s, ...
-                                          syms_params, num_params))';
+                p_n_1(k, n_p) = vpa(subs(C*p_s, ...
+                                         [q_s', p_s',  syms], ...
+                                         [q_i', pn, model_params]))';
             end
             
             % Each time instant
             for k = 1:n_t
-                p_n_1_i = p_n_1(:, i);
-                q_n_1_i = q_n(:, i);
+                p_i = p_n(:, i);
+                q_i = q_n(:, i);
                 
-                qp_pars_s = [q_s; p_s_1; syms.'];
-                qp_pars_n = [q_n_1_i; p_n_1_i; model_params'];
+                qp_pars_s = [q_s; p_s; syms.'];
+                qp_pars_n = [q_i; p_i; model_params'];
                 
-                consts = vpa(subs(A_s*p_s_1, qp_pars_s, qp_pars_n));
+                consts = vpa(subs(A_s*p_s, qp_pars_s, qp_pars_n));
 
                 unhol(i, acc + j) = double(consts(j));
             end
         end
         
-        p_n = p_n_1;
+        p_n_curr = p_n;
         
         acc = acc + n_const;
     end
         
     consts_label = {};
     xlabels = {};
-        
+    
+    Aqps
+    
     acc = 0;
     for i = 1:length(sys.kin.As)
         

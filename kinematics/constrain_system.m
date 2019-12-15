@@ -19,8 +19,8 @@ function sys = constrain_system(sys, A)
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.kin.q, sys.kin.qp);
     
-    sys.kin.As{end} = A1;
-    sys.kin.Cs{end} = C1;
+    sys.kin.As{end+1} = A1;
+    sys.kin.Cs{end+1} = C1;
     
     sys.kin.C = sys.kin.C*C1;
     
