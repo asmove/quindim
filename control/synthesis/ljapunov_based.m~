@@ -1,4 +1,4 @@
-function u = ljapunov_based(t, q_p, x_hat, Q, P, x, xhat, sys)
+function u = ljapunov_based(t, q_p, xhat, Q, P, x, xhat)
     is_positive(Q);
     is_positive(P);
 
@@ -10,16 +10,13 @@ function u = ljapunov_based(t, q_p, x_hat, Q, P, x, xhat, sys)
     
     p = sys.kin.p{end};
     q = sys.kin.q;
-    
-    model_params = sys.descrip.model_params;
-    syms_plant = sys.descrip.syms;
 
     Hp = dmatdt(H, q, C*p);
 
     omega_T = p.'*Z;
     omega = omega_T.';
     
-    x_hat_s = sym('xhat_', size(x));
+    x_hat = sym('xhat_', size(x));
     
     x_tilde = x - x_hat;
     x_q = jacobian(x, q);
@@ -30,8 +27,8 @@ function u = ljapunov_based(t, q_p, x_hat, Q, P, x, xhat, sys)
     
     u = -alpha*omega;
     
-    syms_params = [q.', p.', x_hat_s.', syms_plant];
-    num_params = [q_p', x_hat', model_params];
+    syms_params = [q_p.'];
+    num_params = [];
     
-    u = double(subs(u, syms_params, num_params));
+    u = subs(u, );
 end
