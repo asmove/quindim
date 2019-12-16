@@ -104,6 +104,5 @@ function sys = lagrange_eqdyn(sys)
     
     % Main matrices
     sys = dyn_matrices(sys, helper);
-    
 end
 

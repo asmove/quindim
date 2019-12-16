@@ -39,6 +39,7 @@ function sys = constrain_system(sys, A)
     
     sys.dyn.h = subs(C1'*sys.dyn.h, sys.kin.p{end}, C1*p);
     sys.dyn.H = C1'*sys.dyn.H*C1;
+    sys.dyn.Hp = dmatdt(sys.dyn.H, sys.kin.q, C*p);
     invH = inv(sys.dyn.H);
     
     sys.dyn.M = sys.dyn.H;

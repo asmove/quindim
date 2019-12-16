@@ -3,8 +3,9 @@ function sys = dyn_matrices(sys, helper)
     
     % Nummerical energies 
     C = sys.kin.C;
-    p = sys.kin.p{1};
-    pp = sys.kin.pp{1};
+    q = sys.kin.q;
+    p = sys.kin.p{end};
+    pp = sys.kin.pp{end};
     
     Cp = helper.Cp;
     
@@ -24,11 +25,13 @@ function sys = dyn_matrices(sys, helper)
     temp = subs(C.'*(helper.ddt_dL_dqp - helper.dKdq), ...
                 [qp; qpp], [qp_; qpp_]);
     
-    
     sys.dyn.nu = simplify_(temp - sys.dyn.M*sys.kin.pp);
-    
+        
     % Control dynamic matrices
     sys.dyn.H = sys.dyn.M;
+    
+    sys.dyn.Hp = dmatdt(sys.dyn.H, q, C*p);
+    
     sys.dyn.h = simplify_(sys.dyn.nu + sys.dyn.g + sys.dyn.f);
     sys.dyn.Z = simplify_(sys.dyn.U);
 end

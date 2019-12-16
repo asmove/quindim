@@ -141,10 +141,12 @@ classdef my_waitbar
         function close_window(obj)
             h = obj.find_handle();
             
-            % Erase waitbar
-            tf = obj.tf_real_vec(end);
-            fprintf('Elapsed time is %.6f seconds.\n', tf);
-            
+            if(~isempty(obj.tf_real_vec))
+               % Erase waitbar
+                tf = obj.tf_real_vec(end);
+
+                fprintf('Elapsed time is %.6f seconds.\n', tf); 
+            end            
             delete(h);
         end
     end
