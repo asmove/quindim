@@ -87,7 +87,7 @@ tf = 10;
 t = 0:dt:tf; 
 
 % Initial conditions
-x0 = [1, 1, pi/4, 0, 1, 1]';
+x0 = [1, 1, 0, 0, 1, 1]';
 
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);

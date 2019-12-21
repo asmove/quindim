@@ -58,7 +58,7 @@ function hfig = plot_constraints(sys, time, states)
             % States and speeds timewise
             q_n = states(:, 1:n_q)';
             p_n_1 = zeros(n_p, n_t);
-            C
+            
             for k = 1:n_t
                 q_i = q_n(:, k);
                 p_i = p_n(:, k);
@@ -92,13 +92,13 @@ function hfig = plot_constraints(sys, time, states)
     consts_label = {};
     xlabels = {};
         
-    acc = 0;
+    idx = 0;
     for i = 1:length(sys.kin.As)
         
         [m, ~] = size(sys.kin.As{i});
-        
+                
         for j = 1:m
-            idx = acc + j;
+            idx = idx + j;
             
             constraint = latex(Aqps(idx));
             

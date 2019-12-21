@@ -21,18 +21,19 @@ end
 
 function dq = df(t, q_p, sys, tf, u_func)    
     [n, m] = size(sys.kin.C);
+    
     t0 = tic;
     
-    persistent C_num H_num h_num Z_num;
+    persistent C_params H_params h_params Z_params;
 
     symbs = sys.descrip.syms;
     m_params = sys.descrip.model_params;
     
-    if(isempty(C_num))
-        C_num = subs(sys.kin.C, symbs, m_params);
-        H_num = subs(sys.dyn.H, symbs, m_params);
-        h_num = subs(sys.dyn.h, symbs, m_params);
-        Z_num = subs(sys.dyn.Z, symbs, m_params);
+    if(isempty(C_params))
+        C_params = subs(sys.kin.C, symbs, m_params);
+        H_params = subs(sys.dyn.H, symbs, m_params);
+        h_params = subs(sys.dyn.h, symbs, m_params);
+        Z_params = subs(sys.dyn.Z, symbs, m_params);
     end
 
     if(iscell(sys.kin.p))
@@ -47,13 +48,19 @@ function dq = df(t, q_p, sys, tf, u_func)
     qp_s = [sys.kin.q; p];
     qp_n = [q_num; p_num];
     
-    C_num = subs(C_num, qp_s, qp_n);
-    H_num = subs(H_num, qp_s, qp_n);
-    h_num = subs(h_num, qp_s, qp_n);
-    Z_num = subs(Z_num, qp_s, qp_n);
-            
+    C_num = subs(C_params, qp_s, qp_n);
+    H_num = subs(H_params, qp_s, qp_n);
+    h_num = subs(h_params, qp_s, qp_n);
+    Z_num = subs(Z_params, qp_s, qp_n);
+    
+    u_num = u_func(t, q_p);
+    
     Hinv = double(H_num\eye(m));
-    dq = double([C_num*p_num; Hinv*(-h_num + Z_num*u_func(t, q_p))]);    
+    
+    accel = Hinv*(-h_num + Z_num*u_num);
+    speed = C_num*p_num;
+    
+    dq = double([speed; accel]);    
     
     % Time elapsed
     dt = toc(t0);

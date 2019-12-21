@@ -1,0 +1,33 @@
+clear all
+close all
+clc
+
+T = 10;
+t_mid = 10;
+y_begin = 0;
+y_end = 1;
+dt = 0.01;
+
+time = 0:dt:T;
+
+degrees = [0, 1, 2, 3, 4, 5];
+
+degrees_str = {};
+for degree = degrees
+    degrees_str{end+1} = ['Degree ', num2str(degree)];
+end
+
+ys = zeros(6, length(time));
+for degree = degrees
+    
+    for i = 1:length(time)
+        ys(i) = smoothstep(time(i), t_mid, T, y_begin, y_end, degree);
+    end
+end
+
+plot_info.titles = degrees_str;
+plot_info.xlabels = repeat_str('$t$ [s]', 6);
+plot_info.ylabels = repeat_str('', 6);
+plot_info.grid_size = [3, 2];
+
+hfigs_phat = my_plot(time, ys', plot_info);
