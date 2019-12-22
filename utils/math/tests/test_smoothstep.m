@@ -10,24 +10,32 @@ dt = 0.01;
 
 time = 0:dt:T;
 
-degrees = [0, 1, 2, 3, 4, 5];
+degrees = 0:9;
 
 degrees_str = {};
 for degree = degrees
     degrees_str{end+1} = ['Degree $', num2str(degree), '$'];
 end
 
-ys = zeros(length(time), 6);
-for degree = degrees
+ys = zeros(length(time), length(degrees));
+for j = 1:length(degrees)
     for i = 1:length(time)
-        ys(i, degree+1) = smoothstep(time(i), t_mid, y_begin, y_end, degree);
+        ys(i, j) = smoothstep(time(i), t_mid, y_begin, y_end, degrees(j));
     end
 end
 
+factors = factor(length(degrees));
+
+if(factors(1) == length(degrees))
+    grid_size = [3, 1];
+else
+    grid_size = [factors(1), factors(2)];
+end
+
 plot_info.titles = degrees_str;
-plot_info.xlabels = repeat_str('$t$ [s]', 6);
-plot_info.ylabels = repeat_str('$y(t)$', 6);
-plot_info.grid_size = [3, 2];
+plot_info.xlabels = repeat_str('$t$ [s]', length(degrees));
+plot_info.ylabels = repeat_str('$y(t)$', length(degrees));
+plot_info.grid_size = grid_size;
 
 time = time';
 
