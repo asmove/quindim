@@ -10,7 +10,7 @@ dt = 0.01;
 
 time = 0:dt:T;
 
-degrees = 0;
+degrees = 0:5;
 
 degrees_str = {};
 for degree = degrees
@@ -18,10 +18,10 @@ for degree = degrees
 end
 
 ys = zeros(length(time), length(degrees));
-
 for j = 1:length(degrees)
     for i = 1:length(time)
-        ys(i, j) = smoothstep(time(i), t_mid, y_begin, y_end, degrees(j));
+        ys(i, j) = ndsmoothstep(time(i), t_mid, ...
+                                y_begin, y_end, degrees(j), 1);
     end
 end
 
