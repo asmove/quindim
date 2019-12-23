@@ -10,14 +10,16 @@ plot_info_q.grid_size = [2, 2];
 % States plot
 hfigs_states = my_plot(t, sol(:, 1:4), plot_info_q);
 
-% Generalized coordinates
-plot_info_q.titles = {''};
-plot_info_q.xlabels = {'$x$ [m]'};
-plot_info_q.ylabels = {'$y$ [m]'};
-plot_info_q.grid_size = [1, 1];
+% xy-coordinates
+hfigs_states_xy = my_figure();
+plot(sol(:, 1), sol(:, 2));
+hold on;
+xhat_t_unique = [unique(xhat_t(:, 1)), unique(xhat_t(:, 2))];
+plot(xhat_t_unique(:, 1), xhat_t_unique(:, 2), 'ko');
+hold off;
 
-% States plot
-hfigs_states_xy = my_plot(sol(:, 1), sol(:, 2), plot_info_q);
+xlabel('$x$ [m]', 'interpreter', 'latex');
+ylabel('$y$ [m]', 'interpreter', 'latex');
 
 plot_info_p.titles = repeat_str('', 2);
 plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
@@ -71,8 +73,8 @@ qp_s = [q; p];
 
 n_t = length(t_s);
 
-Vs = zeros(n_t, 1);
-for i = 1:n_t
+Vs = zeros(n_t-1, 1);
+for i = 1:(n_t-1)
     t_i = t_s(i);
 
     xhat_i = xhat_t(i, :);
@@ -90,7 +92,8 @@ plot_info_p.xlabels = {'$t$ [s]'};
 plot_info_p.ylabels = {'Ljapunov function $V(q, p)$'};
 plot_info_p.grid_size = [1, 1];
 
-hfigs_ljapunov = my_plot(t_s, Vs, plot_info_p);
+t_V = t_s(1:end-1);
+hfigs_ljapunov = my_plot(t_V, Vs, plot_info_p);
 
 % Estimations plot
 plot_info_p.titles = repeat_str('', 2);

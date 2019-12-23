@@ -1,7 +1,5 @@
-function [xhat, xhat_1] = source_estimation(t, q_p, xhat_0, ...
-                                            nu, sigma, lambda, ...
-                                            oracle,  T, ...
-                                            sensor_reading, sys)
+function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
+                                   oracle,  T, sensor_reading, sys)
     persistent m_1 xhat_1_ xhat_ t_curr t_0 t_s xhat_s m_s xhat_t;
     persistent t_estimations estimations;
     persistent t_readings readings counter;
@@ -42,11 +40,6 @@ function [xhat, xhat_1] = source_estimation(t, q_p, xhat_0, ...
         assignin('base', 'xhat_s', []);
     end
     
-    if(isempty(xhat_t))
-        xhat_t = [];
-        assignin('base', 'xhat_t', []);
-    end
-    
     if(isempty(estimations))
         estimations = [];
         assignin('base', 'estimations', []);
@@ -65,11 +58,6 @@ function [xhat, xhat_1] = source_estimation(t, q_p, xhat_0, ...
     if(isempty(t_readings))
         t_readings = [];
         assignin('base', 't_readings', []);
-    end
-    
-    if(isempty(m_s))
-        m_s = [];
-        assignin('base', 'm_s', []);
     end
     
     % Special: First assignment of barycenter
@@ -100,29 +88,25 @@ function [xhat, xhat_1] = source_estimation(t, q_p, xhat_0, ...
     
     % Update source estimation window
     if(t_curr > t_0 + T)
-        if(counter == 1)
-            t_0 = t;
-            
-            % New prediction
-            [xhat, m] = expbary(oracle, xhat_s, nu);
-            m_1 = m + m_1;
-            
-%             n_iterations = 1;
-%             [xhat, ~, m] = drecexpbary_custom(oracle, m_1, xhat, ...
-%                                               nu, sigma, lambda, ...
-%                                               n_iterations);
-            m_1 = m + m_1;
-            
-%             % Absorb barycenter records
-%             xhat_s = [];
+        t_0 = t;
 
-            % Update previous and current values
-            xhat_1_ = xhat_;
-            xhat_ = xhat;
-            m_s = double([m_s; m_1]);
-            
-            xhat_1 = xhat;
-        end
+        % New prediction
+        [xhat, m] = expbary(oracle, xhat_s, nu);
+
+        xhat_s = [xhat_s; xhat];
+
+        n_iterations = 1;
+        [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
+                                          nu, sigma, lambda, ...
+                                          n_iterations);
+
+        xhat_s = [xhat_s; xhat];
+
+        % Update previous and current values
+        xhat_1_ = xhat_;
+        xhat_ = xhat;
+
+        xhat_1 = xhat;
     % Constant value on window
     else
         xhat = xhat_;
@@ -149,7 +133,7 @@ function [xhat, xhat_1] = source_estimation(t, q_p, xhat_0, ...
         t_readings = [t_readings; t];
         readings = double([readings; reading]);
         
-        assignin('base', 'xhat_t', xhat_t);
+        
         assignin('base', 't_s', t_s);
         assignin('base', 'xhat_s', xhat_s);
         assignin('base', 't_readings', t_readings);
