@@ -1,8 +1,8 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+clear all
+close all
+clc
+
+run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 
 close all
 delete(findall(0,'type','figure','tag','TMWWaitbar'));
@@ -34,14 +34,14 @@ degree = 2;
 lambda = 1;
 
 % [s]
-T = 0.01;
+T = 0.1;
 
 % []
-perc = 0.8;
+perc = 0.3;
 eta = -(1/T)*log(1-perc);
 
 % Time span
-t = 0:0.001:0.1;
+t = 0:0.005:0.5;
 
 % System modelling
 u_func = @(t, q_p) control_handler(t, q_p, source_reference, xhat_0, ...

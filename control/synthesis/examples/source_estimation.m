@@ -1,7 +1,6 @@
 function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
                                    oracle,  T, sensor_reading, sys)
-    persistent m_1 xhat_1_ xhat_ t_curr t_0 t_s xhat_s m_s xhat_t;
-    persistent t_estimations estimations;
+    persistent m_1 xhat_ t_curr t_0 t_s xhat_s m_s;
     persistent t_readings readings counter;
     
     % Variables initialization
@@ -14,7 +13,7 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
     end
     
     if(isempty(xhat_s))
-        xhat_s = xhat_0;
+        xhat_s = xhat_0';
         assignin('base', 'xhat_s', []);
     end
     
@@ -35,21 +34,6 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
         assignin('base', 't_s', []);
     end
     
-    if(isempty(xhat_s))
-        xhat_s = [];
-        assignin('base', 'xhat_s', []);
-    end
-    
-    if(isempty(estimations))
-        estimations = [];
-        assignin('base', 'estimations', []);
-    end
-    
-    if(isempty(t_estimations))
-        t_estimations = [];
-        assignin('base', 't_estimations', []);
-    end
-    
     if(isempty(readings))
         readings = [];
         assignin('base', 'readings', []);
@@ -61,8 +45,7 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
     end
     
     % Special: First assignment of barycenter
-    if(isempty(xhat_1_))
-        xhat_1_ = xhat_0;
+    if(isempty(xhat_))
         xhat_1 = xhat_0;
         
         [xhat, ~, m] = drecexpbary_custom(oracle, 0, xhat_0, ...
@@ -71,9 +54,6 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
         m_1 = m;
         xhat_ = xhat;
         m_s = [m_s; m];
-                
-        t_estimations = t;
-        estimations = xhat;
 
         t_readings = [];
         readings = [];
@@ -88,29 +68,28 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
     
     % Update source estimation window
     if(t_curr > t_0 + T)
-        t_0 = t;
+        if(counter == 1)
+            t_0 = t;
 
-        % New prediction
-        [xhat, m] = expbary(oracle, xhat_s, nu);
+            % New prediction
+            [xhat, m] = expbary(oracle, xhat_s, nu);
 
-        xhat_s = [xhat_s; xhat];
+            xhat_s = [xhat_s; xhat];
 
-        n_iterations = 1;
-        [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
-                                          nu, sigma, lambda, ...
-                                          n_iterations);
+            n_iterations = 1;
+            [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
+                                              nu, sigma, lambda, ...
+                                              n_iterations);
 
-        xhat_s = [xhat_s; xhat];
+            xhat_s = [xhat_s; xhat];
 
-        % Update previous and current values
-        xhat_1_ = xhat_;
-        xhat_ = xhat;
+            % Update previous and current values
+            xhat_ = xhat';
 
-        xhat_1 = xhat;
-    % Constant value on window
-    else
-        xhat = xhat_;
-        xhat_1 = xhat_1_;
+            xhat_1 = xhat;
+        else
+            xhat = xhat_;
+        end
     end
     
     % Update readings during excursion
@@ -126,13 +105,9 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
         % Simulation time
         t_s = [t_s; t];
         
-        % Source estimation
-        xhat_t = [xhat_t; xhat_];
-        
         % Sensor readings
         t_readings = [t_readings; t];
-        readings = double([readings; reading]);
-        
+        readings = double([readings; reading]);        
         
         assignin('base', 't_s', t_s);
         assignin('base', 'xhat_s', xhat_s);
@@ -145,6 +120,5 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
         counter = 0;
     end
     
-    xhat = xhat_';
-    xhat_1 = xhat_1_';
+    xhat = xhat_;
 end

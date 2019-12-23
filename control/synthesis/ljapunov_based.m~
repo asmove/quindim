@@ -84,10 +84,7 @@ function u = ljapunov_based(t, q_p, xhat, ...
     p_hat_s = sym('phat_', size(p));
     xp_hat_s = sym('xphat_', size(x));
     pp_hat_s = sym('pphat_', size(p));
-    
-    xhat
-    xhat_1
-    
+
     delta_x = xhat - xhat_1;
     phat = zeta*delta_x;
     
@@ -136,6 +133,11 @@ function u = ljapunov_based(t, q_p, xhat, ...
     syms_params = [q.', p.', ...
                    xhat_s.', p_hat_s.', ...
                    xp_hat_s.', pp_hat_s.'];
+    
+    xhat_smoothed
+    phat_smoothed
+    xphat_smoothed'
+    pphat_smoothed'
                
     num_params = [q_p', ...
                   xhat_smoothed', phat_smoothed', ...
@@ -146,8 +148,8 @@ function u = ljapunov_based(t, q_p, xhat, ...
     
     counter = counter + 1;
     
-    phat_t = [phat_t; phat_smoothed'];
-    xhat_t = [xhat_t; xhat_smoothed'];
+    phat_t = [phat_t; phat_smoothed];
+    xhat_t = [xhat_t; xhat_smoothed];
 
     assignin('base', 'xhat_t', xhat_t);
     assignin('base', 'phat_t', phat_t);
@@ -159,6 +161,7 @@ function u = ljapunov_based(t, q_p, xhat, ...
             xhat_1 = xhat;
             phat_1 = phat;
         end
+        
         
         u_s = [u_s; u'];
         tu_s = [tu_s; t];

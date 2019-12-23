@@ -14,8 +14,7 @@ hfigs_states = my_plot(t, sol(:, 1:4), plot_info_q);
 hfigs_states_xy = my_figure();
 plot(sol(:, 1), sol(:, 2));
 hold on;
-xhat_t_unique = [unique(xhat_t(:, 1)), unique(xhat_t(:, 2))];
-plot(xhat_t_unique(:, 1), xhat_t_unique(:, 2), 'ko');
+plot(xhat_t(:, 1), xhat_t(:, 2), 'ko');
 hold off;
 
 xlabel('$x$ [m]', 'interpreter', 'latex');
@@ -101,7 +100,8 @@ plot_info_p.xlabels = repeat_str('$t$ [s]', 2);
 plot_info_p.ylabels = {'$\hat{x}(t)$', '$\hat{y}(t)$'};
 plot_info_p.grid_size = [2, 1];
 
-hfigs_xhat = my_plot(t_s, xhat_t, plot_info_p);
+tt = linspace(t(1), t(end), length(phat_t));
+hfigs_xhat = my_plot(tt, xhat_t, plot_info_p);
 
 % Estimation speed plot
 plot_info_p.titles = repeat_str('', 2);
@@ -109,7 +109,8 @@ plot_info_p.xlabels = repeat_str('$t$ [s]', 2);
 plot_info_p.ylabels = {'$\dot{\hat{x}}(t)$', '$\dot{\hat{y}}t)$'};
 plot_info_p.grid_size = [2, 1];
 
-hfigs_phat = my_plot(tu_s, phat_t, plot_info_p);
+tt = linspace(t(1), t(end), length(phat_t));
+hfigs_phat = my_plot(tt, phat_t, plot_info_p);
 
 saveas(hfig_states, './imgs/states.eps', 'epsc');
 saveas(hfigs_states_xy, './imgs/states_xy.eps', 'epsc');
