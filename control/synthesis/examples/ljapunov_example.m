@@ -23,7 +23,7 @@ P = eye(length(source_reference));
 nu = 7;
 
 % []
-sigma = 2;
+sigma = 1;
 
 % []
 zeta = 1;
@@ -37,11 +37,11 @@ lambda = 1;
 T = 0.1;
 
 % []
-perc = 0.3;
+perc = 0.5;
 eta = -(1/T)*log(1-perc);
 
 % Time span
-t = 0:0.005:0.5;
+t = 0:0.001:0.2;
 
 % System modelling
 u_func = @(t, q_p) control_handler(t, q_p, source_reference, xhat_0, ...

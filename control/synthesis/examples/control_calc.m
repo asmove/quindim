@@ -1,4 +1,4 @@
-function u = control_calc(sys, P, eta, x)
+function u_struct = control_calc(sys, P, eta, x)
     % Main dynamic matrices
     p = sys.kin.p{end};
     q = sys.kin.q;
@@ -15,8 +15,9 @@ function u = control_calc(sys, P, eta, x)
     xp_hat = sym('xphat_', size(x));
     pp_hat = sym('pphat_', size(x));
     
-    pp = inv(H)*(Z*u - h);
-
+    f = [C*p; -inv(H)*h];
+    G = [zeros(length(q), length(u)); inv(H)*Z];
+    
     % Ljapunov positive function
     P = eye(length(x));
     
@@ -28,19 +29,13 @@ function u = control_calc(sys, P, eta, x)
     V = e_p.'*H*e_p + e_x.'*P*e_x;
     Vp = -eta*V;
     
-    % Control utils
-    var = [q; p; x_hat; p_hat];
-    dvar = [C*p; pp; xp_hat; pp_hat];
+    L_f_v = lie_diff(f, V, [q; p]);
+    L_G_v = lie_diff(G, V, [q; p]);
 
-    Vp_ = dvecdt(V, var, dvar);
-    
-    omega_T = equationsToMatrix(Vp_, u);
-    
-    omega = omega_T.';
-    omega_ww = omega/(omega_T*omega);
-    
-    Vp_u = Vp_ - omega_T*u;
-    
-    % Control law
-    u = simplify_(omega_ww*(Vp - Vp_u));
+    model_params = sys.descrip.model_params;
+    syms_plant = sys.descrip.syms;
+
+    u_struct.L_f_v = simplify_(vpa(subs(L_f_v, syms_plant, model_params)));
+    u_struct.L_G_v = simplify_(vpa(subs(L_G_v, syms_plant, model_params)));
+    u_struct.Vp = simplify_(vpa(subs(Vp, syms_plant, model_params)));
 end

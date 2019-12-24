@@ -13,20 +13,16 @@ hfigs_states = my_plot(t, sol(:, 1:4), plot_info_q);
 % Generalized coordinates
 plot_info_q.titles = repeat_str('', 4);
 plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info_q.ylabels = {'$\mathcal{L}_f^v$', '$\mathcal{L}_{g_1}^v$', ...
-                       '$\mathcal{L}_{g_2}^v$', '$\dot V$'};
-plot_info_q.grid_size = [2, 2];
+plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
+plot_info_q.grid_size = [3, 1];
 
-uparts = zeros(length(u_parts), 4);
+uparts
 for i = 1:length(u_parts)
-    uparts(i, 1) = u_parts(i).L_f_v;
-    uparts(i, 2) = u_parts(i).L_G_v(1)/norm(u_parts(i).L_G_v)^2;
-    uparts(i, 3) = u_parts(i).L_G_v(2)/norm(u_parts(i).L_G_v)^2;
-    uparts(i, 4) = u_parts(i).Vp;
+    
 end
 
 % States plot
-hfigs_states = my_plot(tu_s, uparts, plot_info_q);
+hfigs_states = my_plot(t, sol(:, 1:4), plot_info_q);
 
 % xy-coordinates
 hfigs_states_xy = my_figure();
