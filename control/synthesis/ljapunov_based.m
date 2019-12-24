@@ -82,7 +82,7 @@ function u = ljapunov_based(t, q_p, xhat, ...
     q = sys.kin.q;
 
     x = subs(source_reference, [q; p], q_p);
-        
+    
     xhat_s = sym('xhat_', size(x));
     p_hat_s = sym('phat_', size(p));
     xp_hat_s = sym('xphat_', size(x));
@@ -90,7 +90,7 @@ function u = ljapunov_based(t, q_p, xhat, ...
     
     % Smoothed xhat
     n_xhat = length(xhat);
-    
+        
     counter = counter + 1;
     % Avoid runge-kutta repetitions
     if(counter == 1)        
@@ -99,12 +99,9 @@ function u = ljapunov_based(t, q_p, xhat, ...
             
             n = length(q);
             m = length(p);
-            
-            xhat_1 = subs(source_reference, q, q_p(1:n));
-            phat_1 = q_p(n+1:end);
-            
-            delta_x = xhat - xhat_1;
-            phat = zeta*delta_x;
+
+            xhat_1 = xhat_;
+            phat_1 = phat_;
             
             xhat_ = xhat;
             phat_ = phat;
