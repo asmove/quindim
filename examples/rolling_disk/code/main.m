@@ -69,10 +69,25 @@ sys.descrip.u = [f_phi; f_th];
 sys.descrip.states = [x; y; th; phi];
 
 % Constraint condition
-sys.descrip.is_constrained = true;
+sys.descrip.is_constrained = false;
 
-% Nonholonomic constraints
-sys.descrip.unhol_constraints = xp*sin(th) - yp*cos(th);
+% Kinematic and dynamic model
+sys = kinematic_model(sys);
+
+T12 = T1*T2;
+T = T12*T3;
+R12 = T12(1:3, 1:3);
+R_ = T(1:3, 1:3);
+
+v_cg = simplify_(sys.descrip.bodies{1}.v_cg);
+[~, omega_] = omega(R_, sys.kin.q, sys.kin.qp);
+
+v_contact = v_cg + cross(omega_, R12*[0; 0; -R]);
+w = R12*[0; 1; 0];
+constraints = dot(v_contact, w);
+
+sys.descrip.is_constrained = true;
+sys.descrip.unhol_constraints = constraints;
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
@@ -104,13 +119,13 @@ plot_info_q.grid_size = [2, 2];
 
 hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
 
-plot_info_p.titles = repeat_str('', 2);
-plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
-plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
-plot_info_p.grid_size = [2, 1];
+plot_info_p.titles = repeat_str('', 3);
+plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info_p.ylabels = {'$p_1$', '$p_2$', '$p_3$'};
+plot_info_p.grid_size = [3, 1];
 
 % States plot
-hfigs_speeds = my_plot(x, y(:, 5:6), plot_info_p);
+hfigs_speeds = my_plot(x, y(:, 5:end), plot_info_p);
 
 % Energies plot
 hfig_energies = plot_energies(sys, x, y);

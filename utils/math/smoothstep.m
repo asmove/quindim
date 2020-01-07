@@ -16,7 +16,7 @@ function func_val = smoothstep(t, T, y_begin, y_end, degree)
     elseif(x>=1)
         func_val = y_end;
     else
-        func_val = 0;
+        func_val = zeros(size(head));
     end
     func_val = simplify_(func_val);
 end

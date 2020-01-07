@@ -1,4 +1,11 @@
-function u_struct = control_calc(sys, P, eta, x)
+function u_struct = control_calc(sys, P, n_G, W, eta, x)
+    if(n_G < 0)
+        error('Control action degree MUST be greater than 1!');
+    end
+    
+    is_positive(W);
+    is_diagonal(W);
+    
     % Main dynamic matrices
     p = sys.kin.p{end};
     q = sys.kin.q;
@@ -11,9 +18,9 @@ function u_struct = control_calc(sys, P, eta, x)
     
     % Control utils
     x_hat = sym('xhat_', size(x));
-    p_hat = sym('phat_', size(x));
+    p_hat = sym('phat_', size(p));
     xp_hat = sym('xphat_', size(x));
-    pp_hat = sym('pphat_', size(x));
+    pp_hat = sym('pphat_', size(p));
     
     f = [C*p; -inv(H)*h];
     G = [zeros(length(q), length(u)); inv(H)*Z];
@@ -38,4 +45,6 @@ function u_struct = control_calc(sys, P, eta, x)
     u_struct.L_f_v = simplify_(vpa(subs(L_f_v, syms_plant, model_params)));
     u_struct.L_G_v = simplify_(vpa(subs(L_G_v, syms_plant, model_params)));
     u_struct.Vp = simplify_(vpa(subs(Vp, syms_plant, model_params)));
+    u_struct.W = W;
+    u_struct.n_G = n_G;
 end

@@ -3,7 +3,7 @@ function func_val = ndsmoothstep(t, T, y_begin, y_end, degree, n_diffs)
     
     func_val = 0;
     
-    if((x >= 0)&&(x < 1))        
+    if((x >= 0)&&(x <= 1))        
         if(n_diffs <= degree+1)
             for k = 0:degree
                 func_val = func_val + ...
@@ -22,9 +22,9 @@ function func_val = ndsmoothstep(t, T, y_begin, y_end, degree, n_diffs)
         func_val = (y_end - y_begin)*func_val;
 
     elseif(x>=1)
-        func_val = 0;
+        func_val = zeros(size(head));
     else
-        func_val = 0;
+        func_val = zeros(size(head));
     end
     
     func_val = simplify_(func_val);

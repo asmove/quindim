@@ -22,9 +22,10 @@ function sys = dyn_matrices(sys, helper)
     sys.dyn.f = simplify_(friction(sys, helper));
     sys.dyn.U = simplify_(-jacobian(helper.l_r, u));
     
-    temp = subs(C.'*(helper.ddt_dL_dqp - helper.dKdq), ...
-                [qp; qpp], [qp_; qpp_]);
+    symbs_qp = [qp; qpp];
+    symbs_p = [qp_; qpp_];
     
+    temp = subs(C.'*(helper.ddt_dL_dqp - helper.dKdq), symbs_qp, symbs_p);
     sys.dyn.nu = simplify_(temp - sys.dyn.M*sys.kin.pp);
         
     % Control dynamic matrices

@@ -19,7 +19,7 @@ function hfig = plot_constraints(sys, time, states)
     p_n = p';
     
     n_As = 0;
-    for i = 1:length(sys.kin.A)
+    for i = 1:length(sys.kin.As)
         [n_Ai, ~] = size(sys.kin.As{i});
         n_As = n_As + n_Ai;
     end

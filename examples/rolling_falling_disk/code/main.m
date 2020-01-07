@@ -78,11 +78,6 @@ sys.descrip.unhol_constraints = xp*sin(th) - yp*cos(th);
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
-
-% Simplification due ill-formed column
-% It may appear depending of the system
-sys.kin.C(:, 1) = sin(th)*sys.kin.C(:, 1);
-
 sys = dynamic_model(sys);
 
 A = [1, 0, -R, 0];

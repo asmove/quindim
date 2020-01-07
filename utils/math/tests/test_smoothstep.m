@@ -10,18 +10,18 @@ dt = 0.01;
 
 time = 0:dt:T;
 
-degrees = 0;
+degrees = {0, 1, 2, 3};
 
 degrees_str = {};
-for degree = degrees
-    degrees_str{end+1} = ['Degree $', num2str(degree), '$'];
+for i = 1:length(degrees)
+    degrees_str{end+1} = ['Degree $', num2str(degrees{i}), '$'];
 end
 
 ys = zeros(length(time), length(degrees));
 
 for j = 1:length(degrees)
     for i = 1:length(time)
-        ys(i, j) = smoothstep(time(i), t_mid, y_begin, y_end, degrees(j));
+        ys(i, j) = smoothstep(time(i), t_mid, y_begin, y_end, degrees{j});
     end
 end
 

@@ -67,6 +67,7 @@ function sys = lagrange_eqdyn(sys)
     
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.kin.q, qp);
+    Cp = subs(Cp, qp, C*p);
     sys.kin.Cp = Cp;
     
     % Generalized velocities derivaives

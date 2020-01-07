@@ -8,12 +8,12 @@ function [A, C] = constraint_matrices(sys)
         if(is_unholonomic && ~is_holonomic)
             constraints = sys.descrip.unhol_constraints;
             A = jacobian(constraints, sys.kin.qp);
-            
             C = simplify_(null(A));
             
         % Holonomic constraitns
         elseif(is_holonomic && ~is_unholonomic)
             constraints = sys.descrip.hol_constraints;
+            
             A = jacobian(constraints, sys.kin.q);
             C = simplify_(null(A));
 
@@ -24,8 +24,9 @@ function [A, C] = constraint_matrices(sys)
         end
     else
         A = [];
-        C = eye(length(sys.kin.q));
-        
+        n = length(sys.kin.q);
+        C = eye(n);
+    
         if(is_holonomic || is_unholonomic)
             msg = ['When unconstrained, the fields hol_constraints' + ...
                   'and unhol_constraints cannot be presented.'];

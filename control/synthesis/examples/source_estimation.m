@@ -1,16 +1,20 @@
 function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
-                                   oracle,  T, sensor_reading, sys)
-    persistent m_1 xhat_ t_curr t_0 t_s xhat_s m_s;
-    persistent t_readings readings counter;
+                                   oracle,  T, source_reference, sys)
+    persistent xhat_ t_curr t_0 t_s t_xhat xhat_acc xhat_s xs_curr;
+    persistent t_readings readings counter is_T;
     persistent t_estimations estimations;
     
-    % Variables initialization
-    if(isempty(t_0))
-        t_0 = [];
+    if(isempty(xs_curr))
+        xs_curr = subs(source_reference.', [sys.kin.q; sys.kin.p{end}], q_p);
     end
-
+    
+    % Variables initialization
     if(isempty(counter))
         counter = 0;
+    end
+    
+    if(isempty(is_T))
+        is_T = false;
     end
     
     if(isempty(xhat_s))
@@ -18,25 +22,34 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
         assignin('base', 'xhat_s', []);
     end
     
+    if(isempty(xhat_acc))
+        xhat_acc = xhat_0';
+        assignin('base', 'xhat_acc', xhat_acc);
+    end
+    
     if(isempty(t_0))
         t_0 = t;
+        assignin('base', 't_0', t_0);
     end
     
     if(isempty(t_curr))
-        t_prev = t;
+        t_curr = t;
+        assignin('base', 't_curr', t_curr);
     end
     
     if(isempty(t_estimations))
         t_estimations = t;
-    end
-    
-    if(isempty(m_1))
-        m_1 = 0;
+        assignin('base', 't_estimations', t_estimations);
     end
 
     if(isempty(t_s))
-        t_s = [];
-        assignin('base', 't_s', []);
+        t_s = t;
+        assignin('base', 't_s', t_s);
+    end
+    
+    if(isempty(t_xhat))
+        t_xhat = t;
+        assignin('base', 't_xhat', t_xhat);
     end
     
     if(isempty(readings))
@@ -54,18 +67,13 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
         [xhat, ~, m] = drecexpbary_custom(oracle, 0, xhat_0, ...
                                           nu, sigma, lambda, 1);
                                       
-        m_1 = m;
         xhat_ = xhat;
-        m_s = [m_s; m];
-
-        t_readings = [];
-        readings = [];
         
-        m_s = [];
+        xhat_acc = [xhat_acc; xhat'];
         
         t_estimations = [t_estimations; t];
         estimations = [estimations; xhat_'];
-
+        
         assignin('base', 't_estimations', t_estimations);
         assignin('base', 'estimations', estimations);
 
@@ -81,19 +89,29 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
     
     % Update source estimation window
     if(t_curr >= t_0 + T)
-        if(counter == 1)
+        
+        % Quick hack: Avoid multiple reads of runge-kutta algorithm
+        is_T = true;
+        if(is_T)
             t_0 = t;
 
             % New prediction
-            [xhat, m] = expbary(oracle, xhat_s, nu);
+            [xhat, m] = expbary(oracle, xhat_acc, nu);
             
-            xhat_s = [xhat_s; xhat];
-
+            xhat_acc = [xhat_acc; xhat];
+            
             n_iterations = 1;
             [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
                                               nu, sigma, lambda, ...
                                               n_iterations);
             
+            
+            xhat_acc = [xhat_acc; xhat];
+            
+            x_curr = subs(source_reference.', [sys.kin.q; sys.kin.p{end}], q_p);
+            xs_curr = [xs_curr; x_curr];            
+                                          
+            t_xhat = [t_xhat; t];
             xhat_s = [xhat_s; xhat];
             
             % Update previous and current values
@@ -102,8 +120,17 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
             t_estimations = [t_estimations; t];
             estimations = [estimations; xhat_'];
             
+            assignin('base', 't_xhat', t_estimations);
+            assignin('base', 'xhat_s', xhat_s);
+            
+            assignin('base', 'xhat_acc', xhat_acc);
+            
+            assignin('base', 'xs_curr', xs_curr);
+            
             assignin('base', 't_estimations', t_estimations);
             assignin('base', 'estimations', estimations);
+            
+            is_T = false;
         else
             xhat = xhat_;
         end
@@ -112,15 +139,12 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
     % Update readings during excursion
     if(counter == 1)
         q_p_s = [sys.kin.q; sys.kin.p{end}];
-        x = subs(sensor_reading, q_p_s, q_p);
+        x = subs(source_reference, q_p_s, q_p);
         
         reading = oracle(x);
         
         % Simulation time
         t_s = [t_s; t];
-        
-        % Readings over trajectory
-        xhat_s = double([xhat_s; x']);
         
         % Sensor readings
         t_readings = [t_readings; t];

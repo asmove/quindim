@@ -1,18 +1,17 @@
-t = t';
-sol = sol';
+close all
 
 % Generalized coordinates
-plot_info_q.titles = repeat_str('', 4);
-plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
-plot_info_q.grid_size = [2, 2];
+plot_info_q.titles = repeat_str('', 2);
+plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]'};
+plot_info_q.ylabels = {'$x$', '$y$'};
+plot_info_q.grid_size = [2, 1];
 
 % States plot
-hfigs_states = my_plot(t, sol(:, 1:4), plot_info_q);
+hfigs_states = my_plot(time, sol(:, 1:2), plot_info_q);
 
 % Generalized coordinates
-plot_info_q.titles = repeat_str('', 4);
-plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+plot_info_q.titles = repeat_str('', 5);
+plot_info_q.xlabels = repeat_str('$t$ [s]', length(sys.kin.q));
 plot_info_q.ylabels = {'$\mathcal{L}_f^v$', '$\mathcal{L}_{g_1}^v$', ...
                        '$\mathcal{L}_{g_2}^v$', '$\dot V$'};
 plot_info_q.grid_size = [2, 2];
@@ -26,7 +25,7 @@ for i = 1:length(u_parts)
 end
 
 % States plot
-hfigs_states = my_plot(tu_s, uparts, plot_info_q);
+hfigs_uparts = my_plot(tu_s, uparts, plot_info_q);
 
 % xy-coordinates
 hfigs_states_xy = my_figure();
@@ -34,31 +33,44 @@ plot(sol(:, 1), sol(:, 2));
 hold on;
 plot(estimations(:, 1), estimations(:, 2), 'ko');
 hold on;
-plot(xhat_t(:, 1), xhat_t(:, 2), '-');
+
+x = xs_curr(:, 1);
+y = xs_curr(:, 2);
+
+n = length(x);
+
+u = zeros(n, 1);
+v = zeros(n, 1);
+for i = 1:length(x)
+    u(i) = - xs_curr(i, 1) + estimations(i, 1);
+    v(i) = - xs_curr(i, 2) + estimations(i, 2);
+end
+
+quiver(x, y, u, v, '-');
 hold off;
 
 xlabel('$x$ [m]', 'interpreter', 'latex');
 ylabel('$y$ [m]', 'interpreter', 'latex');
 
-plot_info_p.titles = repeat_str('', 2);
-plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
-plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
-plot_info_p.grid_size = [2, 1];
+plot_info_p.titles = repeat_str('', length(source_reference));
+plot_info_p.xlabels = repeat_str('$t$ [s]', length(source_reference));
+plot_info_p.ylabels = {'$\dot x$', '$\dot y$'};
+plot_info_p.grid_size = [length(source_reference), 1];
 
 % Speeds plot
-hfigs_speeds = my_plot(t, sol(:, 5:6), plot_info_p);
+hfigs_speeds = my_plot(time, sol(:, 3:4), plot_info_p);
 
-plot_info_p.titles = repeat_str('', 2);
-plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
-plot_info_p.ylabels = {'$\tau_{\theta}$', '$\tau_{\phi}$'};
-plot_info_p.grid_size = [2, 1];
+plot_info_p.titles = repeat_str('', length(source_reference));
+plot_info_p.xlabels = repeat_str('$t$ [s]', length(source_reference));
+plot_info_p.ylabels = {'$F_{x}$', '$F_{y}$'};
+plot_info_p.grid_size = [length(source_reference), 1];
 
 % Control plot
 hfigs_u = my_plot(tu_s, u_s, plot_info_p);
 
 plot_info_p.titles = {''};
 plot_info_p.xlabels = {'$t$ [s]'};
-plot_info_p.ylabels = {'Sinal de campo []'};
+plot_info_p.ylabels = {'$Sinal de campo$ [\,\,]'};
 plot_info_p.grid_size = [1, 1];
 
 % Readings plot
@@ -67,40 +79,8 @@ hfigs_readings = my_plot(t_readings, readings, plot_info_p);
 model_params = sys.descrip.model_params;
 syms_plant = sys.descrip.syms;
 
-q = sys.kin.q;
-p = sys.kin.p{end};
-
-H = sys.dyn.H;
-C = sys.kin.C;
-x = sys.kin.q(1:2);
-h = sys.dyn.h;
-u = sys.descrip.u;
-Z = sys.dyn.Z;
-
-x_hat = sym('xhat_', size(x));
-p_hat = sym('phat_', size(x));
-pp = inv(H)*(Z*u - h);
-
-e_x = x - x_hat;
-e_p = p - p_hat;
-V = e_p.'*H*e_p + e_x.'*P*e_x;
-
-qp_s = [q; p];
-
-n_t = length(t_s);
-
-Vs = zeros(n_t-1, 1);
-for i = 1:(n_t-1)
-    t_i = t_s(i);
-
-    xhat_i = xhat_t(i, :);
-    phat_i = phat_t(i, :);
-    
-    symbs = [qp_s; syms_plant.'; x_hat; p_hat];
-    vals = [sol(i, :)'; model_params'; xhat_i'; phat_i'];
-    
-    Vs(i) = subs(V, symbs, vals);
-end
+t_V = time(1:end-1);
+Vs = eval_ljapunov(t_V, sys, sol, xhat_t, phat_t, source_reference, P);
 
 % Readings plot
 plot_info_p.titles = {''};
@@ -108,32 +88,48 @@ plot_info_p.xlabels = {'$t$ [s]'};
 plot_info_p.ylabels = {'Ljapunov function $V(q, p)$'};
 plot_info_p.grid_size = [1, 1];
 
-t_V = t_s(1:end-1);
 hfigs_ljapunov = my_plot(t_V, Vs, plot_info_p);
 
 % Estimations plot
-plot_info_p.titles = repeat_str('', 2);
-plot_info_p.xlabels = repeat_str('$t$ [s]', 2);
+plot_info_p.titles = repeat_str('', length(source_reference));
+plot_info_p.xlabels = repeat_str('$t$ [s]', length(source_reference));
 plot_info_p.ylabels = {'$\hat{x}(t)$', '$\hat{y}(t)$'};
-plot_info_p.grid_size = [2, 1];
+plot_info_p.grid_size = [length(source_reference), 1];
 
-tt = linspace(t(1), t(end), length(phat_t));
+tt = linspace(time(1), time(end), length(phat_t));
 hfigs_xhat = my_plot(tt, xhat_t, plot_info_p);
 
-% Estimation speed plot
-plot_info_p.titles = repeat_str('', 2);
-plot_info_p.xlabels = repeat_str('$t$ [s]', 2);
-plot_info_p.ylabels = {'$\dot{\hat{x}}(t)$', '$\dot{\hat{y}}t)$'};
-plot_info_p.grid_size = [2, 1];
+% Estimations plot
+plot_info_p.titles = repeat_str('', length(source_reference));
+plot_info_p.xlabels = repeat_str('$t$ [s]', length(source_reference));
+plot_info_p.ylabels = {'$\dot{\hat{x}(t)}$', '$\dot{\hat{y}}(t)$'};
+plot_info_p.grid_size = [length(source_reference), 1];
 
-tt = linspace(t(1), t(end), length(phat_t));
+hfigs_xphat = my_plot(tt, xphat_t, plot_info_p);
+
+% Estimation speed plot
+plot_info_p.titles = repeat_str('', length(source_reference));
+plot_info_p.xlabels = repeat_str('$t$ [s]', length(source_reference));
+plot_info_p.ylabels = {'$\hat{p_1}(t)$', '$\hat{p_2}(t)$'};
+plot_info_p.grid_size = [length(source_reference), 1];
+
 hfigs_phat = my_plot(tt, phat_t, plot_info_p);
 
+plot_info_p.titles = repeat_str('', length(source_reference));
+plot_info_p.xlabels = repeat_str('$t$ [s]', length(source_reference));
+plot_info_p.ylabels = {'$\dot{\hat{p_1}}(t)$', '$\dot{\hat{p_2}}(t)$'};
+plot_info_p.grid_size = [length(source_reference), 1];
+
+hfigs_pphat = my_plot(tt, pphat_t, plot_info_p);
+
 saveas(hfigs_states, './imgs/states.eps', 'epsc');
+saveas(hfigs_uparts, './imgs/uparts.eps', 'epsc');
 saveas(hfigs_states_xy, './imgs/states_xy.eps', 'epsc');
 saveas(hfigs_speeds, './imgs/speeds.eps', 'epsc');
 saveas(hfigs_u, './imgs/control.eps', 'epsc');
 saveas(hfigs_readings, './imgs/readings.eps', 'epsc');
 saveas(hfigs_ljapunov, './imgs/ljapunov.eps', 'epsc');
 saveas(hfigs_xhat, './imgs/xhats.eps', 'epsc');
+saveas(hfigs_xphat, './imgs/xphats.eps', 'epsc');
 saveas(hfigs_phat, './imgs/phats.eps', 'epsc');
+saveas(hfigs_pphat, './imgs/pphats.eps', 'epsc');

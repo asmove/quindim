@@ -69,13 +69,6 @@ sys.descrip.is_constrained = false;
 % State space representation
 sys.descrip.states = [x; y; th; phi];
 
-T12 = T1*T2;
-T = T12*T3;
-R12 = T12(1:3, 1:3);
-R_ = T(1:3, 1:3);
-
-JJ = R_.'*I*R_;
-
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 
@@ -83,6 +76,11 @@ sys = kinematic_model(sys);
 sys.descrip.is_constrained = true;
 
 Jw = sys.dyn.Jw;
+
+T12 = T1*T2;
+T = T12*T3;
+R12 = T12(1:3, 1:3);
+R_ = T(1:3, 1:3);
 
 v_cg = sys.descrip.bodies{1}.v_cg;
 omega_ = omega(R_, sys.kin.q, sys.kin.qp);
