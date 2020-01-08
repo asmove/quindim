@@ -1,4 +1,4 @@
-function [xhat_vals, xphat_vals, xpphat_vals, ...
+function [xhat_vals, xphat_vals, xpphat_traj, ...
           p_vals, pp_vals] = generate_trajectory(t, t0, dt, T, ...
                                                  prev, curr, ...
                                                  source_reference, ...
@@ -9,14 +9,13 @@ function [xhat_vals, xphat_vals, xpphat_vals, ...
     
     points = [points_A; points_B];
     
-    symbs = sys.descrip.syms;
     model_params = sys.descrip.model_params;
     
     [q_vals, p_vals, ...
      qp_vals, pp_vals, qpp_vals] = ...
             rolling_smoothstep(t - t0, T, dt, degree_interp, ...
-                               symbs, model_params, points, sys);
-    
+                               model_params, points, sys);
+                           
     q = sys.kin.q;
     qp = sys.kin.qp;
     qpp = sys.kin.qpp;
@@ -28,10 +27,10 @@ function [xhat_vals, xphat_vals, xpphat_vals, ...
     xphat = dvecdt(source_reference, q, qp);
     xpphat = dvecdt(xphat, [q; qp], [C*p; Cp*p + Cp*pp]);
     
-    xphat = subs(xphat, qp, C*p);
-    xpphat = subs(xpphat, [qp; qpp], [C*p; Cp*p + Cp*pp]);
+    subs(xphat, [q; qp]);
+    subs(xpphat, );
     
-    xhat_vals = subs(source_reference, q, q_vals);
+    xhat_vals = subs(xphat, q, q_vals);
     xphat_vals = subs(xphat, [q; p], [q_vals; p_vals]);
     xpphat_vals = subs(xpphat, [q; p; pp], [q_vals; p_vals; pp_vals]);
                                         

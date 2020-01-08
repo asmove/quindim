@@ -1,27 +1,21 @@
 function [q_vals, p_vals, qp_vals, pp_vals, qpp_vals] = ...
-                    rolling_smooth(t_i, interval, ...
-                                   r_t, model_params,...
-                                   freedom_syms, freedom_vals, ...
-                                   params_syms, params_sols, ...
-                                   dt, points, sys)
+                rolling_smoothstep(t_i, interval, dt, ...
+                                   degree_interp, ...
+                                   syms, model_params, ...
+                                   points, sys)
     
     persistent phi_prev;
-    syms T t;
+    
+    head = points(1).coords(1:2);
+    tail = points(2).coords(1:2);
         
-    R = model_params(2);
-    
-    symbs = [t; T; freedom_syms; params_syms];
-    vals = [t_i; interval; freedom_vals; params_sols];
-    
     % States derivatives
-    drdt_t = diff(r_t, t);    
-    dr2dt2_t = diff(drdt_t, t);
-    d3rdt3_t = diff(dr2dt2_t, t);
-        
-    r_val = double(subs(r_t, symbs, vals));
-    drdt_val = double(subs(drdt_t, symbs, vals));
-    dr2dt2_val = double(subs(dr2dt2_t, symbs, vals));
-    dr3dt3_val = double(subs(d3rdt3_t, symbs, vals));
+    r_val = smoothstep(t_i, interval, head, tail, degree_interp);
+    drdt_val = ndsmoothstep(t_i, interval, head, tail, degree_interp, 1);
+    dr2dt2_val = ndsmoothstep(t_i, interval, head, tail, degree_interp, 2);
+    dr3dt3_val = ndsmoothstep(t_i, interval, head, tail, degree_interp, 3);
+    
+    R = model_params(2);
     
     dxdt = drdt_val(1);
     dydt = drdt_val(2);
@@ -58,19 +52,25 @@ function [q_vals, p_vals, qp_vals, pp_vals, qpp_vals] = ...
     
     phi_prev = phi;
     
-    q_vals = [r_val; theta; phi];
-    p_vals = [omega_theta; omega_phi];
-    qp_vals = [drdt_val; omega_theta; omega_phi];
-    pp_vals = [omegap_theta; omegap_phi];
-
+    q_vals = subs([r_val; theta; phi], syms, model_params);
+    p_vals = subs([omega_theta; omega_phi], ...
+                  syms, model_params);
+    qp_vals = subs([drdt_val; omega_theta; omega_phi], ...
+                    syms, model_params);
+    pp_vals = subs([omegap_theta; omegap_phi], ...
+                    syms, model_params);
+    
+    q_vals
+    q_vals
+                
     C = sys.kin.C;
     Cp = sys.kin.Cp;
+    q = sys.kin.q;
     p = sys.kin.p{end};
     pp = sys.kin.pp{end};
-    q = sys.kin.q;
     qp = sys.kin.qp;
     
     qpp = Cp*p + C*pp;
     
-    qpp_vals = subs(qpp, [q; p], [q_vals; p_vals]);
+    qpp_vals = subs(qpp, [q; p; syms'], [q_vals; p_vals; model_params']);
 end

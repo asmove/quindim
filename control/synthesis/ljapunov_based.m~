@@ -114,8 +114,8 @@ function u = ljapunov_based(t, q_p, xhat, xhat_0, P, zeta, eta, ...
         end
     end
     
-    prev = q_p(1:4);
-    curr = [xhat_; q_p(3:4)];
+    prev = subs(source_reference, );
+    curr = xhat_;
     
     [xhat_traj, xphat_traj, xpphat_traj, ...
      phat_traj, pphat_traj] = generate_trajectory(t_curr, t_0, dt, ...
@@ -123,19 +123,22 @@ function u = ljapunov_based(t, q_p, xhat, xhat_0, P, zeta, eta, ...
                                                   source_reference, ...
                                                   degree_interp, sys);
     
-    syms_params = [q.', p.', xhat_s.', p_hat_s.', ...
+    syms_params = [q.', p.', ...
+                   xhat_s.', p_hat_s.', ...
                    xp_hat_s.', pp_hat_s.'];
                
-    num_params = [q_p', xhat_traj', phat_traj', ...
+    num_params = [q_p', ...
+                  xhat_traj', phat_traj', ...
                   xphat_traj', pphat_traj'];
     
-    L_f_v = double(subs(u_control.L_f_v, syms_params, num_params));
-    L_G_v = double(subs(u_control.L_G_v, syms_params, num_params));
-    Vp = double(subs(u_control.Vp, syms_params, num_params));
-    W = double(subs(u_control.W, syms_params, num_params));
+    L_f_v = vpa(subs(u_control.L_f_v, syms_params, num_params));
+    L_G_v = vpa(subs(u_control.L_G_v, syms_params, num_params));
+    Vp = vpa(subs(u_control.Vp, syms_params, num_params));
+    W = vpa(subs(u_control.W, syms_params, num_params));
+    n_G = vpa(subs(u_control.n_G, syms_params, num_params));
     
     b = vpa(L_G_v*W);
-    c = vpa(b.'/(b*b.'));
+    c = vpa(b'/(b*b'));
     
     u = double((W*c)*(Vp - L_f_v));
     

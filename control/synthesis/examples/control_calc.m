@@ -1,8 +1,4 @@
-function u_struct = control_calc(sys, P, n_G, W, eta, x)
-    if(n_G < 0)
-        error('Control action degree MUST be greater than 1!');
-    end
-    
+function u_struct = control_calc(sys, P, W, eta, x)
     is_positive(W);
     is_diagonal(W);
     
@@ -46,5 +42,4 @@ function u_struct = control_calc(sys, P, n_G, W, eta, x)
     u_struct.L_G_v = simplify_(vpa(subs(L_G_v, syms_plant, model_params)));
     u_struct.Vp = simplify_(vpa(subs(Vp, syms_plant, model_params)));
     u_struct.W = W;
-    u_struct.n_G = n_G;
 end

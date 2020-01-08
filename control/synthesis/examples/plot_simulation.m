@@ -52,6 +52,8 @@ hold off;
 xlabel('$x$ [m]', 'interpreter', 'latex');
 ylabel('$y$ [m]', 'interpreter', 'latex');
 
+axis square;
+
 plot_info_p.titles = repeat_str('', length(source_reference));
 plot_info_p.xlabels = repeat_str('$t$ [s]', length(source_reference));
 plot_info_p.ylabels = {'$\dot x$', '$\dot y$'};

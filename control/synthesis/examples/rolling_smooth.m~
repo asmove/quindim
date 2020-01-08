@@ -1,30 +1,30 @@
-function [q_vals, p_vals, qp_vals, pp_vals] = rolling_smooth(...
-                                               t_i, interval, ...
-                                               degree_interp, perc, ...
-                                               model_params,...
-                                               freedom_syms,...
-                                               freedom_vals, ...
-                                               dt, points)
-    persistent phi_prev;
+function [q_vals, p_vals, qp_vals, pp_vals, qpp_vals] = ...
+                    rolling_smooth(t_i, interval, ...
+                                   r_t, model_params,...
+                                   
+                               dt, points)
     
-    head = points(1).coords(1:2);
-    tail = points(2).coords(1:2);
+    t_i, interval, r_t, model_params, ...
+    freedom_syms, freedom_vals, params_opt, sol, dt, points
+    
+    persistent phi_prev;
+    syms T t;
+        
+    R = model_params(2);
+    
+    symbs = [t; T; freedom_syms; params_syms];
+    vals = [t_i; interval; freedom_vals; params_sols];
     
     % States derivatives
-    if(t_i < perc*interval)
-        r_val = smoothstep(t_i, perc*interval, head, tail, degree_interp);
-        drdt_val = ndsmoothstep(t_i, perc*interval, head, tail, degree_interp, 1);
-        dr2dt2_val = ndsmoothstep(t_i, perc*interval, head, tail, degree_interp, 2);
-        dr3dt3_val = ndsmoothstep(t_i, perc*interval, head, tail, degree_interp, 3);
-    else
-        r_val = r_val();
-        drdt_val = 0;
-        dr2dt2_val = 0;
-        dr3dt3_val = 0;
-    end
-    
-    R = model_params(2);
+    drdt_t = diff(r_t, t);    
+    dr2dt2_t = diff(drdt_t, t);
+    d3rdt3_t = diff(dr2dt2_t, t);
         
+    r_val = double(subs(r_t, symbs, vals));
+    drdt_val = double(subs(drdt_t, symbs, vals));
+    dr2dt2_val = double(subs(dr2dt2_t, symbs, vals));
+    dr3dt3_val = double(subs(d3rdt3_t, symbs, vals));
+    
     dxdt = drdt_val(1);
     dydt = drdt_val(2);
     
@@ -60,8 +60,18 @@ function [q_vals, p_vals, qp_vals, pp_vals] = rolling_smooth(...
     
     phi_prev = phi;
     
-    q_vals = double([r_val; theta; phi]);
-    p_vals = double([omega_theta; omega_phi]);
-    qp_vals = double([drdt_val; omega_theta; omega_phi]);
-    pp_vals = double([omegap_theta; omegap_phi]);
+    C = sys.kin.C;
+    Cp = sys.kin.Cp;
+    p = sys.kin.p{end};
+    pp = sys.kin.pp{end};
+    qp = sys.kin.qp{end};
+    
+    qpp = Cp*p + C*pp;
+    
+    qpp_vals = subs(qpp, [q; p], [q_vals; p_vals]);
+    
+    q_vals = [r_val; theta; phi];
+    p_vals = [omega_theta; omega_phi];
+    qp_vals = [drdt_val; omega_theta; omega_phi];
+    pp_vals = [omegap_theta; omegap_phi];
 end

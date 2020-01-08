@@ -51,6 +51,8 @@ r = symvar(source_vars)';
 drdt = sys.kin.qp(1:2);
 r_t = [x; y];
 drdt_t = diff(r_t, t);
+dr2dt2_t = diff(r_t, t);
+dr2dt3_t = diff(r_t, t);
 
 dxdt = diff(x, t);
 dydt = diff(y, t);

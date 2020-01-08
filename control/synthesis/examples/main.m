@@ -1,8 +1,8 @@
-clear all
-close all
-clc
-
-run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+% clear all
+% close all
+% clc
+% 
+% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 % run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
 
 close all
@@ -31,9 +31,6 @@ sigma = 0.5;
 % []
 zeta = 1;
 
-% Control polynomial
-degree_G = 3;
-
 % Control 
 beta = 1;
 W = beta*diag([1; 1]);
@@ -41,24 +38,31 @@ W = beta*diag([1; 1]);
 % []
 lambda = 1;
 
+% []
+degree_interp = 3;
+
 % [s]
-T = 0.1;
+T_cur = 0.1;
+T_traj = 1;
 
 % []
-perc = 0.65;
-eta = -(1/T)*log(1-perc);
+perc = 0.8;
+eta = -(1/T_traj)*log(1-perc);
 
 % Time span
-time = 0:0.001:0.1;
+dt = 0.01;
+tf = 0.1;
+time = 0:dt:tf;
 
 % System modelling
 u_func = @(t, q_p) control_handler(t, q_p, source_reference, xhat_0, ...
                                    nu, sigma, lambda, zeta, eta, ...
-                                   field_intensity, T, P, degree_G, W, sys);
+                                   field_intensity, T_cur, T_traj, ...
+                                   dt, degree_interp, P, W, sys);
 
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, time, x0, u_func);
 time = time';
 sol = sol';
 
-% run('~/github/Robotics4fun/control/synthesis/examples/plot_simulation.m')
+run('~/github/Robotics4fun/control/synthesis/examples/plot_simulation.m')
 

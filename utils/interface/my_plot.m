@@ -137,7 +137,7 @@ function hfigs = my_plot(t, x, plot_config)
                             hold on;
 
                             plot(t, tail_x(:, f+h-2), markers{h});
-
+                            
                             f = f+1;
                             g = g+1;
                             h = h+1;
@@ -165,6 +165,16 @@ function hfigs = my_plot(t, x, plot_config)
                         h = 1;
 
                         multiplot = false;
+                        
+                        % Tight borders for better saving
+                        ax = gca;
+                        outerpos = ax.OuterPosition;
+                        ti = ax.TightInset; 
+                        left = outerpos(1) + ti(1);
+                        bottom = outerpos(2) + ti(2);
+                        ax_width = outerpos(3) - ti(1) - ti(3);
+                        ax_height = outerpos(4) - ti(2) - ti(4);
+                        ax.Position = [left bottom ax_width ax_height];
                     end
                 end
             end
