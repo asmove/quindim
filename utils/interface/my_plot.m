@@ -12,14 +12,14 @@ function hfigs = my_plot(t, x, plot_config)
     nrows = plot_config.grid_size(1);
     ncols = plot_config.grid_size(2);
     
+    % Find out subplot properties and evoke error or warning when necessary
     is_subplotable = iscell(x);
-    
     if(is_subplotable)
         legends = plot_config.legends;
         pos_multiplots = plot_config.pos_multiplots;
         markers = plot_config.markers;
         
-        pos_uniques = unique(pos_multiplots);
+        pos_uniques = unique(plot_config.pos_multiplots);
         len_legends = length(pos_uniques);
         
         for i = 1:length(pos_uniques)
@@ -54,7 +54,7 @@ function hfigs = my_plot(t, x, plot_config)
         head_x = x{1};
         tail_x = x{2};
         
-        x = head_x;
+        x_main = head_x;
         x_multi = tail_x;
         
         if(~issorted(pos_multiplots))
@@ -71,7 +71,11 @@ function hfigs = my_plot(t, x, plot_config)
         warning(msg);
     end
     
-    [~, n] = size(x);
+    if(is_subplotable)
+        [~, n] = size(x{1});
+    else
+        [~, n] = size(x);
+    end
     
     n_subplots = nrows*ncols;
 
@@ -96,14 +100,13 @@ function hfigs = my_plot(t, x, plot_config)
     k = 1;
     
     is_first = true;
-    
     while(i <= n_windows)
         hfig = my_figure();
         
         is_multiplot = false;
         for j = 1:nrows*ncols
             id_plot = ind2sub([nrows, ncols], j);
-
+            
             idx = (i-1)*nrows*ncols + j;
 
             h_subplot = subplot(nrows, ncols, id_plot);
@@ -147,7 +150,7 @@ function hfigs = my_plot(t, x, plot_config)
                     if(h > length(pos_multiplots))
                         hold off;
 
-                        legend(h_legends);
+                        legend(h_legends, 'interpreter', 'latex');
                         is_multiplot = false;
                         h_legends = {};
 

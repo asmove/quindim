@@ -4,9 +4,9 @@
 % 
 % run('~/github/Robotics4fun/examples/RLC/code/main.m');
 
-phi_opts = [1, 10, 100];
+phi_opts = [1];
 is_sat_opts = [true];
-is_imprecises = [true false];
+is_imprecises = [true];
 
 for phi = phi_opts
     for is_sat = is_sat_opts
