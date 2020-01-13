@@ -1,10 +1,21 @@
 function [xhat_vals, xphat_vals, xpphat_vals, ...
-          p_vals, pp_vals] = generate_trajectory(t, t0, dt, T, ...
+          p_vals, pp_vals] = generate_trajectory(t, dt, T, ...
                                                  prev, curr, ...
                                                  source_reference, ...
-                                                 degree_interp, sys)
-                                             
+                                                 degree_interp, sys, ...
+                                                 recalc_params)
+    persistent is_T params_syms params_sols traj_model;
+    
+    
+    
+    if(isempty(is_T) || t > T || recalc_params)
+        is_T = true;
+    end
+        
+    points_A.t = 0;
     points_A.coords = prev;
+    
+    points_B.t = T;
     points_B.coords = curr;
     
     points = [points_A; points_B];
@@ -12,10 +23,25 @@ function [xhat_vals, xphat_vals, xpphat_vals, ...
     symbs = sys.descrip.syms;
     model_params = sys.descrip.model_params;
     
+    traj_type = 'exp';
+    
+    if(is_T)
+        [params_syms, ...
+         params_sols, ...
+         traj_model] = gentrajmodel(sys, traj_type, T, points);
+        
+        is_T = false;
+    end
+    
     [q_vals, p_vals, ...
-     qp_vals, pp_vals, qpp_vals] = ...
-            rolling_smoothstep(t - t0, T, dt, degree_interp, ...
-                               symbs, model_params, points, sys);
+     qp_vals, pp_vals, ...
+     qpp_vals] = rolling_smooth(t, T, traj_model, ...
+                                params_syms, params_sols, ...
+                                dt, points, sys);
+%     [q_vals, p_vals, ...
+%      qp_vals, pp_vals, ...
+%      qpp_vals] = rolling_smoothstep(t - t0, T, dt, degree_interp, ...
+%                                     symbs, model_params, points, sys);
     
     q = sys.kin.q;
     qp = sys.kin.qp;
@@ -27,62 +53,17 @@ function [xhat_vals, xphat_vals, xpphat_vals, ...
     
     xphat = dvecdt(source_reference, q, qp);
     xpphat = dvecdt(xphat, [q; qp], [C*p; Cp*p + Cp*pp]);
+    xphat = subs(xphat, ...
+                 [qp; symbs.'], ...
+                 [C*p; model_params']);
+    xpphat = subs(xpphat, ...
+                  [qp; qpp; symbs.'], ...
+                  [C*p; Cp*p + Cp*pp; model_params']);
     
-    xphat = subs(xphat, qp, C*p);
-    xpphat = subs(xpphat, [qp; qpp], [C*p; Cp*p + Cp*pp]);
+    xhat_vals = double(subs(source_reference, q, q_vals));
     
-    xhat_vals = subs(source_reference, q, q_vals);
-    xphat_vals = subs(xphat, [q; p], [q_vals; p_vals]);
-    xpphat_vals = subs(xpphat, [q; p; pp], [q_vals; p_vals; pp_vals]);
-                                        
-%     n_xhat = length(xhat_);
-%     
-%     xhat_traj = zeros(size(xhat_));
-%     for i = 1:n_xhat
-%         t_local = t - t0;
-%         perc_T = perc_interp*T;
-%                 
-%         xhat_traj(i) = smoothstep(t_local, perc_T, xhat_1(i), ...
-%                                   xhat_(i), degree_interp);
-%     end
-%     
-%     % Smoothed xphat
-%     xphat_traj= zeros(size(xhat_));
-%     for i = 1:n_xhat
-%         t_local = t - t0;
-%         perc_T = perc_interp*T;
-%         
-%         xphat_traj(i) = ndsmoothstep(t_local, perc_T, xhat_1(i), ...
-%                                      xhat_(i), degree_interp, 1);
-%     end
-%     
-%     % Smoothed xphat
-%     xpphat_traj = zeros(size(xhat_));
-%     for i = 1:n_xhat
-%         t_local = t - t0;
-%         perc_T = perc_interp*T;
-%         
-%         xpphat_traj(i) = ndsmoothstep(t_local, perc_T, xhat_1(i), ...
-%                                       xhat_(i), degree_interp, 2);
-%     end
-%     
-%     % Smoothed phat
-%     phat_traj = zeros(size(phat_));
-%     for i = 1:n_xhat
-%         t_local = t - t0;
-%         perc_T = perc_interp*T;
-%         
-%         phat_traj(i) = smoothstep(t_local, perc_T, phat_1(i), ...
-%                                   phat_(i), degree_interp);
-%     end
-%     
-%     % Smoothed pphat
-%     pphat_traj = zeros(size(phat_));
-%     for i = 1:n_xhat
-%         t_local = t - t0;
-%         perc_T = perc_interp*T;
-%         
-%         pphat_traj(i) = ndsmoothstep(t_local, perc_T, phat_1(i), ...
-%                                      phat_(i), degree_interp, 1);
-%     end
+    xphat_vals = double(subs(xphat, [q; p; symbs.'], ...
+                             [q_vals; p_vals; model_params']));
+    xpphat_vals = double(subs(xpphat, [q; p; pp], ...
+                               [q_vals; p_vals; pp_vals]));
 end

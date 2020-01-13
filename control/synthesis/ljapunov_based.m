@@ -1,12 +1,13 @@
 function u = ljapunov_based(t, q_p, xhat, xhat_0, P, zeta, eta, ...
                             T_cur, T_traj, dt, W, source_reference, ...
                             degree_interp, sys)
-                        
     persistent u_control tu_s u_s counter ...
                phat_t xhat_t pphat_t xphat_t;
     persistent xhat_1 phat_1 xhat_ phat_ t_0 t_curr;
-    persistent u_parts phat_sym xphat_sym pphat_sym;
-    persistent remaining_source_states source_states;
+    persistent xhat_traj_ xhat_trajs tail_traj head_traj;
+    persistent u_parts source_states;
+    
+    rand_num = normrnd(pi/4, 0.1);
     
     p = sys.kin.p{end};
     q = sys.kin.q;
@@ -38,7 +39,11 @@ function u = ljapunov_based(t, q_p, xhat, xhat_0, P, zeta, eta, ...
         phat_t = [];
         assignin('base', 'phat_t', phat_t);
     end
-        
+    
+    if(isempty(xhat_1))
+        xhat_trajs = [];
+    end
+    
     if(isempty(xhat_1))
         xhat_1 = xhat_0;
     end
@@ -49,6 +54,50 @@ function u = ljapunov_based(t, q_p, xhat, xhat_0, P, zeta, eta, ...
     
     if(isempty(xhat_))
         xhat_ = xhat;
+    end
+    
+    if(isempty(xhat_traj_))
+        xhat_traj_.t = [];
+        xhat_traj_.x = [];
+        
+        time = 0:dt:T_traj;
+        
+        tail_traj = q_p(1:4);
+        head_traj = [xhat; q_p(3) + rand_num; q_p(4)];
+        
+        wb = my_waitbar('Loading trajectory...');
+        
+        recalc_params = true;
+        for j = 1:length(time)
+            [xhat_traj, ~, ~, ~, ~] = ...
+             generate_trajectory(time(j), dt, T_traj, ...
+                                 tail_traj, head_traj,... 
+                                 source_reference, ...
+                                 degree_interp, sys, ...
+                                 true);
+                             
+                             
+            xhat_traj_.t = [xhat_traj_.t; time(j)];
+            xhat_traj_.x = [xhat_traj_.x; xhat_traj'];            
+            
+            recalc_params = false;
+            
+            wb.update_waitbar(time(j), time(end));
+        end
+        
+        wb.close_window();
+        
+        xhat_trajs = [xhat_trajs; xhat_traj_];
+        assignin('base', 'xhat_trajs', xhat_trajs);
+    end
+    
+    if(isempty(tail_traj))
+        tail_traj = q_p(1:4);
+    end
+    
+    if(isempty(head_traj))
+        rand_num = normrnd(pi/2, 0.1);
+        head_traj = [xhat; q_p(3) + rand_num; q_p(4)];
     end
     
     delta_x = xhat - xhat_1;
@@ -96,11 +145,11 @@ function u = ljapunov_based(t, q_p, xhat, xhat_0, P, zeta, eta, ...
     
     % Smoothed xhat
     n_xhat = length(xhat);
-        
+    
     counter = counter + 1;
     % Avoid runge-kutta repetitions
-    if(counter == 1)        
-        if(t_curr >= t_0 + T_cur)            
+    if(counter == 1)
+        if(t_curr >= t_0 + T_cur)
             t_0 = t;
             
             n = length(q);
@@ -111,17 +160,47 @@ function u = ljapunov_based(t, q_p, xhat, xhat_0, P, zeta, eta, ...
             
             xhat_ = xhat;
             phat_ = phat;
+            
+            tail_traj = q_p(1:4);
+            head_traj = [xhat_; q_p(3) + rand_num; q_p(4)];
+            
+            time = 0:dt:T_traj;
+            
+            xhat_traj_.t = [];
+            xhat_traj_.x = [];
+            
+            wb = my_waitbar('Loading trajectory...');
+            
+            recalc_params = true;
+            for j = 1:length(time)
+                [xhat_traj, ~, ~, ~, ~] = ...
+                 generate_trajectory(time(j), dt, T_traj, ...
+                                     tail_traj, head_traj,... 
+                                     source_reference, ...
+                                     degree_interp, sys, ...
+                                     true);
+                
+                xhat_traj_.t = [xhat_traj_.t; time(j)];
+                xhat_traj_.x = [xhat_traj_.x; xhat_traj'];            
+                
+                recalc_params = false;
+                wb.update_waitbar(time(j), time(end));
+            end
+            
+            wb.close_window();
+            
+            xhat_trajs = [xhat_trajs; xhat_traj_];
+            assignin('base', 'xhat_trajs', xhat_trajs);
         end
     end
     
-    prev = q_p(1:4);
-    curr = [xhat_; q_p(3:4)];
-    
     [xhat_traj, xphat_traj, xpphat_traj, ...
-     phat_traj, pphat_traj] = generate_trajectory(t_curr, t_0, dt, ...
-                                                  T_traj, prev, curr,... 
-                                                  source_reference, ...
-                                                  degree_interp, sys);
+     phat_traj, pphat_traj] = ...
+            generate_trajectory(t_curr, dt, ...
+                                T_traj, tail_traj, head_traj,... 
+                                source_reference, ...
+                                degree_interp, sys, ...
+                                false);
     
     syms_params = [q.', p.', xhat_s.', p_hat_s.', ...
                    xp_hat_s.', pp_hat_s.'];

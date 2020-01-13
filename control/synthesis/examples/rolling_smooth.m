@@ -1,28 +1,29 @@
-function [q_vals, p_vals, qp_vals, pp_vals, qpp_vals] = ...
+function [q_vals, p_vals, ...
+          qp_vals, pp_vals, qpp_vals] = ...
                     rolling_smooth(t_i, interval, ...
-                                   r_t, model_params,...
-                                   freedom_syms, freedom_vals, ...
-                                   params_syms, params_sols, ...
+                                   r_t, params_syms, params_sols, ...
                                    dt, points, sys)
     
     persistent phi_prev;
     syms T t;
-        
+    
+    model_params = sys.descrip.model_params;
     R = model_params(2);
     
-    symbs = [t; T; freedom_syms; params_syms];
-    vals = [t_i; interval; freedom_vals; params_sols];
+    symbs = [t; T; params_syms];
+    vals = [t_i; interval; params_sols];
     
     % States derivatives
     drdt_t = diff(r_t, t);    
     dr2dt2_t = diff(drdt_t, t);
     d3rdt3_t = diff(dr2dt2_t, t);
-        
+    
     r_val = double(subs(r_t, symbs, vals));
+    
     drdt_val = double(subs(drdt_t, symbs, vals));
     dr2dt2_val = double(subs(dr2dt2_t, symbs, vals));
     dr3dt3_val = double(subs(d3rdt3_t, symbs, vals));
-    
+        
     dxdt = drdt_val(1);
     dydt = drdt_val(2);
     
@@ -38,8 +39,7 @@ function [q_vals, p_vals, qp_vals, pp_vals, qpp_vals] = ...
 
     omega_theta = (-dx2dt2*sin(theta) + dy2dt2*cos(theta))/v;
 
-    vp = dx2dt2*cos(theta) + dy2dt2*sin(theta) - ...
-         dxdt*omega_theta*sin(theta) + dydt*omega_theta*cos(theta);
+    vp = dx2dt2*cos(theta) + dy2dt2*sin(theta);
 
     omegap_theta = (-omega_theta*vp - ...
                      dx3dt3*sin(theta) + ...
@@ -49,6 +49,24 @@ function [q_vals, p_vals, qp_vals, pp_vals, qpp_vals] = ...
 
     omega_phi = v/R;
     omegap_phi = vp/R;
+    
+    symbs = [t; T; params_syms];
+    vals = [0; interval; params_sols];
+    disp(sprintf('Initial point: (%.4f, %.4f)', ...
+        points(1).coords(1), points(1).coords(2)));
+
+    r0 = subs(r_t, symbs, vals);
+    disp(sprintf('Calculated initial point: (%.4f, %.4f)', ...
+                 r0(1), r0(2)));
+    
+    symbs = [t; T; params_syms];
+    vals = [interval; interval; params_sols];
+    disp(sprintf('Final point: (%.4f, %.4f)', ...
+                 points(2).coords(1), points(2).coords(2)));
+    
+    rT = subs(r_t, symbs, vals);
+    disp(sprintf('calculated Final point: (%.4f, %.4f) \n', ...
+                 rT(1), rT(2)));
     
     if(t_i == 0)
         phi = points(1).coords(4);

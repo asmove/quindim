@@ -60,7 +60,7 @@ function dq = df(t, q_p, sys, tf, u_func)
     accel = Hinv*(-h_num + Z_num*u_num);
     speed = C_num*p_num;
     
-    dq = double([speed; accel]);    
+    dq = double([speed; accel]);
     
     % Time elapsed
     dt = toc(t0);

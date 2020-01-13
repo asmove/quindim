@@ -3,8 +3,10 @@
 % clc
 % 
 % run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
-syms a0 a1 a2 a3 a4 a5
-syms b0 b1 b2 b3 b4 b5
+syms t T;
+
+syms a0 a1 a2
+syms b0 b1 b2
 
 interval = 1;
 
@@ -15,26 +17,24 @@ bs = [b0; b1; b2];
 free_params = [as; bs];
 
 point_A.t = 0;
+xA = 0;
+yA = 0;
 point_A.coords = [0; 0; 0; 0];
 
 point_B.t = 1;
-point_B.coords = [1; 1; pi/2; 0];
+xB = 1;
+yB = 1;
+point_B.coords = [xB; yB; pi/3; 0];
 
 points = [point_A, point_B];
 
 lambda = t/T;
 
-x = a0 + a1*lambda + a2*lambda^2;
-y = b0 + b1*lambda + b2*lambda^2;
+% x = a0 + a1*lambda + a2*lambda^2;
+% y = b0 + b1*lambda + b2*lambda^2;
 
 % x = a0 + a1*exp(lambda) + a2*exp(2*lambda);
 % y = b0 + b1*exp(lambda) + b2*exp(2*lambda);
-
-% x = a0 + a1*t*cos(2*pi*lambda) + (t^2)*a2*cos(2*pi*2*lambda);
-% y = b0 + b1*t*cos(2*pi*lambda) + (t^2)*b2*cos(2*pi*2*lambda);
-
-% x = a0 + a1*exp(lambda)*cos(2*pi*lambda) + exp(2*lambda)*a2*cos(2*pi*2*lambda);
-% y = b0 + b1*exp(lambda)*cos(2*pi*lambda) + exp(2*lambda)*b2*cos(2*pi*2*lambda);
 
 freedom_syms = [];
 freedom_vals = [];
@@ -212,13 +212,11 @@ for i = 1:length(time)
     
     symbs = [t; T; freedom_syms; params_opt];
     vals = [t_i; interval; freedom_vals; sol];
-        
+    
     [q_vals, p_vals, ...
      qp_vals, pp_vals ...
-     qpp_vals] = rolling_smooth(t_i, interval, r_t, ...
-                                model_params, ...
-                                freedom_syms, freedom_vals, ...
-                                params_opt, sol, ...
+     qpp_vals] = rolling_smooth(t_i, interval, ...
+                                r_t, params_opt, sol, ...
                                 dt, points, sys);
         
     coords = [coords; q_vals'];

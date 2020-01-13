@@ -3,29 +3,44 @@
 % clc
 % 
 % run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
-syms a0 a1 a2 a3 a4 a5
-syms b0 b1 b2 b3 b4 b5
+syms t T;
+
+syms a0 a1 a2 a3
+syms b0 b1 b2 b3 b4
 
 interval = 1;
 
-% as = [a0; a1; a2; a3; a4; a5];
-% bs = [b0; b1; b2; b3; b4; b5];
-as = [a0; a1; a2];
-bs = [b0; b1; b2];
+as = [a0; a1; a2; a3];
+bs = [b0; b1; b2; b3; b4];
 free_params = [as; bs];
 
+xA = 0;
+yA = 0;
+thetaA = pi/3;
+
+xB = 0.5;
+yB = 0.5;
+
+xC = 1;
+yC = 1;
+
+thetaAC = atan2(yC - yA, xC - xA);
+
 point_A.t = 0;
-point_A.coords = [0; 0; 0; 0];
+point_A.coords = [0; 0; thetaA; 0];
 
-point_B.t = 1;
-point_B.coords = [1; 1; pi/2; 0];
+point_B.t = 0.3;
+point_B.coords = [xB; yB; thetaA + pi/2; 0];
 
-points = [point_A, point_B];
+point_C.t = 1;
+point_C.coords = [xC; yC; thetaA; 0];
+
+points = [point_A, point_B, point_C];
 
 lambda = t/T;
 
-x = a0 + a1*lambda + a2*lambda^2;
-y = b0 + b1*lambda + b2*lambda^2;
+x = a0 + a1*lambda + a2*lambda^2 + a3*lambda^3;
+y = b0 + b1*lambda + b2*lambda^2 + b3*lambda^3 + b4*lambda^4;
 
 % x = a0 + a1*exp(lambda) + a2*exp(2*lambda);
 % y = b0 + b1*exp(lambda) + b2*exp(2*lambda);
@@ -49,10 +64,11 @@ n_q = length(q);
 r = symvar(source_vars)';
 
 drdt = sys.kin.qp(1:2);
+
 r_t = [x; y];
 drdt_t = diff(r_t, t);
-dr2dt2_t = diff(r_t, t);
-dr2dt3_t = diff(r_t, t);
+d2rdt2_t = diff(r_t, t);
+d3rdt3_t = diff(r_t, t);
 
 dxdt = diff(x, t);
 dydt = diff(y, t);
@@ -150,7 +166,7 @@ for i = 1:length(points)
     eqs_constraints_i = subs(eqs_constraints, symbs, params);
     
     eqs_i = [eqs_bounds_i; eqs_constraints_i];
-    
+    t_i
     symbs = [t; T];
     params = [t_i; interval];
     
@@ -198,7 +214,6 @@ d3rdt3_val = subs(d3rdt3_t, symbs, vals);
 
 % Useful parameters
 R = sys.descrip.model_params(2);
-EPS = 1e-5;
 
 % Inicialization
 coords = [];
@@ -212,12 +227,12 @@ for i = 1:length(time)
     
     symbs = [t; T; freedom_syms; params_opt];
     vals = [t_i; interval; freedom_vals; sol];
-        
-    [q_vals, p_vals, qp_vals, pp_vals] = ...
-    rolling_traj2states(t_i, interval, r_t, ...
-                        model_params, ...
-                        freedom_syms, freedom_vals, ...
-                        params_opt, sol, dt, points);
+    
+    [q_vals, p_vals, ...
+     qp_vals, pp_vals ...
+     qpp_vals] = rolling_smooth(t_i, interval, ...
+                                r_t, params_opt, sol, ...
+                                dt, points, sys);
         
     coords = [coords; q_vals'];
     speeds = [speeds; p_vals'];
@@ -265,8 +280,10 @@ plot_info.grid_size = [1, 1];
 
 hfig_coordsxy = my_plot(coords(:, 1), coords(:, 2), plot_info);
 
-saveas(hfig_coords, './imgs/traj_states.eps', 'epsc');
-saveas(hfig_speeds, './imgs/traj_speeds.eps', 'epsc');
-saveas(hfig_states_speeds, './imgs/traj_states_speeds.eps', 'epsc');
-saveas(hfig_accels, './imgs/traj_accels.eps', 'epsc');
-saveas(hfig_coordsxy, './imgs/traj_coordsxy.eps', 'epsc');
+axis square;
+
+saveas(hfig_coords, './imgs/traj_smooth_points_states.eps', 'epsc');
+saveas(hfig_speeds, './imgs/traj_smooth_points_speeds.eps', 'epsc');
+saveas(hfig_states_speeds, './imgs/traj_smooth_points_states_speeds.eps', 'epsc');
+saveas(hfig_accels, './imgs/traj_smooth_points_accels.eps', 'epsc');
+saveas(hfig_coordsxy, './imgs/traj_smooth_points_coordsxy.eps', 'epsc');

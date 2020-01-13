@@ -1,12 +1,17 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+clear all
+close all
+clc
+
+run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 % run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
 
 close all
 delete(findall(0,'type','figure','tag','TMWWaitbar'));
+
+
+for filepath = strsplit(ls, ':')
+    clear filepath;
+end
 
 field_intensity = @(x) x(1)^2 + x(2)^2;
 
@@ -42,16 +47,16 @@ lambda = 1;
 degree_interp = 3;
 
 % [s]
-T_cur = 0.1;
+T_cur = 0.05;
 T_traj = 1;
 
 % []
-perc = 0.8;
-eta = -(1/T_traj)*log(1-perc);
+perc = 0.99;
+eta = -(1/T_cur)*log(1-perc);
 
 % Time span
 dt = 0.01;
-tf = 0.1;
+tf = 1;
 time = 0:dt:tf;
 
 % System modelling

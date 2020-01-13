@@ -41,15 +41,15 @@ function u = sliding_underactuated(sys, etas, poles, ...
     q_a = q(1:m);
     q_u = q(m+1:n);
     
-    if(length(sys.kin.C) ~= 1)
+    if(length(sys.kin.Cs) ~= 1)
         [m, ~] = size(sys.kin.C{1});
         
         Cs = eye(m);
         for i = 1:length(sys.kin.C)
-            Cs = Cs*sys.kin.C{i};
+            Cs = Cs*sys.kin.Cs{i};
         end
     else
-        Cs = sys.kin.C{end};
+        Cs = sys.kin.C;
     end
     
     p = p{end};

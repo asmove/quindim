@@ -19,7 +19,7 @@ points = [point_A, point_B];
 lambda = t/T;
 
 interval = 1;
-degree_interp = 2;
+degree_interp = 3;
 
 % Time span
 dt = 0.01;
@@ -27,8 +27,8 @@ time = 0:dt:interval;
 
 wb = my_waitbar('Calculating speeds and states');
 
-% Useful parameters
-R = sys.descrip.model_params(2);
+symbs = sys.descrip.syms;
+model_params = sys.descrip.model_params;
 
 % Inicialization
 coords = [];
@@ -40,13 +40,11 @@ accels = [];
 for i = 1:length(time)
     t_i = time(i);
     
-    symbs = [t; T];
-    vals = [t_i; interval];
-    
     [q_vals, p_vals, ...
-     qp_vals, pp_vals] = rolling_smoothstep(t_i, interval, degree_interp, ...
-                                            model_params, dt, points);
-                       
+     qp_vals, pp_vals, ...
+     qpp_vals] = rolling_smoothstep(t_i, interval, dt, degree_interp, ...
+                                    symbs, model_params, points, sys);
+    
     coords = [coords; q_vals'];
     speeds = [speeds; p_vals'];
     state_speeds = [state_speeds; qp_vals'];
@@ -93,8 +91,8 @@ plot_info.grid_size = [1, 1];
 
 hfig_coordsxy = my_plot(coords(:, 1), coords(:, 2), plot_info);
 
-saveas(hfig_coords, './imgs/traj_states.eps', 'epsc');
-saveas(hfig_speeds, './imgs/traj_speeds.eps', 'epsc');
-saveas(hfig_states_speeds, './imgs/traj_states_speeds.eps', 'epsc');
-saveas(hfig_accels, './imgs/traj_accels.eps', 'epsc');
-saveas(hfig_coordsxy, './imgs/traj_coordsxy.eps', 'epsc');
+saveas(hfig_coords, './imgs/traj_smoothstep_states.eps', 'epsc');
+saveas(hfig_speeds, './imgs/traj_smoothstep_speeds.eps', 'epsc');
+saveas(hfig_states_speeds, './imgs/traj_smoothstep_states_speeds.eps', 'epsc');
+saveas(hfig_accels, './imgs/traj_smoothstep_accels.eps', 'epsc');
+saveas(hfig_coordsxy, './imgs/traj_smoothstep_coordsxy.eps', 'epsc');

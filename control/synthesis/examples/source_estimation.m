@@ -5,7 +5,8 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
     persistent t_estimations estimations;
     
     if(isempty(xs_curr))
-        xs_curr = subs(source_reference.', [sys.kin.q; sys.kin.p{end}], q_p);
+        states = [sys.kin.q; sys.kin.p{end}];
+        xs_curr = subs(source_reference.', states, q_p);
     end
     
     % Variables initialization
@@ -108,7 +109,8 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
             
             xhat_acc = [xhat_acc; xhat];
             
-            x_curr = subs(source_reference.', [sys.kin.q; sys.kin.p{end}], q_p);
+            x_curr = subs(source_reference.', ...
+                          [sys.kin.q; sys.kin.p{end}], q_p);
             xs_curr = [xs_curr; x_curr];            
                                           
             t_xhat = [t_xhat; t];
@@ -134,6 +136,8 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
         else
             xhat = xhat_;
         end
+    else
+        xhat = xhat_;
     end
     
     % Update readings during excursion

@@ -20,12 +20,13 @@ len_params = length(sys.descrip.model_params);
 x0 = [0; 0];
 
 % Tracking values
-x_d = @(t) [1; 0];
-x_xp_d = @(t) [x_d(t); 0];
+w = 3;
+x_d = @(t) [sin(w*t); w*cos(w*t)];
+x_xp_d = @(t) [x_d(t); -w^2*sin(w*t)];
 
 % Initial conditions
-tf = 0.5;
-dt = 0.001;
+tf = 2*pi/w;
+dt = 0.01;
 tspan = 0:dt:tf;
 
 df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);

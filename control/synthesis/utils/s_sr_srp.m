@@ -14,10 +14,10 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
             Cs = Cs*sys.kin.C{i};
         end
     else
-        Cs = sys.kin.C{end};
+        Cs = sys.kin.C;
     end
     
-    Cp = sys.kin.Cp{end};
+    Cp = sys.kin.Cp;
     
     p = p{end};
     pp = pp{end};
@@ -75,13 +75,13 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
         
         C = eye(m);
         for i = 1:length(sys.kin.C)
-            C = C*sys.kin.C{i};
+            C = C*sys.kin.Cs{i};
         end
     else
-        C = sys.kin.C{end};
+        C = sys.kin.C;
     end
     
-    Cp = sys.kin.Cp{end};
+    Cp = sys.kin.Cp;
     
     qp = C*p;
     qpp = Cp*p + C*pp;
