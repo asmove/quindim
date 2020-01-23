@@ -2,6 +2,8 @@ function u_struct = control_calc(sys, P, W, eta, x)
     is_positive(W);
     is_diagonal(W);
     
+    is_positive(P);
+    
     % Main dynamic matrices
     p = sys.kin.p{end};
     q = sys.kin.q;

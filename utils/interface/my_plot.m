@@ -24,7 +24,8 @@ function hfigs = my_plot(t, x, plot_config)
         
         for i = 1:length(pos_uniques)
             idx_uniques = find(pos_uniques(i) == pos_multiplots);
-            len_i_multiplots = length(idx_uniques(i));
+
+            len_i_multiplots = length(idx_uniques);
             
             if(iscell(legends))
                 len_legends = length(legends);
@@ -37,7 +38,7 @@ function hfigs = my_plot(t, x, plot_config)
             else
                 len_markers = length(markers(i));
             end
-            
+
             if(len_i_multiplots + 1 ~= len_legends)
                 regex_msg = 'Legends pos %d: Repeated ids : %d; Len legends: %d';
                 msg = sprintf(regex_msg, i, len_i_multiplots + 1, len_legends);
@@ -108,10 +109,17 @@ function hfigs = my_plot(t, x, plot_config)
             id_plot = ind2sub([nrows, ncols], j);
             
             idx = (i-1)*nrows*ncols + j;
-
+            
             h_subplot = subplot(nrows, ncols, id_plot);
             
-            plot(t, head_x(:, idx));
+            if(is_subplotable)
+                plot(t, head_x(:, idx), markers{h});
+            else
+                plot(t, head_x(:, idx));
+            end
+            
+            hold on;
+            
             title(titles{idx}, 'interpreter', 'latex');
             xlabel(xlabels{idx}, 'interpreter', 'latex');
             ylabel(ylabels{idx}, 'interpreter', 'latex');
@@ -121,32 +129,26 @@ function hfigs = my_plot(t, x, plot_config)
                 is_multiplot = ~isempty(find(pos_multiplots == idx));
 
                 if(is_multiplot)
-                    if(g <= length(pos_multiplots))    
+                    if(iscell(legends))
+                        legends_i = legends;
+                    else
+                        legends_i = legends{f};
+                    end
+                    
+                    h_legends{end + 1} = legends_i{1};
+                    
+                    while(h < length(legends_i))
                         if(pos_multiplots(g) == k)
-                            if(iscell(legends))
-                                legends_i = legends;
-                            else
-                                legends_i = legends(f);
-                            end
-
-                            if(is_first)
-                                h_legends{end + 1} = legends_i{1};
-                                is_first = false;
-                                h = h+1;
-                            end
-
-                            h_legends{end + 1} = legends_i{h};
+                            h_legends{end + 1} = legends_i{h+1};
 
                             hold on;
-
-                            plot(t, tail_x(:, f+h-2), markers{h});
                             
-                            f = f+1;
-                            g = g+1;
                             h = h+1;
+                            
+                            plot(t, tail_x(:, f+h-2), markers{h});
                         end
                     end
-
+                    
                     if(h > length(pos_multiplots))
                         hold off;
 

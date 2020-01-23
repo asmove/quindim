@@ -31,7 +31,7 @@ P = alpha*eye(length(source_reference));
 nu = 10;
 
 % []
-sigma = 0.5;
+sigma = 1;
 
 % []
 zeta = 1;
@@ -54,16 +54,42 @@ T_traj = 1;
 perc = 0.99;
 eta = -(1/T_cur)*log(1-perc);
 
+% Source estimation
+sestimation_info.xhat_0 = xhat_0;
+sestimation_info.nu = nu;
+sestimation_info.zeta = zeta;
+sestimation_info.sigma = sigma;
+sestimation_info.oracle = field_intensity;
+sestimation_info.source_reference = source_reference;
+sestimation_info.lambda = lambda;
+sestimation_info.T_cur = T_cur;
+
+% Trajectory planning
+trajectory_info.T_traj = T_traj;
+trajectory_info.dt = dt;
+trajectory_info.degree_interp = T_traj;
+trajectory_info.gentraj_fun = ...
+    @(t, x_begin, x_end, T) generate_trajectory(t, dt, T, x_begin, x_end,... 
+                                                source_reference, ...
+                                                degree_interp, sys, ...
+                                                true);
+
+% Control law arguments
+control_info.P = P;
+control_info.W = W;
+control_info.eta = eta;
+control_info.control_fun = @(t, q_p) lyap_based(t, q_p, sys);
+
 % Time span
 dt = 0.01;
 tf = 1;
 time = 0:dt:tf;
 
 % System modelling
-u_func = @(t, q_p) control_handler(t, q_p, source_reference, xhat_0, ...
-                                   nu, sigma, lambda, zeta, eta, ...
-                                   field_intensity, T_cur, T_traj, ...
-                                   dt, degree_interp, P, W, sys);
+u_func = @(t, q_p) control_handler(t, q_p, ...
+                                   sestimation_info, ...
+                                   trajectory_info, ...
+                                   control_info, sys);
 
 sol = validate_model(sys, time, x0, u_func);
 time = time';

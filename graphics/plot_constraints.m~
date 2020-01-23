@@ -33,13 +33,6 @@ function hfig = plot_constraints(sys, time, states)
     
     wb = my_waitbar('Calculating constraints time lapse');
     
-    bar_len = 0;
-    [n_const, n_p] = size(As);
-    for A = As
-        [n_const, n_p] = size(A);
-        bar_len = bar_len + 2*n_const*n_t;
-    end
-    
     acc = 0;
     i_acc = 0;
     % Each constraint line
@@ -81,7 +74,7 @@ function hfig = plot_constraints(sys, time, states)
                                           syms_params, num_params))';
                 
                 i_acc = i_acc + 1;
-                wb.update_waitbar(i_acc, bar_len);
+                wb.update_waitbar(i_acc, n_As*n_const);
             end
             
             % Each time instant
@@ -97,7 +90,7 @@ function hfig = plot_constraints(sys, time, states)
                 unhol(i, acc + j) = double(consts(j));
             
                 i_acc = i_acc + 1;
-                wb.update_waitbar(i_acc, bar_len);
+                wb.update_waitbar(i_acc, 2*n_As*n_const);
             end
         end
         
@@ -118,42 +111,21 @@ function hfig = plot_constraints(sys, time, states)
             idx = idx + j;
             
             const = Aqps(idx);
-            constraint = latex(const);
+            constraint = latex(const);i
             
             latex_origs = sys.descrip.latex_origs;
             latex_convert = sys.descrip.latex_text;
             
             for i = 1:length(latex_origs)
-                latex_orig = latex_origs{i};
+                latex_orig = latex_origs(i);
+                idxs = findstr(constraint, latex_orig);
                 
-                for j = 1:length(latex_orig)
-                    latex_orig_j = latex_orig{j};
-                    latex_orig_j = char(latex_orig_j);
-
-                    if(iscell(constraint))
-                       constraint = constraint{1}; 
-                    end
-                    
-                    idxs = findstr(constraint, latex_orig_j);
-                    
-                    if(~isempty(idxs))
-                        latex_snippet = latex_convert(i);
-                        
-                        if(iscell(constraint))
-                           constraint = constraint{1}; 
-                        end
-                        
-                        constraint = strrep(constraint, ...
-                                            latex_orig, ...
-                                            latex_snippet);                        
-                    end
+                if(~isempty(idxs))
+                    latex_snippet = latex_convert(i);
+                    constraint = strrep(constraint, latex_orig, latex_snippet);
                 end
             end
-            
-            if(iscell(constraint))
-               constraint = constraint{1}; 
-            end
-            
+                
             consts_label{end+1} = sprintf('Constraint %d - $%s$', ...
                                     idx, constraint);
             xlabels{end+1} = '$t$ [s]';

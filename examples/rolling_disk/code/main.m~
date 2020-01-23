@@ -14,16 +14,16 @@ syms g f_phi f_th;
 
 % Body 1
 syms m R real;
-syms x y theta phi real;
-syms xp yp thetap phip real;
-syms xpp ypp thetapp phipp real;
+syms x y th phi real;
+syms xp yp thp phip real;
+syms xpp ypp thpp phipp real;
 
 Is = sym('I', [3, 1], 'real');
 I = diag(Is);
 
 % Rotations to body
 T1 = T3d(0, [0; 0; 1], [x; y; R]);
-T2 = T3d(theta, [0; 0; 1], [0; 0; 0]);
+T2 = T3d(th, [0; 0; 1], [0; 0; 0]);
 T3 = T3d(phi, [0; -1; 0], [0; 0; 0]);
 Ts = {T1, T2, T3};
 
@@ -31,9 +31,9 @@ Ts = {T1, T2, T3};
 L = [0; 0; 0];
 
 % Generalized coordinates
-sys.kin.q = [x; y; theta; phi];
-sys.kin.qp = [xp; yp; thetap; phip];
-sys.kin.qpp = [xpp; ypp; thetapp; phipp];
+sys.kin.q = [x; y; th; phi];
+sys.kin.qp = [xp; yp; thp; phip];
+sys.kin.qpp = [xpp; ypp; thpp; phipp];
 
 % Previous body
 previous = struct('');
@@ -56,9 +56,8 @@ sys.descrip.latex_origs = {{'xpp'}, ...
                            {'thetapp'}, ...
                            {'thetap'}, ...
                            {'\mathrm{theta}'}, ...
-                           {'\mathrm{phipp}'}, ...
-                           {'\mathrm{phip}'}, ...
-                           {'\mathrm{phi}'}};
+                           {'\mathrm{phi}'}, ...
+                           {'\mathrm{phip}'}};
 
 sys.descrip.latex_text = {'\ddot{x}', '\dot{x}', 'x', ...
                           '\ddot{y}', '\dot{y}', 'y', ...                          
@@ -88,7 +87,7 @@ sys.descrip.Fq = [0; 0; f_th; f_phi];
 sys.descrip.u = [f_phi; f_th];
 
 % State space representation
-sys.descrip.states = [x; y; theta; phi];
+sys.descrip.states = [x; y; th; phi];
 
 % Constraint condition
 sys.descrip.is_constrained = false;

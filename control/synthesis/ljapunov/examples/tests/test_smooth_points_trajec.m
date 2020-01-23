@@ -5,36 +5,51 @@
 % run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 syms t T;
 
-syms a0 a1 a2
-syms b0 b1 b2
+syms a0 a1 a2 a3
+syms b0 b1 b2 b3 b4
 
 interval = 1;
 
-% as = [a0; a1; a2; a3; a4; a5];
-% bs = [b0; b1; b2; b3; b4; b5];
-as = [a0; a1; a2];
-bs = [b0; b1; b2];
+as = [a0; a1; a2; a3];
+bs = [b0; b1; b2; b3; b4];
 free_params = [as; bs];
 
-point_A.t = 0;
 xA = 0;
 yA = 0;
-point_A.coords = [0; 0; 0; 0];
+thetaA = 0;
 
-point_B.t = 1;
-xB = 1;
-yB = 1;
-point_B.coords = [xB; yB; pi/3; 0];
+xB = 0.5;
+yB = 0.5;
 
-points = [point_A, point_B];
+xC = 1;
+yC = 1;
+
+thetaAC = atan2(yC - yA, xC - xA);
+
+point_A.t = 0;
+point_A.coords = [0; 0; thetaA; 0];
+
+point_B.t = 0.5;
+point_B.coords = [xB; yB; thetaA + pi/2; 0];
+
+point_C.t = 1;
+point_C.coords = [xC; yC; thetaA; 0];
+
+points = [point_A, point_B, point_C];
 
 lambda = t/T;
 
-% x = a0 + a1*lambda + a2*lambda^2;
-% y = b0 + b1*lambda + b2*lambda^2;
+x = a0 + a1*lambda + a2*lambda^2 + a3*lambda^3;
+y = b0 + b1*lambda + b2*lambda^2 + b3*lambda^3 + b4*lambda^4;
 
 % x = a0 + a1*exp(lambda) + a2*exp(2*lambda);
 % y = b0 + b1*exp(lambda) + b2*exp(2*lambda);
+
+% x = a0 + a1*t*cos(2*pi*lambda) + (t^2)*a2*cos(2*pi*2*lambda);
+% y = b0 + b1*t*cos(2*pi*lambda) + (t^2)*b2*cos(2*pi*2*lambda);
+
+% x = a0 + a1*exp(lambda)*cos(2*pi*lambda) + exp(2*lambda)*a2*cos(2*pi*2*lambda);
+% y = b0 + b1*exp(lambda)*cos(2*pi*lambda) + exp(2*lambda)*b2*cos(2*pi*2*lambda);
 
 freedom_syms = [];
 freedom_vals = [];
@@ -49,6 +64,7 @@ n_q = length(q);
 r = symvar(source_vars)';
 
 drdt = sys.kin.qp(1:2);
+
 r_t = [x; y];
 drdt_t = diff(r_t, t);
 d2rdt2_t = diff(r_t, t);
@@ -150,7 +166,7 @@ for i = 1:length(points)
     eqs_constraints_i = subs(eqs_constraints, symbs, params);
     
     eqs_i = [eqs_bounds_i; eqs_constraints_i];
-    
+    t_i
     symbs = [t; T];
     params = [t_i; interval];
     
@@ -198,7 +214,6 @@ d3rdt3_val = subs(d3rdt3_t, symbs, vals);
 
 % Useful parameters
 R = sys.descrip.model_params(2);
-EPS = 1e-5;
 
 % Inicialization
 coords = [];
@@ -267,8 +282,8 @@ hfig_coordsxy = my_plot(coords(:, 1), coords(:, 2), plot_info);
 
 axis square;
 
-saveas(hfig_coords, './imgs/traj_smooth_states.eps', 'epsc');
-saveas(hfig_speeds, './imgs/traj_smooth_speeds.eps', 'epsc');
-saveas(hfig_states_speeds, './imgs/traj_smooth_states_speeds.eps', 'epsc');
-saveas(hfig_accels, './imgs/traj_smooth_accels.eps', 'epsc');
-saveas(hfig_coordsxy, './imgs/traj_smooth_coordsxy.eps', 'epsc');
+saveas(hfig_coords, './imgs/traj_smooth_points_states.eps', 'epsc');
+saveas(hfig_speeds, './imgs/traj_smooth_points_speeds.eps', 'epsc');
+saveas(hfig_states_speeds, './imgs/traj_smooth_points_states_speeds.eps', 'epsc');
+saveas(hfig_accels, './imgs/traj_smooth_points_accels.eps', 'epsc');
+saveas(hfig_coordsxy, './imgs/traj_smooth_points_coordsxy.eps', 'epsc');

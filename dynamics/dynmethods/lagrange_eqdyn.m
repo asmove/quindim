@@ -60,10 +60,11 @@ function sys = lagrange_eqdyn(sys)
     p = sys.kin.p{1};
     pp = sys.kin.pp{1};
     
-    sys.dyn.P = subs(sys.dyn.P, sys.kin.qp, C*p);
-    sys.dyn.K = subs(sys.dyn.K, sys.kin.qp, C*p);
-    sys.dyn.F = subs(sys.dyn.F, sys.kin.qp, C*p);
-    sys.dyn.total_energy = subs(sys.dyn.total_energy, sys.kin.qp, C*p);    
+    sys.dyn.P = simplify_(subs(sys.dyn.P, sys.kin.qp, C*p));
+    sys.dyn.K = simplify_(subs(sys.dyn.K, sys.kin.qp, C*p));
+    sys.dyn.F = simplify_(subs(sys.dyn.F, sys.kin.qp, C*p));
+    sys.dyn.total_energy = simplify_(subs(sys.dyn.total_energy, ...
+                                          sys.kin.qp, C*p));
     
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.kin.q, qp);

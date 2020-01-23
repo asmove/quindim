@@ -1,8 +1,15 @@
-function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
-                                   oracle,  T, source_reference, sys)
+function xhat = source_estimation(t, q_p, sestimation_info, sys)
     persistent xhat_ t_curr t_0 t_s t_xhat xhat_acc xhat_s xs_curr;
     persistent t_readings readings counter is_T;
     persistent t_estimations estimations;
+    
+    xhat_0 = sestimation_info.xhat_0;
+    nu = sestimation_info.nu;
+    sigma = sestimation_info.sigma;
+    lambda = sestimation_info.lambda;
+    oracle = sestimation_info.oracle;
+    T_cur = sestimation_info.T_cur;
+    source_reference = sestimation_info.source_reference;
     
     if(isempty(xs_curr))
         states = [sys.kin.q; sys.kin.p{end}];
@@ -101,13 +108,13 @@ function xhat = source_estimation(t, q_p, xhat_0, nu, sigma, lambda, ...
             
             xhat_acc = [xhat_acc; xhat];
             
-            n_iterations = 1;
-            [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
-                                              nu, sigma, lambda, ...
-                                              n_iterations);
-            
-            
-            xhat_acc = [xhat_acc; xhat];
+%             n_iterations = 1;
+%             [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
+%                                               nu, sigma, lambda, ...
+%                                               n_iterations);
+%             
+%             
+%             xhat_acc = [xhat_acc; xhat];
             
             x_curr = subs(source_reference.', ...
                           [sys.kin.q; sys.kin.p{end}], q_p);
