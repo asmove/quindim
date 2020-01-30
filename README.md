@@ -12,7 +12,7 @@ cd ~/rob4fun
 git clone git@github.com:brunolnetto/Robotics4fun.git 
 ```
 
-Most likely, the reader may use Windows. For such, the author recommends either the Git Bash or Tortoise Git as source management software.
+Most likely, the reader may use Windows. For such, the author recommends either the Git Bash or Tortoise Git as source management software. Git bash, although it a terminal, the copy-paste of above commands works the same manner as for linux terminal.
 
 # Installation
 
