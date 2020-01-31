@@ -1,4 +1,4 @@
-classdef my_waitbar
+classdef my_waitbar < handle
     properties
         idx = tic;
         waitbar_id = 0;
@@ -45,10 +45,6 @@ classdef my_waitbar
             obj.t_curr_str = num;
         end
         
-%         function obj = set.t_real_vec(obj, arr)
-%             obj.t_real_vec = [obj.t_real_vec, arr];
-%         end
-        
         function obj = set.speed(obj, num)
             obj.speed = num;
         end
@@ -57,11 +53,13 @@ classdef my_waitbar
             obj.name = name;
             
             persistent n_waitbars;
-            n_waitbars = n_waitbars + 1;
             
             if(isempty(n_waitbars))
-                obj.waitbar_id = n_waitbars;
+                n_waitbars = 1;
             end
+            
+            obj.waitbar_id = n_waitbars;
+            n_waitbars = n_waitbars + 1;
             
             obj.t_curr_str = datestr(seconds(0), 'HH:MM:SS');
             obj.t_end_str = datestr(seconds(0), 'HH:MM:SS');
@@ -72,7 +70,7 @@ classdef my_waitbar
             cancel_callback = 'setappdata(gcbf,''canceling'',1)';
             obj.wb = waitbar(0, obj.msg,  'Name', obj.name, ... 
                              'CreateCancelBtn', cancel_callback);
-            
+                         
             wb_texts = findall(obj.wb, 'type', 'text');
             set(wb_texts, 'Interpreter', 'none');
             
@@ -83,14 +81,8 @@ classdef my_waitbar
             h = findall(0,'type','figure','tag','TMWWaitbar');
             h = h(obj.waitbar_id);
         end
-        
-        function delete(obj)
-            % obj is always scalar
-            F = findall(0,'type','figure','tag','TMWWaitbar');
-            delete(F);
-        end
                 
-        function obj = update_waitbar(obj, t, tf)
+        function [] = update_waitbar(obj, t, tf)
             dt = toc(obj.previous_t);
             
             obj.tf = tf;
@@ -125,10 +117,13 @@ classdef my_waitbar
             obj.msg = sprintf(obj.time_mask, perc, obj.speed, ...
                               obj.t_curr_str, obj.t_end_str);
             
-             % Uncomment this block if you wish to plot speed and time consuming
-             % vectors
-             obj.t_real_vec = [obj.t_real_vec, obj.t_real];
-             obj.speed_vec = [obj.speed_vec; obj.speed];
+            % Uncomment this block if you wish to plot speed and time consuming
+            % vectors
+            obj.t_real_vec = [obj.t_real_vec, obj.t_real];
+            obj.speed_vec = [obj.speed_vec; obj.speed];
+            
+            assignin('base', 't_vec', obj.t_real_vec);
+            assignin('base', 'speed_vec', obj.speed_vec);
             
             obj.tf_real_vec = [obj.tf_real_vec, t_f];
             
@@ -139,15 +134,14 @@ classdef my_waitbar
         end
         
         function close_window(obj)
-            h = obj.find_handle();
-            
             if(~isempty(obj.tf_real_vec))
                % Erase waitbar
                 tf = obj.tf_real_vec(end);
 
                 fprintf('Elapsed time is %.6f seconds.\n', tf); 
-            end            
-            delete(h);
+            end
+            
+            delete(obj.wb);
         end
     end
 end

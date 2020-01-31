@@ -3,8 +3,16 @@ function u = run_control_law(t, q_p, xhat, ...
                              control_info, ...
                              trajectory_info, sys)
     persistent tu_s u_s t_0 t_curr source_states counter;
-    persistent xhat_1 phat_1 xhat_ phat_ xhat_t phat_t;
+    persistent xhat_1 phat_1 xhat_ phat_ xhat_t phat_t pphat_t xphat_t;
     persistent xhat_traj_ xhat_trajs tail_traj head_traj;
+    
+    if(isempty(u_s))
+        u_s = [];
+    end
+    
+    if(isempty(tu_s))
+        tu_s = [];
+    end
     
     % Metadata unwrap
     xhat_0 = sestimation_info.xhat_0;
@@ -16,6 +24,7 @@ function u = run_control_law(t, q_p, xhat, ...
     P = control_info.P;
     W = control_info.W;
     
+    sigma_traj = trajectory_info.sigma_traj;
     T_traj = trajectory_info.T_traj;
     dt = trajectory_info.dt;
     degree_interp = trajectory_info.degree_interp;
@@ -46,12 +55,26 @@ function u = run_control_law(t, q_p, xhat, ...
         source_states = states_reference.';
     end
     
+    if(isempty(counter))
+        counter = 0;
+    end
+    
     if(isempty(xhat_t))
         xhat_t = [];
         assignin('base', 'xhat_t', xhat_t);
     end
     
     if(isempty(phat_t))
+        phat_t = [];
+        assignin('base', 'phat_t', phat_t);
+    end
+    
+    if(isempty(pphat_t))
+        xhat_t = [];
+        assignin('base', 'xhat_t', xhat_t);
+    end
+    
+    if(isempty(xphat_t))
         phat_t = [];
         assignin('base', 'phat_t', phat_t);
     end
@@ -72,11 +95,11 @@ function u = run_control_law(t, q_p, xhat, ...
         xhat_ = xhat;
     end
     
+    time = 0:dt:T_traj;
+    
     if(isempty(xhat_traj_))
         xhat_traj_.t = [];
         xhat_traj_.x = [];
-        
-        time = 0:dt:T_traj;
         
         tail_traj = q_p(1:4);
         head_traj = [xhat; q_p(3); q_p(4)];
@@ -86,9 +109,8 @@ function u = run_control_law(t, q_p, xhat, ...
         recalc_params = true;
         for j = 1:length(time)
             [xhat_traj, ~, ~, ~, ~] = ...
-                trajectory_info.gentraj_fun(time(j), tail_traj, ...
-                                            head_traj, T_traj);
-                             
+                trajectory_info.gentraj_fun(time(j), tail_traj, head_traj);
+            
             xhat_traj_.t = [xhat_traj_.t; time(j)];
             xhat_traj_.x = [xhat_traj_.x; xhat_traj'];
             recalc_params = false;
@@ -170,7 +192,7 @@ function u = run_control_law(t, q_p, xhat, ...
             for j = 1:length(time)
                 [xhat_traj, ~, ~, ~, ~] = ...
                     trajectory_info.gentraj_fun(time(j), tail_traj, ...
-                                                head_traj, T_traj);
+                                                head_traj);
                 
                 xhat_traj_.t = [xhat_traj_.t; time(j)];
                 xhat_traj_.x = [xhat_traj_.x; xhat_traj'];            
@@ -187,19 +209,27 @@ function u = run_control_law(t, q_p, xhat, ...
     end
     
     [xhat_traj, xphat_traj, xpphat_traj, ...
-     phat_traj, pphat_traj] = trajectory_info.gentraj_fun(time(j), ...
+     phat_traj, pphat_traj] = trajectory_info.gentraj_fun(t - t_0, ...
                                                           tail_traj, ...
-                                                          head_traj, ...
-                                                          T_traj);    
+                                                          head_traj);
     
-    control_info.control_fun();
-                                                      
+    u = control_info.control_fun(t, q_p, ...
+                                 xhat_traj, xphat_traj, xpphat_traj, ...
+                                 phat_traj, pphat_traj);
+    
+%     z_traj = normrnd(zeros(size(u)), sigma_traj);
+%     u = u + z_traj;
+
     if(counter == 1)        
         phat_t = [phat_t; phat_traj'];
         xhat_t = [xhat_t; xhat_traj'];
         pphat_t = [pphat_t; pphat_traj'];
         xphat_t = [xphat_t; xphat_traj'];
+        u_s = [u_s; u'];
+        tu_s = [tu_s; t];
         
+        assignin('base', 'u_s', u_s);
+        assignin('base', 'tu_s', tu_s);
         assignin('base', 'xhat_t', xhat_t);
         assignin('base', 'phat_t', phat_t);
         assignin('base', 'xphat_t', xphat_t);

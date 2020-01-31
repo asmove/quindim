@@ -80,7 +80,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     assignin('base', 'sliding_s', s_acc);
     assignin('base', 'wb', wb);
     
-    wb = wb.update_waitbar(t, tf);
+    wb.update_waitbar(t, tf);
     
     dt = t - t_1;
     t_1 = t;

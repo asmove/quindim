@@ -58,7 +58,9 @@ sys.descrip.latex_origs = {{'xpp'}, ...
                            {'\mathrm{theta}'}, ...
                            {'\mathrm{phipp}'}, ...
                            {'\mathrm{phip}'}, ...
-                           {'\mathrm{phi}'}};
+                           {'\mathrm{phi}'}, ...
+                           {'p_1'}, ...
+                           {'p_2'}};
 
 sys.descrip.latex_text = {'\ddot{x}', '\dot{x}', 'x', ...
                           '\ddot{y}', '\dot{y}', 'y', ...                          
@@ -67,7 +69,9 @@ sys.descrip.latex_text = {'\ddot{x}', '\dot{x}', 'x', ...
                           '\theta', ...
                           '\ddot{\phi}', ...
                           '\dot{\phi}', ...
-                          '\phi'};
+                          '\phi', ...
+                          '\omega_{\phi}', ...
+                          '\omega_{\theta}'};
 
 % Paramater symbolics of the system
 sys.descrip.syms = [m, R, Is.', g];
@@ -106,7 +110,7 @@ v_cg = simplify_(sys.descrip.bodies{1}.v_cg);
 
 v_contact = v_cg + cross(omega_, R12*[0; 0; -R]);
 w = R12*[0; 1; 0];
-constraints = dot(v_contact, w);
+constraints = simplify_(dot(v_contact, w));
 
 sys.descrip.is_constrained = true;
 sys.descrip.unhol_constraints = constraints;
@@ -126,35 +130,35 @@ t = 0:dt:tf;
 % Initial conditions
 x0 = [1, 1, 0, 0, 1, 1]';
 
-% System modelling
-u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func);
-
-x = t';
-y = sol';
-
-% Generalized coordinates
-plot_info_q.titles = repeat_str('', 4);
-plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
-plot_info_q.grid_size = [2, 2];
-
-hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
-
-plot_info_p.titles = repeat_str('', 3);
-plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info_p.ylabels = {'$p_1$', '$p_2$', '$p_3$'};
-plot_info_p.grid_size = [3, 1];
-
-% States plot
-hfigs_speeds = my_plot(x, y(:, 5:end), plot_info_p);
-
-% Energies plot
-hfig_energies = plot_energies(sys, x, y);
-hfig_consts = plot_constraints(sys, x, y);
-
-% Images
-saveas(hfig_energies, '../images/energies', 'epsc');
-saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
-saveas(hfigs_speeds(1), ['../images/speeds', num2str(1)], 'epsc'); 
-saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 
+% % System modelling
+% u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+% sol = validate_model(sys, t, x0, u_func);
+% 
+% x = t';
+% y = sol';
+% 
+% % Generalized coordinates
+% plot_info_q.titles = repeat_str('', 4);
+% plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+% plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
+% plot_info_q.grid_size = [2, 2];
+% 
+% hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
+% 
+% plot_info_p.titles = repeat_str('', 3);
+% plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]'};
+% plot_info_p.ylabels = {'$p_1$', '$p_2$', '$p_3$'};
+% plot_info_p.grid_size = [3, 1];
+% 
+% % States plot
+% hfigs_speeds = my_plot(x, y(:, 5:end), plot_info_p);
+% 
+% % Energies plot
+% hfig_energies = plot_energies(sys, x, y);
+% hfig_consts = plot_constraints(sys, x, y);
+% 
+% % Images
+% saveas(hfig_energies, '../images/energies', 'epsc');
+% saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
+% saveas(hfigs_speeds(1), ['../images/speeds', num2str(1)], 'epsc'); 
+% saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 

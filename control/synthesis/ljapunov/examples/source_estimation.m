@@ -8,7 +8,7 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     sigma = sestimation_info.sigma;
     lambda = sestimation_info.lambda;
     oracle = sestimation_info.oracle;
-    T_cur = sestimation_info.T_cur;
+    T = sestimation_info.T_cur;
     source_reference = sestimation_info.source_reference;
     
     if(isempty(xs_curr))
@@ -104,7 +104,7 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
             t_0 = t;
 
             % New prediction
-            [xhat, m] = expbary(oracle, xhat_acc, nu);
+            [xhat, m] = expbary(oracle, xs_curr, nu);
             
             xhat_acc = [xhat_acc; xhat];
             
@@ -118,8 +118,8 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
             
             x_curr = subs(source_reference.', ...
                           [sys.kin.q; sys.kin.p{end}], q_p);
-            xs_curr = [xs_curr; x_curr];            
-                                          
+            xs_curr = [xs_curr; x_curr];
+            
             t_xhat = [t_xhat; t];
             xhat_s = [xhat_s; xhat];
             
@@ -131,11 +131,7 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
             
             assignin('base', 't_xhat', t_estimations);
             assignin('base', 'xhat_s', xhat_s);
-            
             assignin('base', 'xhat_acc', xhat_acc);
-            
-            assignin('base', 'xs_curr', xs_curr);
-            
             assignin('base', 't_estimations', t_estimations);
             assignin('base', 'estimations', estimations);
             
@@ -146,6 +142,10 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     else
         xhat = xhat_;
     end
+    
+    x_curr = subs(source_reference.', ...
+                          [sys.kin.q; sys.kin.p{end}], q_p);
+    xs_curr = [xs_curr; x_curr];
     
     % Update readings during excursion
     if(counter == 1)
@@ -161,12 +161,14 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
         t_readings = [t_readings; t];
         readings = double([readings; reading]);        
         
-        
         assignin('base', 't_s', t_s);
         assignin('base', 'xhat_s', xhat_s);
+        assignin('base', 'xs_curr', xs_curr);
         assignin('base', 't_readings', t_readings);
         assignin('base', 'readings', readings);
     end
+    
+    xhat = vpa(xhat);
     
     % Counter update
     if(counter == 4)

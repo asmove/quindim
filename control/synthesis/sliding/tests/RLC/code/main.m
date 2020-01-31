@@ -1,8 +1,8 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/RLC/code/main.m');
+clear all
+close all
+clc
+
+run('~/github/Robotics4fun/examples/RLC/code/main.m');
 
 phi_opts = [1];
 is_sat_opts = [true];

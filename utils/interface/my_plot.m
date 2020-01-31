@@ -22,34 +22,43 @@ function hfigs = my_plot(t, x, plot_config)
         pos_uniques = unique(plot_config.pos_multiplots);
         len_legends = length(pos_uniques);
         
+        j = 1;
         for i = 1:length(pos_uniques)
             idx_uniques = find(pos_uniques(i) == pos_multiplots);
 
             len_i_multiplots = length(idx_uniques);
+            legends_j = legends{j};
+            markers_j = markers{j};
             
-            if(iscell(legends))
-                len_legends = length(legends);
+            if(iscell(legends_j))
+                len_legends = length(legends_j);
             else
                 len_legends = length(legends(i));
             end
             
-            if(iscell(markers))
-                len_markers = length(markers);
+            if(iscell(markers_j))
+                len_markers = length(markers_j);
             else
-                len_markers = length(markers(i));
+                len_markers = length(markers_j(i));            
             end
-
+            
             if(len_i_multiplots + 1 ~= len_legends)
                 regex_msg = 'Legends pos %d: Repeated ids : %d; Len legends: %d';
-                msg = sprintf(regex_msg, i, len_i_multiplots + 1, len_legends);
+                msg = sprintf(regex_msg, i, ...
+                              len_i_multiplots + 1, ...
+                              len_legends);
                 error(msg);
             end
 
             if(len_i_multiplots + 1 ~= len_markers)
                 regex_msg = 'Markers pos %d: Repeated ids : %d; Len markers: %d';
-                msg = sprintf(regex_msg, i, len_i_multiplots + 1, len_markers);
+                msg = sprintf(regex_msg, i, ...
+                              len_i_multiplots + 1, ...
+                              len_markers);
                 error(msg);
             end
+            
+            j = j + 1;
         end
         
         head_x = x{1};
@@ -66,9 +75,9 @@ function hfigs = my_plot(t, x, plot_config)
         head_x = x;
     end
     
-    
     if((nrows >= MAX_ROWS_DIV) || (ncols >= MAX_COLS_DIV))
-        msg = ['One recommends the maximum number of ', MAX_COLS_DIV];
+        msg = ['One recommends the maximum number of ', ...
+               num2str(MAX_COLS_DIV)];
         warning(msg);
     end
     
@@ -79,7 +88,6 @@ function hfigs = my_plot(t, x, plot_config)
     end
     
     n_subplots = nrows*ncols;
-
     remaind_n = rem(n, n_subplots);
     n_windows = (n - remaind_n)/n_subplots;
     
@@ -100,93 +108,82 @@ function hfigs = my_plot(t, x, plot_config)
     % Current position on data plots
     k = 1;
     
-    is_first = true;
     while(i <= n_windows)
         hfig = my_figure();
         
         is_multiplot = false;
         for j = 1:nrows*ncols
             id_plot = ind2sub([nrows, ncols], j);
-            
+                        
             idx = (i-1)*nrows*ncols + j;
-            
+
             h_subplot = subplot(nrows, ncols, id_plot);
             
+            % Main plots
+            hold on;
+            
+            % Subplots
             if(is_subplotable)
-                plot(t, head_x(:, idx), markers{h});
+                multiplot_idxs = find(pos_multiplots == idx);
+                is_multiplot = ~isempty(multiplot_idxs);
+                
+                if(is_multiplot)
+                    if(iscell(legends))
+                        legends_j = legends{h};
+                        markers_j = markers{h};
+                    else
+                        legends_j = legends;
+                        markers_j = markers;
+                    end
+                    
+                    markers_f = markers_j{f};
+                    legends_f = legends_j{f};
+                    
+                    head_x = double(head_x);
+                    plot(t, head_x(:, idx), markers_f);
+                    hold on;
+                    f = f + 1;
+                    
+                    for multiplot_idx = multiplot_idxs
+                        markers_f = markers_j{f};
+                        legends_f = legends_j{f};
+                        
+                        plot(t, tail_x(:, multiplot_idx), markers_f);
+                        hold on;
+                    end
+                    
+                    legend(legends_j, 'interpreter', 'latex');
+                    
+                    hold off;
+
+                    f = 1;
+                    h = h + 1;
+                    multiplot = false;
+                
+                    % Tight borders for better saving
+                    ax = gca;
+                    tighten_plot(ax);
+                else
+                    plot(t, head_x(:, idx));
+                
+                    % Tight borders for better saving
+                    ax = gca;
+                    tighten_plot(ax);
+                end
             else
                 plot(t, head_x(:, idx));
+                
+                % Tight borders for better saving
+                ax = gca;
+                tighten_plot(ax);
             end
-            
-            hold on;
             
             title(titles{idx}, 'interpreter', 'latex');
             xlabel(xlabels{idx}, 'interpreter', 'latex');
             ylabel(ylabels{idx}, 'interpreter', 'latex');
             grid;
-            
-            if(is_subplotable)
-                is_multiplot = ~isempty(find(pos_multiplots == idx));
-
-                if(is_multiplot)
-                    if(iscell(legends))
-                        legends_i = legends;
-                    else
-                        legends_i = legends{f};
-                    end
-                    
-                    h_legends{end + 1} = legends_i{1};
-                    
-                    while(h < length(legends_i))
-                        if(pos_multiplots(g) == k)
-                            h_legends{end + 1} = legends_i{h+1};
-
-                            hold on;
-                            
-                            h = h+1;
-                            
-                            plot(t, tail_x(:, f+h-2), markers{h});
-                        end
-                    end
-                    
-                    if(h > length(pos_multiplots))
-                        hold off;
-
-                        legend(h_legends, 'interpreter', 'latex');
-                        is_multiplot = false;
-                        h_legends = {};
-
-                        f = 1;
-                        h = 1;
-
-                    elseif(pos_multiplots(h) ~= k)
-                        hold off;
-
-                        legend(h_legends);
-                        is_multiplot = false;
-                        h_legends = {};
-
-                        f = 1;
-                        h = 1;
-
-                        multiplot = false;
-                        
-                        % Tight borders for better saving
-                        ax = gca;
-                        outerpos = ax.OuterPosition;
-                        ti = ax.TightInset; 
-                        left = outerpos(1) + ti(1);
-                        bottom = outerpos(2) + ti(2);
-                        ax_width = outerpos(3) - ti(1) - ti(3);
-                        ax_height = outerpos(4) - ti(2) - ti(4);
-                        ax.Position = [left bottom ax_width ax_height];
-                    end
-                end
-            end
-            
-            k = k+1;
         end
-
+        
         hfigs = [hfigs; hfig];
         i = i + 1;
     end
@@ -239,7 +236,20 @@ function hfigs = my_plot(t, x, plot_config)
             grid;
             
             k = k+1;
+            
+            % Tight borders for better saving
+            ax = gca;
+            tighten_plot(ax);
         end    
     end
 end
 
+function [] = tighten_plot(ax)
+    outerpos = ax.OuterPosition;
+    ti = ax.TightInset; 
+    left = outerpos(1) + ti(1);
+    bottom = outerpos(2) + ti(2);
+    ax_width = outerpos(3) - ti(1) - ti(3);
+    ax_height = outerpos(4) - ti(2) - ti(4);
+    ax.Position = [left bottom ax_width ax_height];
+end

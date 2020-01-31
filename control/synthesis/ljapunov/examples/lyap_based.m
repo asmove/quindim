@@ -1,8 +1,13 @@
-function u = lyap_based(t, q_p, q_ref, sys)
-    persistent u_control u_parts u_s tu_s counter;
+function u = lyap_based(t, q_p, xhat_traj, xphat_traj, xpphat_traj, ...
+                        phat_traj, pphat_traj, sys, control_info)
+    persistent u_control counter;
+    
+    P = control_info.P;
+    W = control_info.W;
+    eta = control_info.eta;
     
     if(isempty(u_control))
-        u_control = control_calc(sys, P, W, eta, source_reference);
+        u_control = control_calc(sys, control_info);
         assignin('base', 'u_control', u_control);
     end
     
@@ -13,10 +18,10 @@ function u = lyap_based(t, q_p, q_ref, sys)
     q = sys.kin.q;
     p = sys.kin.p{end};
 
-    xhat_s = sym('xhat_', size(source_reference));
+    xhat_s = sym('qhat_', size(q));
     p_hat_s = sym('phat_', size(p));
-    xp_hat_s = sym('xphat_', size(source_reference));
-    xpp_hat_s = sym('xpphat_', size(source_reference));
+    xp_hat_s = sym('qphat_', size(q));
+    xpp_hat_s = sym('qpphat_', size(q));
     pp_hat_s = sym('pphat_', size(p));
 
     syms_params = [q.', p.', xhat_s.', p_hat_s.', ...
@@ -33,18 +38,5 @@ function u = lyap_based(t, q_p, q_ref, sys)
     b = vpa(L_G_v*W);
     c = vpa(b.'/(b*b.'));
     
-    u = double((W*c)*(Vp - L_f_v));
-
-    if(counter == 1)
-        u_parts = [u_parts; aux];
-        u_s = [u_s; u'];
-        tu_s = [tu_s; t];
-        assignin('base', 'u_parts', u_parts);
-        assignin('base', 'u_s', u_s);
-        assignin('base', 'tu_s', tu_s);
-    end
-    
-    if(counter == 4)
-        counter = 0;
-    end
+    u = vpa((W*c)*(Vp - L_f_v));
 end

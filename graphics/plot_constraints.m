@@ -123,32 +123,7 @@ function hfig = plot_constraints(sys, time, states)
             latex_origs = sys.descrip.latex_origs;
             latex_convert = sys.descrip.latex_text;
             
-            for i = 1:length(latex_origs)
-                latex_orig = latex_origs{i};
-                
-                for j = 1:length(latex_orig)
-                    latex_orig_j = latex_orig{j};
-                    latex_orig_j = char(latex_orig_j);
-
-                    if(iscell(constraint))
-                       constraint = constraint{1}; 
-                    end
-                    
-                    idxs = findstr(constraint, latex_orig_j);
-                    
-                    if(~isempty(idxs))
-                        latex_snippet = latex_convert(i);
-                        
-                        if(iscell(constraint))
-                           constraint = constraint{1}; 
-                        end
-                        
-                        constraint = strrep(constraint, ...
-                                            latex_orig, ...
-                                            latex_snippet);                        
-                    end
-                end
-            end
+            constraint = str2latex(constraint, latex_origs, latex_convert);
             
             if(iscell(constraint))
                constraint = constraint{1}; 

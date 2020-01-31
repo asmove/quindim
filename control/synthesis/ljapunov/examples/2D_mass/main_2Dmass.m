@@ -1,10 +1,8 @@
-clear all
-close all
-clc
-
-% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
-% run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
-run('~/github/Robotics4fun/examples/2D_mass/code/main.m');
+% clear all
+% close all
+% clc
+% 
+% run('~/github/Robotics4fun/examples/2D_mass/code/main.m');
 
 % Preamble for images and persistent variables cleaning
 close all
@@ -17,7 +15,6 @@ field_intensity = @(x) x(1)^2 + x(2)^2;
 
 % Initial conditions
 x0 = [1, 1, 1, 1]';
-% x0 = [1, 1, 0, 0, 1, 1]';
 xhat_0 = x0(1:2);
 
 source_reference = sys.kin.q(1:2);
@@ -28,10 +25,13 @@ P = alpha*eye(length(sys.kin.q));
 
 % Parameters
 % []
-nu = 10;
+nu = 20;
 
 % []
 sigma = 1;
+
+% []
+sigma_traj = 1;
 
 % []
 zeta = 1;
@@ -47,7 +47,7 @@ lambda = 1;
 degree_interp = 3;
 
 % []
-V_degree = 1;
+V_degree = 3;
 
 % [s]
 T_cur = 0.1;
@@ -59,7 +59,7 @@ eta = -(1/T_cur)*log(1-perc);
 
 % Time span
 dt = 0.01;
-tf = 1;
+tf = 0.1;
 time = 0:dt:tf;
 
 % Source estimation
@@ -75,6 +75,7 @@ sestimation_info.T_cur = T_cur;
 % Trajectory planning
 traj_type = 'polynomial';
 trajectory_info.T_traj = T_traj;
+trajectory_info.sigma_traj = sigma_traj;
 trajectory_info.dt = dt;
 trajectory_info.degree_interp = degree_interp;
 trajectory_info.gentraj_fun = @(t, x_begin, x_end) ...
@@ -96,11 +97,12 @@ control_info.control_fun = @(t, q_p, ...
 
 % System modelling
 u_func = @(t, q_p) control_handler(t, q_p, sestimation_info, ...
-                                   trajectory_info, control_info, sys);
+                                   trajectory_info, ...
+                                   control_info, sys);
 
 sol = validate_model(sys, time, x0, u_func);
 time = time';
 sol = sol';
 
-% run('~/github/Robotics4fun/control/synthesis/examples/plot_simulation.m')
+run('~/github/Robotics4fun/control/synthesis/ljapunov/examples/2D_mass/plot_simulation_2Dmass.m');
 

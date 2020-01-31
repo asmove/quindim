@@ -87,7 +87,7 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
         idx = find(funcs_base == simplify_(expr_x_));
         
         exprs_i_acc(idx) = exprs_i_acc(idx) + expr_sym;
-        wb_outer = wb_outer.update_waitbar(i, length(exprs));
+        wb_outer.update_waitbar(i, length(exprs));
         
         i = i+1;
         

@@ -30,7 +30,6 @@ function sys = dyn_matrices(sys, helper)
         
     % Control dynamic matrices
     sys.dyn.H = sys.dyn.M;
-    
     sys.dyn.Hp = dmatdt(sys.dyn.H, q, C*p);
     
     sys.dyn.h = simplify_(sys.dyn.nu + sys.dyn.g + sys.dyn.f);

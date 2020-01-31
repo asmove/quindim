@@ -31,7 +31,7 @@ q_p_ref_fun = @(t) [A*sin(w*t)/w; A*cos(w*t); -A*w*sin(w*t)];
 
 % Initial conditions
 tf = 1e-2;
-dt = 1e-5;
+dt = 1e-4;
 tspan = 0:dt:tf;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
 sol = my_ode45(df_h, tspan, x0);

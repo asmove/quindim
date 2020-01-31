@@ -83,8 +83,7 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
         expr_i_sup = abs(sym(expr_sym)*sym(expr_x));
         
         result = result + expr_i_sup;
-        
-        wb_outer = wb_outer.update_waitbar(i, length(exprs));
+        wb_outer.update_waitbar(i, length(exprs));
     end
     
     result = subs(result, symbs, params_eval);    
