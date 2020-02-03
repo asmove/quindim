@@ -20,7 +20,6 @@ function u = run_control_law(t, q_p, xhat, ...
     T_cur = sestimation_info.T_cur;
     source_reference = sestimation_info.source_reference;
     
-    eta = control_info.eta;
     P = control_info.P;
     W = control_info.W;
     
@@ -164,48 +163,45 @@ function u = run_control_law(t, q_p, xhat, ...
     n_xhat = length(xhat);
     
     counter = counter + 1;
-    % Avoid runge-kutta repetitions
-    if(counter == 1)
-        if(t_curr >= t_0 + T_cur)
-            t_0 = t;
-            
-            n = length(q);
-            m = length(p);
+    if(t_curr >= t_0 + T_cur)
+        t_0 = t;
 
-            xhat_1 = xhat_;
-            phat_1 = phat_;
-            
-            xhat_ = xhat;
-            phat_ = phat;
-            
-            tail_traj = q_p(1:4);
-            head_traj = [xhat_; q_p(3); q_p(4)];
-            
-            time = 0:dt:T_traj;
-            
-            xhat_traj_.t = [];
-            xhat_traj_.x = [];
-            
-            wb = my_waitbar('Loading trajectory...');
-            
-            recalc_params = true;
-            for j = 1:length(time)
-                [xhat_traj, ~, ~, ~, ~] = ...
-                    trajectory_info.gentraj_fun(time(j), tail_traj, ...
-                                                head_traj);
-                
-                xhat_traj_.t = [xhat_traj_.t; time(j)];
-                xhat_traj_.x = [xhat_traj_.x; xhat_traj'];            
-                
-                recalc_params = false;
-                wb.update_waitbar(time(j), time(end));
-            end
-            
-            wb.close_window();
-            
-            xhat_trajs = [xhat_trajs; xhat_traj_];
-            assignin('base', 'xhat_trajs', xhat_trajs);
+        n = length(q);
+        m = length(p);
+
+        xhat_1 = xhat_;
+        phat_1 = phat_;
+
+        xhat_ = xhat;
+        phat_ = phat;
+
+        tail_traj = q_p(1:4);
+        head_traj = [xhat_; q_p(3); q_p(4)];
+
+        time = 0:dt:T_traj;
+
+        xhat_traj_.t = [];
+        xhat_traj_.x = [];
+
+        wb = my_waitbar('Loading trajectory...');
+
+        recalc_params = true;
+        for j = 1:length(time)
+            [xhat_traj, ~, ~, ~, ~] = ...
+                trajectory_info.gentraj_fun(time(j), tail_traj, ...
+                                            head_traj);
+
+            xhat_traj_.t = [xhat_traj_.t; time(j)];
+            xhat_traj_.x = [xhat_traj_.x; xhat_traj'];            
+
+            recalc_params = false;
+            wb.update_waitbar(time(j), time(end));
         end
+
+        wb.close_window();
+
+        xhat_trajs = [xhat_trajs; xhat_traj_];
+        assignin('base', 'xhat_trajs', xhat_trajs);
     end
     
     [xhat_traj, xphat_traj, xpphat_traj, ...

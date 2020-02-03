@@ -206,7 +206,11 @@ K2 = diag(coeffs_K2);
 
 L_3_f_h = simplify_([L_3_f_h1; L_3_f_h2]);
 
+m = length(A2);
+
+lambda = 1;
 invA2 = simplify_(inv(A2));
+pinvA2 = A2.'*inv(A2*A2.' + lambda*eye(m));
 w = vpa(invA2*(-L_3_f_h-K2*epp-K1*ep-K0*e+yppp_ref));
 w = subs(w, symbs, model_params);
 V = [0, 1; 1, 0];
@@ -228,7 +232,7 @@ sim_fun = @(t, q_p) plant_fun(t, q_p, sys, input_func, V);
 
 symbs = [w_syms; x_sym; symbs.'];
 
-x0 = [1.1*a; 0; pi/2; 0; 1; 0; 0];
+x0 = [1; 0; 0; 0; 1; 0; 0];
 tf = pi/2;
 dt = 0.01;
 
@@ -257,7 +261,7 @@ hfig_references = my_plot(t, vars, plot_info_q);
 
 % --------------------------------------
 
-% ----------- Reference plot -----------
+% ----- States and reference plot ------
 
 ref_vals = [];
 for t_i = t
@@ -279,7 +283,7 @@ hfig_states = my_plot(t, {states, ref_vals(:, 1:2)}, plot_config);
 
 % --------------------------------------
 
-% ----------- Reference plot -----------
+% -------------- x-y Plot --------------
 
 plot_info_q.titles = repeat_str('', 1);
 plot_info_q.ylabels = {'$x$'};
@@ -291,14 +295,16 @@ plot(states(:, 1), states(:, 2), '-');
 hold on;
 plot(ref_vals(:, 1), ref_vals(:, 2), '--');
 hold off;
+axis([-a a -b b]);
+legend({'$r(t)$', '$r^{\star}(t)$'}, 'interpreter', 'latex')
 xlabel('$x$ [m]', 'interpreter', 'latex');
 ylabel('$y$ [m]', 'interpreter', 'latex');
 
-axis square;
+% axis square;
 
 % --------------------------------------
 
-% ----------- Reference plot -----------
+% ----------- Errors plot --------------
 
 e = x_sym(1:2) - y_ref;
 e_func = @(t, q_p) subs(e, x_ref_sym, [q_p; ref_func(t)]);
@@ -343,14 +349,14 @@ hfig_errors = my_plot(t', {errors_sim, errors_t}, plot_config);
 
 % --------------------------------------
 
-% ----------- Reference plot -----------
+% ----------- Speed plot ---------------
 
 plot_info_e.titles = repeat_str('', 2);
 plot_info_e.ylabels = {'$\tau_{\theta}$', '$\tau_{\phi}$'};
 plot_info_e.xlabels = repeat_str('$t$ [s]', 2);
 plot_info_e.grid_size = [2, 1];
 
-hfigs_states = my_plot(t(1:end-1), input_torque, plot_info_e);
+hfigs_u = my_plot(t(1:end-1), input_torque, plot_info_e);
 
 C = sys.kin.C;
 qp_x = subs(C*p, [q; p; z_1], x_sym);
@@ -368,13 +374,32 @@ for i = 1:length(t)
                  [sol(i, :)'; model_params.'])'];
 end
 
+R_val = model_params(2);
+
+qp_ref = [];
+for i = 1:length(t)
+    xp_yp_d = ref_vals(i, 3:4);
+    thetap_d = atan2(xp_yp_d(2), xp_yp_d(1));
+    v = norm(xp_yp_d);
+    phip_d = v/R_val;
+
+    qp_ref = [qp_ref; xp_yp_d, thetap_d, phip_d];
+end
+
 plot_info_qp.titles = repeat_str('', 4);
 plot_info_qp.ylabels = {'$\dot{x}$', '$\dot{y}$', ...
                         '$\dot{\theta}$', '$\dot{\phi}$'};
 plot_info_qp.xlabels = [repeat_str('', 3), {'$t$ [s]'}];
+plot_info_qp.legends = {{'$\dot{x}$', '$\dot{x}^{\star}$'}, ...
+                       {'$\dot{y}$', '$\dot{y}^{\star}$'}, ...
+                       {'$\dot{\theta}$', '$\dot{\theta}^{\star}$'}, ...
+                       {'$\dot{\phi}$', '$\dot{\phi}^{\star}$'}};
+plot_info_qp.pos_multiplots = [1, 2, 3, 4];
 plot_info_qp.grid_size = [2, 2];
+plot_info_qp.markers = {{'-', '--'}, {'-', '--'}, ...
+                        {'-', '--'}, {'-', '--'}};
 
-hfig_qpt = my_plot(t, qp_t, plot_info_qp);
+hfig_qpt = my_plot(t, {qp_t, qp_ref}, plot_info_qp);
 
 % --------------------------------------
 
@@ -385,12 +410,11 @@ model_params = sys.descrip.model_params;
 constraints = subs(sys.descrip.unhol_constraints, ...
                    [q; p; z_1; symbs.'], ...
                    [x_sym; model_params.']);
+               
 constraints_t = [];
 for  i = 1:length(t)
-    constraints_i = subs(constraints, ...
-                         [x_sym; qp], ...
-                         [sol(i, :)'; qp_t(i, :)']);
-    
+    numvars = [sol(i, :)'; qp_ref(i, :)'];    
+    constraints_i = subs(constraints, [x_sym; qp], numvars);
     constraints_t = [constraints_t; constraints_i];
 end
 
@@ -406,10 +430,22 @@ hfig_consts = my_plot(t, constraints_t, plot_info_consts);
 
 % --------------------------------------
 
-saveas(hfig_references, '../imgs/references', 'epsc');
-saveas(hfig_states, '../imgs/states', 'epsc');
-saveas(hfig_statesxy, '../imgs/statesxy', 'epsc');
-saveas(hfig_errors, '../imgs/errors', 'epsc');
-saveas(hfig_qpt, '../imgs/dstates', 'epsc');
-saveas(hfig_consts, '../imgs/constraints', 'epsc');
+saveas(hfig_references, ['../imgs/references', ...
+                         num2str(a), ...
+                         num2str(b)], 'epsc');
+saveas(hfig_states, ['../imgs/states', ...
+                     num2str(a), ...
+                     num2str(b)], 'epsc');
+saveas(hfig_statesxy, ['../imgs/statesxy', ...
+                       num2str(a), ...
+                       num2str(b)], 'epsc');
+saveas(hfig_errors, ['../imgs/errors', ...
+                     num2str(a), ...
+                     num2str(b)], 'epsc');
+saveas(hfig_qpt, ['../imgs/dstates', ...
+                  num2str(a), ...
+                  num2str(b)], 'epsc');
+saveas(hfig_consts, ['../imgs/constraints', ...
+                     num2str(a), ...
+                     num2str(b)], 'epsc');
 

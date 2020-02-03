@@ -1,8 +1,8 @@
 function u = lyap_based(t, q_p, xhat_traj, xphat_traj, xpphat_traj, ...
-                        phat_traj, pphat_traj, sys, control_info)
+                        phat_traj, pphat_traj, sys, control_info, T)
     persistent u_control counter V_pterms V_qterms tV_s;
-    persistent Lfv LGv V;
-    
+    persistent t_curr t0 alpha_q alpha_p;
+        
     q = sys.kin.q;
     p = sys.kin.p{end};
     symbs = sys.descrip.syms;
@@ -22,9 +22,7 @@ function u = lyap_based(t, q_p, xhat_traj, xphat_traj, xpphat_traj, ...
     
     P = control_info.P;
     W = control_info.W;
-    
-    alpha_q = control_info.alpha_q;
-    alpha_p = control_info.alpha_p;
+    eta = control_info.eta;
     
     if(isempty(V_pterms))
         V_pterms = []; 
@@ -47,47 +45,37 @@ function u = lyap_based(t, q_p, xhat_traj, xphat_traj, xpphat_traj, ...
         counter = 0;
     end
     
-    if(isempty(V))
-        V = u_control.V_fun(alpha_q, alpha_p);
-        Lfv = u_control.Lfv_fun(V);
-        LGv = u_control.LGv_fun(V);
+    if(isempty(alpha_q))
+        alpha_q = double(subs(u_control.V_pterm, syms_params, num_params));
     end
     
-    disp('V_q: ');
-    tic
-    V_qterm = u_control.V_pterm_fun(syms_params, num_params);
-    toc
-    disp('V_p: ');
-    tic
-    V_pterm = u_control.V_qterm_fun(syms_params, num_params);
-    toc
+    if(isempty(alpha_q))
+        alpha_p = double(subs(u_control.V_qterm, syms_params, num_params));
+    end
+              
+    if(t - t0 >= T)
+        t0 = t;
+        alpha_q = double(subs(u_control.V_pterm, syms_params, num_params));
+        alpha_p = double(subs(u_control.V_qterm, syms_params, num_params));
+    end
     
-    disp('Lfv: ');
-    tic
-    L_f_v = double(subs(Lfv, syms_params, num_params));
-    toc
+    V_qterm = double(subs(u_control.V_qterm, syms_params, num_params));
+    V_pterm = double(subs(u_control.V_pterm, syms_params, num_params));
     
-    disp('LGv: ');
-    tic
-    L_G_v = double(subs(LGv, syms_params, num_params));
-    toc
-    
-    disp('\n Vp: ');
-    tic
-    Vp = u_control.Vp_fun(V, syms_params, num_params);
-    toc
+    V = u_control.V_fun(syms_params, num_params, alpha_q, alpha_p);
+    L_f_v = double(u_control.Lfv_fun(V, syms_params, num_params));
+    L_G_v = double(u_control.LGv_fun(V, syms_params, num_params));
+    Vp = double(subs(u_control.Vp, syms_params, num_params));
     W = double(subs(u_control.W, syms_params, num_params));
+    u_control.Vp_fun = ;
     
     b = vpa(L_G_v*W);
     c = vpa(b.'/(b*b.'));
-    
-    tic
-    disp('\n u: ');
+
     u = vpa((W*c)*(Vp - L_f_v));
-    toc
-    disp('---------------------');
     
     counter = counter + 1;
+    
     if(counter == 1)
         V_pterms = [V_pterms; V_pterm];
         V_qterms = [V_qterms; V_qterm];

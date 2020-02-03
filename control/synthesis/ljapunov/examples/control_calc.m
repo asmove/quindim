@@ -1,8 +1,6 @@
 function u_struct = control_calc(sys, control_info)
-    V_degree = control_info.V_degree;
     P = control_info.P;
     W = control_info.W;
-    eta = control_info.eta;
 
     is_positive(W);
     is_diagonal(W);
@@ -33,19 +31,33 @@ function u_struct = control_calc(sys, control_info)
     % x and p errors
     e_q = q - q_hat;
     e_p = p - p_hat;
-
-    % Ljapunov function and its derivative
-    V = e_p.'*H*e_p + e_q.'*P*e_q;
-    Vp = -eta*V;
     
-    L_f_v = lie_diff(f, V, [q; p]);
-    L_G_v = lie_diff(G, V, [q; p]);
+    % Ljapunov function and its derivative
+    V_pterm = e_p.'*H*e_p;
+    V_qterm = e_q.'*P*e_q;
 
-    model_params = sys.descrip.model_params;
-    syms_plant = sys.descrip.syms;
+    model_params = sys.descrip.model_params.';
+    syms_plant = sys.descrip.syms.';
+    
+    L_f_v_fun = @(V) lie_diff(f, V, [q; p]);
+    L_G_v_fun = @(V) lie_diff(G, V, [q; p]);
+    
+    u_struct.Vp_fun = @(V, syms_params, num_params) ...
+                            subs(control_info.Vp_fun(V), ...
+                                 syms_params, num_params);
+    
+    u_struct.Lfv_fun = @(V) vpa(L_f_v_fun(V));
+    u_struct.LGv_fun = @(V, syms_params, num_params) vpa(L_G_v_fun(V));
+    
+    u_struct.V_pterm_fun = @(syms_params, num_params)... 
+                       double(subs(V_pterm, ...
+                                   syms_params, num_params));
+    u_struct.V_qterm_fun = @(syms_params, num_params)... 
+                       double(subs(V_qterm, ...
+                                   syms_params, num_params));
+    
+    u_struct.V_fun = @(alpha_q, alpha_p) vpa(alpha_q*V_pterm + ...
+                                             alpha_p*V_qterm);
 
-    u_struct.L_f_v = simplify_(vpa(subs(L_f_v, syms_plant, model_params)));
-    u_struct.L_G_v = simplify_(vpa(subs(L_G_v, syms_plant, model_params)));
-    u_struct.Vp = simplify_(vpa(subs(Vp, syms_plant, model_params)));
     u_struct.W = W;
 end

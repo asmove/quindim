@@ -47,7 +47,7 @@ lambda = 1;
 degree_interp = 3;
 
 % []
-n_V = 1;
+V_degree = 3;
 
 % [s]
 T_cur = 0.1;
@@ -59,7 +59,7 @@ eta = -(1/T_cur)*log(1-perc);
 
 % Time span
 dt = 0.01;
-tf = 0.2;
+tf = 0.1;
 time = 0:dt:tf;
 
 % Source estimation
@@ -86,9 +86,10 @@ trajectory_info.gentraj_fun = @(t, x_begin, x_end) ...
 % Control law arguments
 control_info.P = P;
 control_info.W = W;
-control_info.Vp_fun = @(V) -eta*V^n_V;
-control_info.alpha_q = 100;
-control_info.alpha_p = 1;
+control_info.Vp_fun = @(V) -eta*V;
+control_info.alpha_q = 1;
+control_info.alpha_p = 1e-2;
+control_info.V_degree = ;
 control_info.control_fun = @(t, q_p, ...
                              xhat_traj, xphat_traj, xpphat_traj, ...
                              phat_traj, pphat_traj) ...

@@ -25,8 +25,9 @@ function hfigs = my_plot(t, x, plot_config)
         j = 1;
         for i = 1:length(pos_uniques)
             idx_uniques = find(pos_uniques(i) == pos_multiplots);
-
+            
             len_i_multiplots = length(idx_uniques);
+            
             legends_j = legends{j};
             markers_j = markers{j};
             
@@ -41,11 +42,10 @@ function hfigs = my_plot(t, x, plot_config)
             else
                 len_markers = length(markers_j(i));            
             end
-            
+                        
             if(len_i_multiplots + 1 ~= len_legends)
                 regex_msg = 'Legends pos %d: Repeated ids : %d; Len legends: %d';
-                msg = sprintf(regex_msg, i, ...
-                              len_i_multiplots + 1, ...
+                msg = sprintf(regex_msg, i, len_i_multiplots + 1, ...
                               len_legends);
                 error(msg);
             end
@@ -150,6 +150,7 @@ function hfigs = my_plot(t, x, plot_config)
                         
                         plot(t, tail_x(:, multiplot_idx), markers_f);
                         hold on;
+                        f = f + 1;
                     end
                     
                     legend(legends_j, 'interpreter', 'latex');
@@ -160,22 +161,22 @@ function hfigs = my_plot(t, x, plot_config)
                     h = h + 1;
                     multiplot = false;
                 
-                    % Tight borders for better saving
-                    ax = gca;
-                    tighten_plot(ax);
+                    % % Tight borders for better saving
+                    % ax = gca;
+                    % tighten_plot(ax);
                 else
                     plot(t, head_x(:, idx));
                 
-                    % Tight borders for better saving
-                    ax = gca;
-                    tighten_plot(ax);
+                    % % Tight borders for better saving
+                    % ax = gca;
+                    % tighten_plot(ax);
                 end
             else
                 plot(t, head_x(:, idx));
                 
-                % Tight borders for better saving
-                ax = gca;
-                tighten_plot(ax);
+                % % Tight borders for better saving
+                % ax = gca;
+                % tighten_plot(ax);
             end
             
             title(titles{idx}, 'interpreter', 'latex');
@@ -237,9 +238,9 @@ function hfigs = my_plot(t, x, plot_config)
             
             k = k+1;
             
-            % Tight borders for better saving
-            ax = gca;
-            tighten_plot(ax);
+            % % Tight borders for better saving
+            % ax = gca;
+            % tighten_plot(ax);
         end    
     end
 end

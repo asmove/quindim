@@ -106,15 +106,15 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
             % New prediction
             [xhat, m] = expbary(oracle, xs_curr, nu);
             
-            xhat_acc = [xhat_acc; xhat];
-            
-%             n_iterations = 1;
-%             [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
-%                                               nu, sigma, lambda, ...
-%                                               n_iterations);
-%             
-%             
 %             xhat_acc = [xhat_acc; xhat];
+            
+            n_iterations = 1;
+            [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
+                                              nu, sigma, lambda, ...
+                                              n_iterations);
+            
+            
+            xhat_acc = [xhat_acc; xhat];
             
             x_curr = subs(source_reference.', ...
                           [sys.kin.q; sys.kin.p{end}], q_p);

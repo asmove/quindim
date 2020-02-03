@@ -101,9 +101,22 @@ plot_info_p.grid_size = [length(source_reference), 1];
 
 hfigs_pphat = my_plot(tt, pphat_t, plot_info_p);
 
+plot_info.titles = {'V terms'};
+plot_info.xlabels = {'$t$ [s]'};
+plot_info.ylabels = {'V terms'};
+plot_info.grid_size = [1, 1];
+plot_info.legends = {{'$V(x)$', '$V(x)$ - p term', '$V(x)$ - q term'}};
+plot_info.pos_multiplots = [1, 1];
+plot_info.markers = {{'k-', 'm--', 'b.-'}};
+
+hfigs_Vs = my_plot(tV_s, ...
+                   {V_pterms + V_qterms, [V_pterms, V_qterms]}, ...
+                   plot_info);
+
 saveas(hfigs_states, './imgs/states.eps', 'epsc');
 saveas(hfigs_states_xy, './imgs/states_xy.eps', 'epsc');
 saveas(hfigs_speeds, './imgs/speeds.eps', 'epsc');
+saveas(hfigs_Vs, './imgs/ljapunov_contributions.eps', 'epsc');
 saveas(hfigs_u, './imgs/output.eps', 'epsc');
 saveas(hfigs_readings, './imgs/readings.eps', 'epsc');
 saveas(hfigs_ljapunov, './imgs/ljapunov.eps', 'epsc');
@@ -111,3 +124,4 @@ saveas(hfigs_xhat, './imgs/xhats.eps', 'epsc');
 saveas(hfigs_xphat, './imgs/xphats.eps', 'epsc');
 saveas(hfigs_phat, './imgs/phats.eps', 'epsc');
 saveas(hfigs_pphat, './imgs/pphats.eps', 'epsc');
+
