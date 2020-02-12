@@ -44,6 +44,9 @@ W = beta*diag([1; 1]);
 lambda = 1;
 
 % []
+poles = [-5, -5];
+
+% []
 degree_interp = 3;
 
 % []
@@ -59,7 +62,7 @@ eta = -(1/T_cur)*log(1-perc);
 
 % Time span
 dt = 0.01;
-tf = 0.2;
+tf = pi;
 time = 0:dt:tf;
 
 % Source estimation
@@ -84,8 +87,6 @@ trajectory_info.gentraj_fun = @(t, x_begin, x_end) ...
                               sys, true, traj_type);
 
 % Control law arguments
-control_info.P = P;
-control_info.W = W;
 control_info.Vp_fun = @(V) -eta*V^n_V;
 control_info.alpha_q = 100;
 control_info.alpha_p = 1;
@@ -107,4 +108,3 @@ time = time';
 sol = sol';
 
 run('~/github/Robotics4fun/control/synthesis/ljapunov/examples/2D_mass/plot_simulation_2Dmass.m');
-

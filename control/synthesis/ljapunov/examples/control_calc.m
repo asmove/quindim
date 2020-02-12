@@ -1,5 +1,4 @@
 function u_struct = control_calc(sys, control_info)
-    P = control_info.P;
     W = control_info.W;
 
     is_positive(W);
@@ -9,6 +8,7 @@ function u_struct = control_calc(sys, control_info)
     p = sys.kin.p{end};
     q = sys.kin.q;
     H = sys.dyn.H;
+    M = sys.dyn.M;
     C = sys.kin.C;
     x = sys.kin.q(1:2);
     h = sys.dyn.h;
@@ -30,11 +30,14 @@ function u_struct = control_calc(sys, control_info)
     
     % x and p errors
     e_q = q - q_hat;
-    e_p = p - p_hat;
+    e_qp = C*p - qp_hat;
     
     % Ljapunov function and its derivative
-    V_pterm = e_p.'*H*e_p;
-    V_qterm = e_q.'*P*e_q;
+    poles = control_info.poles;
+    Lambda = ctrb_canon(poles);
+    
+    e_term = e_qp - Lambda*e_q;
+    V = e_term.'*M*e_term;
 
     model_params = sys.descrip.model_params.';
     syms_plant = sys.descrip.syms.';
@@ -42,22 +45,15 @@ function u_struct = control_calc(sys, control_info)
     L_f_v_fun = @(V) lie_diff(f, V, [q; p]);
     L_G_v_fun = @(V) lie_diff(G, V, [q; p]);
     
-    u_struct.Vp_fun = @(V, syms_params, num_params) ...
-                            subs(control_info.Vp_fun(V), ...
-                                 syms_params, num_params);
+    V_THRESHOLD = 0.1;
+    u_struct.Vp_fun = @(V, e) terop(V >= V_THRESHOLD, ...
+                                    control_info.Vp_fun(V, e), ...
+                                    0);
     
     u_struct.Lfv_fun = @(V) vpa(L_f_v_fun(V));
     u_struct.LGv_fun = @(V, syms_params, num_params) vpa(L_G_v_fun(V));
     
-    u_struct.V_pterm_fun = @(syms_params, num_params)... 
-                       double(subs(V_pterm, ...
-                                   syms_params, num_params));
-    u_struct.V_qterm_fun = @(syms_params, num_params)... 
-                       double(subs(V_qterm, ...
-                                   syms_params, num_params));
-    
-    u_struct.V_fun = @(alpha_q, alpha_p) vpa(alpha_q*V_pterm + ...
-                                             alpha_p*V_qterm);
-
+    u_struct.error = e_term;
+    u_struct.V_fun = @() vpa(V);
     u_struct.W = W;
 end

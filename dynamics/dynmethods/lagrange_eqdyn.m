@@ -81,9 +81,7 @@ function sys = lagrange_eqdyn(sys)
     
     % L derivative of dL/dqp respective to t
     ddt_dL_dqp = dvecdt(dL_dqp, [q; qp], [qp; qpp]);
-    
-    latex(equationsToMatrix(ddt_dL_dqp, qpp))
-    
+        
     % Left hand side of dynamic equation
     m_term = simplify_(ddt_dL_dqp - dL_dq + dF_dqp);
     leqdyns = simplify_(C.'*m_term);

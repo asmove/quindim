@@ -1,9 +1,3 @@
-clear all
-close all
-clc
-
-run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
-
 % Plant 
 f = sys.dyn.f;
 G = sys.dyn.G;
@@ -209,41 +203,15 @@ L_3_f_h = simplify_([L_3_f_h1; L_3_f_h2]);
 
 m = length(A2);
 
-lambda = 1;
 invA2 = simplify_(inv(A2));
-pinvA2 = A2.'*inv(A2*A2.' + lambda*eye(m));
 w = vpa(invA2*(-L_3_f_h-K2*epp-K1*ep-K0*e+yppp_ref));
 w = subs(w, symbs, model_params);
-V = [0, 1; 1, 0];
 
-% Ellipsoid trajectory
-a = 1;
-b = 1;
-omega = 1;
+u = sym('u', [2, 1]);
+up = sym('up', [2, 1]);
 
-% pos, vel, accel, jerk
-ref_func = @(t) [a*cos(omega*t); b*sin(omega*t); ...
-                 -a*omega*sin(omega*t); b*omega*cos(omega*t); ...
-                 -a*omega^2*cos(omega*t); -b*omega^2*sin(omega*t); ...
-                 a*omega^3*sin(omega*t); -b*omega^3*cos(omega*t)];
-
-x_ref_sym = [x_sym; ref_syms];
-
-input_func = @(t, q_p) vpa(subs(w, x_ref_sym, [q_p; ref_func(t)]));
-sim_fun = @(t, q_p) plant_fun(t, q_p, sys, input_func, V);
-
-symbs = [w_syms; x_sym; symbs.'];
-
-x0 = [0; 0; 0; 0; 0; 1; 0];
-tf = pi;
-dt = 0.01;
-
-% Time vector
-t = 0:dt:tf;
-
-% Mass matrix
-sol = my_ode45(sim_fun, t, x0);
-sol = sol';
-
-run('~/github/Robotics4fun/control/synthesis/exact_lin/examples');
+xp = [subs(C*p, [q; p], x_sym(1:6)); u(2); x_sym(end); u(1)];
+out = dvecdt(L_3_f_h + A2*u, [x_sym; u], [xp; up]);
+out = subs(out, up, [0; 0]);
+out = collect(out, u);
 

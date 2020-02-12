@@ -203,8 +203,15 @@ L_3_f_h = simplify_([L_3_f_h1; L_3_f_h2]);
 
 m = length(A2);
 
-lambda = 1;
 invA2 = simplify_(inv(A2));
-pinvA2 = A2.'*inv(A2*A2.' + lambda*eye(m));
 w = vpa(invA2*(-L_3_f_h-K2*epp-K1*ep-K0*e+yppp_ref));
 w = subs(w, symbs, model_params);
+
+u = sym('u', [2, 1]);
+up = sym('up', [2, 1]);
+
+xp = [subs(C*p, [q; p], x_sym(1:6)); u(2); x_sym(end); u(1)];
+out = dvecdt(L_3_f_h + A2*u, [x_sym; u], [xp; up]);
+out = subs(out, up, [0; 0]);
+out = collect(out, u);
+

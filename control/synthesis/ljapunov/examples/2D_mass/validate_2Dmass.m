@@ -1,7 +1,11 @@
-function sol = validate_model(sys, t, x0, u_func, is_dyn_control)
+function sol = validate_2Dmass(sys, t, x0, u_func)
     [n, m] = size(sys.kin.C);
     
-    df_ = @(t_, q_p) df(t_, q_p, sys, t(end), u_func, is_dyn_control);
+    if(length(x0) ~= n + m)
+        error('Initial values MUST have the same length as states!')
+    end
+    
+    df_ = @(t_, q_p) df(t_, q_p, sys, t(end), u_func);
     
     % Mass matrix
     sol = my_ode45(df_, t, x0);
@@ -15,7 +19,7 @@ function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
     direction = 0;
 end
 
-function dq = df(t, q_p, sys, tf, u_func, is_dyn_control)    
+function dq = df(t, q_p, sys, tf, u_func)    
     [n, m] = size(sys.kin.C);
     
     t0 = tic;
@@ -39,33 +43,28 @@ function dq = df(t, q_p, sys, tf, u_func, is_dyn_control)
     end
     
     q_num = q_p(1:n);
-    p_num = q_p(n+1:n+m);
+    p_num = q_p(n+1:end-1);
     
     qp_s = [sys.kin.q; p];
     qp_n = [q_num; p_num];
+    
+    V = q_p(end);
+    Vp_fun = sys.Vp;
+    Vp = Vp_fun(V);
     
     C_num = subs(C_params, qp_s, qp_n);
     H_num = subs(H_params, qp_s, qp_n);
     h_num = subs(h_params, qp_s, qp_n);
     Z_num = subs(Z_params, qp_s, qp_n);
     
-    if(is_dyn_control)
-        [dz, u_num] = u_func(t, q_p);
-    else
-        u_num = u_func(t, q_p);
-    end
-        
+    u_num = u_func(t, q_p);
+    
     Hinv = double(H_num\eye(m));
     
     accel = Hinv*(-h_num + Z_num*u_num);
     speed = C_num*p_num;
     
-    if(is_dyn_control)
-        dq = vpa([speed; accel; dz]);
-    else
-        dq = vpa([speed; accel]);
-    end
-    
+    dq = double([speed; accel; Vp]);
     
     % Time elapsed
     dt = toc(t0);

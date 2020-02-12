@@ -104,7 +104,8 @@ x0 = [0, 0, 0, 1, 1]';
 
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func);
+is_dyn_control = false;
+sol = validate_model(sys, t, x0, u_func, is_dyn_control);
 
 x = t';
 y = sol';

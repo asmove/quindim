@@ -210,7 +210,8 @@ function hfigs = my_plot(t, x, plot_config)
         new_ncols = 6;
         new_nrows = 2;
     end
-
+    
+    
     % Remainder plots
     if(remaind_n ~= 0)
         xs = x(:, n_windows*n_subplots+1:end);
@@ -243,14 +244,4 @@ function hfigs = my_plot(t, x, plot_config)
             % tighten_plot(ax);
         end    
     end
-end
-
-function [] = tighten_plot(ax)
-    outerpos = ax.OuterPosition;
-    ti = ax.TightInset; 
-    left = outerpos(1) + ti(1);
-    bottom = outerpos(2) + ti(2);
-    ax_width = outerpos(3) - ti(1) - ti(3);
-    ax_height = outerpos(4) - ti(2) - ti(4);
-    ax.Position = [left bottom ax_width ax_height];
 end
