@@ -66,8 +66,8 @@ sys.descrip.syms = [m, R, diag(I).', g, L];
 % Penny data
 % m_num = 2.5e-3;
 % R_num = 9.75e-3;
-m_num = 1;
-R_num = 1;
+m_num = 0.4;
+R_num = 0.05;
 L_num = 0.2;
 sys.descrip.model_params = [m_num, R_num, ...
                             m_num*R_num^2/2, ...

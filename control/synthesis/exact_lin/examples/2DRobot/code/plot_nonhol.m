@@ -212,8 +212,6 @@ plot_info_qp.markers = {{'-', '--'}, {'-', '--'}, ...
                     
 hfig_qpt = my_plot(t, {qp_t, qp_ref}, plot_info_qp);
 
-% --------------------------------------
-
 saveas(hfig_references, ['../imgs/references', num2str(a), num2str(b)], 'epsc');
 saveas(hfig_states, ['../imgs/states', num2str(a), num2str(b)], 'epsc');
 saveas(hfig_statesxy, ['../imgs/statesxy', num2str(a), num2str(b)], 'epsc');

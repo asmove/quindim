@@ -140,12 +140,26 @@ classdef my_waitbar
                 part2 = '00';
             else
                 part2 = parts{2};
-                part2 = terop(length(part2)==2, part2, [part2, '0']);
-                
+                part2 = terop(length(part2)==2, part2, [part2, '0']);    
             end
             
             a = str2num([parts{1}, '.', part2]);
-            speed_new = num2str(a*10^b);
+            speed = num2str(a*10^b);
+            parts = strsplit(speed, '.');
+            
+            if(length(parts) == 1)
+                part2 = '00';
+            else
+                part2 = parts{2};                
+                
+                if(length(part2) == 1)
+                    part2 = [part2, '0'];
+                else
+                    part2 = part2(1:2);
+                end
+            end
+            
+            speed_new = [parts{1}, '.', part2];
             
             obj.t_end_str = datestr(seconds(t_f), 'HH:MM:SS');
             obj.msg = sprintf(obj.time_mask, perc, speed_new, ...

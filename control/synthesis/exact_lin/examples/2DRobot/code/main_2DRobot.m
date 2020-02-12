@@ -27,15 +27,15 @@ d3xy_t = diff(d2xy_t, t_);
 % pos, vel, accel, jerk
 ref_func = @(t) subs([xy_t; dxy_t; d2xy_t; d3xy_t], t_, t);
 
-scaler = 2;
+scaler = 5;
 poles_ = {-scaler*ones(3, 1), -scaler*ones(3, 1)};
 is_dyn_control = true;
 
 % [x; y; phi; v; omega; dv]
 x0 = [1; 1; 0; 1; 0; 0];
 
-tf = 0.3;
-dt = 0.001;
+tf = pi;
+dt = 0.005;
 
 % Time vector
 t = 0:dt:tf;
