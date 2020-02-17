@@ -1,4 +1,4 @@
-function [dz, u] = u_control(t, qp, poles, ref_func, sys, calc_u_func)
+function [dz, u] = u_control(t, qp, ref_func, sys, calc_u_func)
     persistent control_law dz_law y_ref yp_ref ypp_ref yppp_ref x_sym ref_syms;
     persistent model_params model_symbs symbs us counter;
     

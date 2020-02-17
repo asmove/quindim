@@ -1,4 +1,4 @@
-function hfigs = my_plot(t, x, plot_config)
+function [hfigs, axs] = my_plot(t, x, plot_config)
     MAX_ROWS_DIV = 4;
     MAX_COLS_DIV = 4;
     
@@ -108,16 +108,18 @@ function hfigs = my_plot(t, x, plot_config)
     % Current position on data plots
     k = 1;
     
+    axs = {};
     while(i <= n_windows)
         hfig = my_figure();
         
         is_multiplot = false;
+        axis_i = {};
         for j = 1:nrows*ncols
             id_plot = ind2sub([nrows, ncols], j);
-                        
+            axis_ij = subplot(nrows, ncols, id_plot);
+            axis_i{end+1} = axis_ij;
+            
             idx = (i-1)*nrows*ncols + j;
-
-            h_subplot = subplot(nrows, ncols, id_plot);
             
             % Main plots
             hold on;
@@ -140,7 +142,13 @@ function hfigs = my_plot(t, x, plot_config)
                     legends_f = legends_j{f};
                     
                     head_x = double(head_x);
-                    plot(t, head_x(:, idx), markers_f);
+                    if(~isfield(plot_config, 'plot_type'))
+                        plot(t, head_x(:, idx), markers_f);
+                    else
+                        plot_func = str2func(plot_config.plot_type);
+                        plot_func(t, head_x(:, idx), markers_f);
+                    end
+                    
                     hold on;
                     f = f + 1;
                     
@@ -148,7 +156,14 @@ function hfigs = my_plot(t, x, plot_config)
                         markers_f = markers_j{f};
                         legends_f = legends_j{f};
                         
-                        plot(t, tail_x(:, multiplot_idx), markers_f);
+                        if(~isfield(plot_config, 'plot_type'))
+                            plot(t, tail_x(:, multiplot_idx), markers_f);
+                        else
+                            plot_func = str2func(plot_config.plot_type);
+                            plot_func(t, tail_x(:, multiplot_idx), ...
+                                      markers_f);
+                        end
+                        
                         hold on;
                         f = f + 1;
                     end
@@ -160,23 +175,21 @@ function hfigs = my_plot(t, x, plot_config)
                     f = 1;
                     h = h + 1;
                     multiplot = false;
-                
-                    % % Tight borders for better saving
-                    % ax = gca;
-                    % tighten_plot(ax);
                 else
-                    plot(t, head_x(:, idx));
-                
-                    % % Tight borders for better saving
-                    % ax = gca;
-                    % tighten_plot(ax);
+                    if(~isfield(plot_config, 'plot_type'))
+                        plot(t, head_x(:, idx), markers_f);
+                    else
+                        plot_func = str2func(plot_config.plot_type);
+                        plot_func(t, head_x(:, idx), markers_f);
+                    end
                 end
             else
-                plot(t, head_x(:, idx));
-                
-                % % Tight borders for better saving
-                % ax = gca;
-                % tighten_plot(ax);
+                if(~isfield(plot_config, 'plot_type'))
+                    plot(t, head_x(:, idx));
+                else
+                    plot_func = str2func(plot_config.plot_type);
+                    plot_func(t, head_x(:, idx));
+                end
             end
             
             title(titles{idx}, 'interpreter', 'latex');
@@ -184,6 +197,8 @@ function hfigs = my_plot(t, x, plot_config)
             ylabel(ylabels{idx}, 'interpreter', 'latex');
             grid;
         end
+        
+        axs{end+1} = axis_i;
         
         hfigs = [hfigs; hfig];
         i = i + 1;
@@ -211,16 +226,16 @@ function hfigs = my_plot(t, x, plot_config)
         new_nrows = 2;
     end
     
-    
     % Remainder plots
     if(remaind_n ~= 0)
         xs = x(:, n_windows*n_subplots+1:end);
         hfig = my_figure();
         hfigs = [hfigs; hfig];
-
+        
+        axis_k = {};
         for k = 1:remaind_n
             id_plot = ind2sub([new_nrows, new_ncols], k);
-
+            
             % HARDCODE: Plot in case of 7 or 11 remainder plots
             if((remaind_n == 7) && (k == 7))
                 id_plot = [7, 8];
@@ -228,8 +243,10 @@ function hfigs = my_plot(t, x, plot_config)
                 id_plot = [7, 8];
             end
 
-            subplot(new_ncols, new_nrows, id_plot);
-
+            axis_ik = subplot(new_ncols, new_nrows, id_plot);
+            
+            axis_k{end+1} = axis_ik;
+            
             plot(t, xs(:, k));
 
             title(titles{k+i-1}, 'interpreter', 'latex');
@@ -238,10 +255,8 @@ function hfigs = my_plot(t, x, plot_config)
             grid;
             
             k = k+1;
-            
-            % % Tight borders for better saving
-            % ax = gca;
-            % tighten_plot(ax);
-        end    
+        end
+        
+        axs{end+1} = axis_k;
     end
 end

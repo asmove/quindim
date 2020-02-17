@@ -35,7 +35,7 @@ is_dyn_control = true;
 x0 = [1; 1; 0; 1; 0; 0];
 
 tf = pi;
-dt = 0.005;
+dt = 0.01;
 
 % Time vector
 t = 0:dt:tf;

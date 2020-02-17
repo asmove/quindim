@@ -177,15 +177,19 @@ symbs = sys.descrip.syms;
 model_params = sys.descrip.model_params;
 
 qp_t = [];
+wb = my_waitbar('Loading states on time');
 for i = 1:length(t)
     t_i = t(i);
     qp_i = subs(qp_x, [x_sym; symbs.'], [sol(i, :)'; model_params.'])';
     qp_t = [qp_t; qp_i];
+
+    wb = wb.update_waitbar(i, length(t));
 end
 
 R_val = model_params(2);
 
 qp_ref = [];
+wb = my_waitbar('Loading desired states');
 for i = 1:length(t)
     xp_yp_d = ref_vals(i, 3:4);
     xpp_ypp_d = ref_vals(i, 5:6);
@@ -196,6 +200,8 @@ for i = 1:length(t)
                 xpp_ypp_d(2)*cos(theta_d))/v_d;
 
     qp_ref = [qp_ref; xp_yp_d, thetap_d];
+
+    wb = wb.update_waitbar(i, length(t));
 end
 
 plot_info_qp.titles = repeat_str('', 4);
