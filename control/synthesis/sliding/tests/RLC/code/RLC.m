@@ -17,7 +17,8 @@ n = length(sys.kin.q);
 % Control action
 eta = 10*ones(n, 1);
 poles = -10*ones(n, 1);
-u = sliding_underactuated(sys, eta, poles, params_lims, rel_qqbar, is_sat);
+u = sliding_underactuated(sys, eta, poles, ...
+                          params_lims, rel_qqbar, switch_type);
 
 len_params = length(sys.descrip.model_params);
 
@@ -31,17 +32,20 @@ q_p_ref_fun = @(t) [A*sin(w*t)/w; A*cos(w*t); -A*w*sin(w*t)];
 
 % Initial conditions
 tf = 1e-2;
-dt = 1e-5;
-tspan = 0:dt:tf;
+dt = 1e-4;
+tspan = 0:dt:tspan;
 df_h = @(t, x) df_sys(t, x, q_p_ref_fun, u, sys, tf);
-sol = my_ode45(df_h, tspan, x0);
+
+u_func = @(t, x) output_sliding(t, x, q_p_ref_fun, ...
+                                u, sys, tf);
+
+sol = validate_model(sys, tspan, x0, u_func, false);
+x = sol';
 
 [m, ~] = size(sys.dyn.Z);
 
 % Plot part
 img_path = '../imgs/';
-
-x = sol(1:end, :);
 
 t_len = length(tspan);
 
@@ -59,7 +63,7 @@ plot_config.xlabels = repeat_str('t [s]', n);
 plot_config.ylabels = {'$Q$ [C]', '$i$ [A]'};
 plot_config.grid_size = [1, 2];
 
-hfigs_x = my_plot(tspan, x', plot_config);
+hfigs_x = my_plot(tspan, x, plot_config);
 
 % Input plot
 plot_config.titles = {'', ''};

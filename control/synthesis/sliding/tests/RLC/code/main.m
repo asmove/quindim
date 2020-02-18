@@ -4,15 +4,15 @@
 % 
 % run('~/github/Robotics4fun/examples/RLC/code/main.m');
 
-phi_opts = [1];
-is_sat_opts = [true];
-is_imprecises = [true];
+percs = [0];
+switch_types = {'sat'};
+clear_inner_close_all();
 
-for phi = phi_opts
-    for is_sat = is_sat_opts
-        for is_imprecise = is_imprecises
-            run('./RLC.m')
-        end
+for perc = percs
+    for switch_type = switch_types
+        switch_type = switch_type{1};
+        run('./RLC.m');
     end
 end
+
 

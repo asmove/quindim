@@ -42,11 +42,17 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     q_p_pp_d = [q_d; p_d; pp_d];
     
     % Control output
-    if(u_struct.is_sat)
+    if(strcmp(u_struct.switch_type, 'sat'))
         phi = evalin('base', 'phi');
         switch_func = @(s) sat_sign(s, phi);
-    else
+    elseif(strcmp(u_struct.switch_type, 'hyst'))
+        phi_min = evalin('base', 'phi_min');
+        phi_max = evalin('base', 'phi_max');
+        switch_func = @(s) hyst_sign(s, phi_min, phi_max);
+    elseif(strcmp(u_struct.switch_type, 'sign'))
         switch_func = @(s) sign(s);
+    else
+        error('The options are sat, hyst and sign.');
     end
     
     symbs = [q_p_s; q_p_pp_d];
@@ -85,3 +91,4 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     dt = t - t_1;
     t_1 = t;
 end
+

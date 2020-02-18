@@ -24,7 +24,7 @@ function hfigs = my_plot(t, x, plot_config)
         
         for i = 1:length(pos_uniques)
             idx_uniques = find(pos_uniques(i) == pos_multiplots);
-            len_i_multiplots = length(idx_uniques(i));
+            len_i_multiplots = length(idx_uniques);
             
             if(iscell(legends))
                 len_legends = length(legends);
@@ -138,7 +138,7 @@ function hfigs = my_plot(t, x, plot_config)
                             h_legends{end + 1} = legends_i{h};
 
                             hold on;
-
+                            
                             plot(t, tail_x(:, f+h-2), markers{h});
                             
                             f = f+1;
