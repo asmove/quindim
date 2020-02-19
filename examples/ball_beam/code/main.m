@@ -107,7 +107,7 @@ x0 = [0; 0; 1; 0; 0];
 u_func = @(t, x) 0;
 
 % System modelling
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, t, x0, u_func, false);
 
 x = t';
 y = sol';

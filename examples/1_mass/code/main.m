@@ -79,7 +79,7 @@ x0 = [0; 1];
 u_func = @(t, x) 0;
 
 % System modelling
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, t, x0, u_func, false);
 x = sol';
 
 titles = {'$x$', '$\dot x$'};

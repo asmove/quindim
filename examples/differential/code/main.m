@@ -246,7 +246,7 @@ t = 0:dt:tf;
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
 
 % System modelling
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, t, x0, u_func, false);
 
 plot_info.titles = {'', '', '', '', '', '', '', '', ''};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
