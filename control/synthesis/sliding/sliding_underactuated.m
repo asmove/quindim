@@ -1,6 +1,6 @@
 function u = sliding_underactuated(sys, etas, poles, ...
                                    params_lims, rel_qqbar, ...
-                                   is_sat)    
+                                   switch_type)    
     
     [U, S, V] = svd(sys.dyn.Z);
     sys.dyn.H = inv(U)*sys.dyn.H;
@@ -73,7 +73,6 @@ function u = sliding_underactuated(sys, etas, poles, ...
     params_hat_n = (params_min + params_max)/2;
     
     fs_hat_s = subs(fs_s, params_s, params_hat_s);
-    fs_hat_s
     fs_hat_n = subs(fs_hat_s, params_hat_s, params_hat_n);
 
     % Dynamics uncertainties
@@ -92,9 +91,6 @@ function u = sliding_underactuated(sys, etas, poles, ...
     
     k = subs(k, params_hat_s, params_hat_n);
     K = vpa(diag(k));
-    
-    u_control = -inv(Ms_hat_n)*(fs_hat_n + sr_p + K*sign(s));
-    u.output = vpa(u_control);
        
     % Manifold parameters
     u.lambda = [lambda_a, lambda_u];
@@ -128,5 +124,4 @@ function u = sliding_underactuated(sys, etas, poles, ...
     u.params_hat = params_hat_s;
     
     u.etas = etas;
-    u.is_sat = is_sat;
 end

@@ -73,11 +73,14 @@ T = m_num/b_num;
 
 % Time [s]
 tf = 0.05;
-dt = 0.001;
-t = 0:dt:tf; 
 
 % Initia conditions [m; m/s]
 x0 = [0; 1];
+
+% Final time
+tf = 0.02;
+
+u_func = @(t, x) 0;
 
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
@@ -95,7 +98,7 @@ plot_info.xlabels = xlabels;
 plot_info.ylabels = ylabels;
 plot_info.grid_size = grid_size;
 
-[hfigs_states, hfig_energies] = plot_sysprops(sys, t, x, plot_info);
+[hfigs_states, hfig_energies] = plot_sysprops(sys, t, sol, plot_info);
 
 % Energies
 saveas(hfig_energies, '../imgs/energies.eps', 'epsc');

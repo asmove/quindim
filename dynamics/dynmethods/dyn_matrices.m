@@ -19,7 +19,8 @@ function sys = dyn_matrices(sys, helper)
     % Dynamic matrices of a mechanical system
     sys.dyn.M = simplify_(mass_matrix(sys, helper));
     sys.dyn.g = simplify_(gravitational(sys, helper));
-    sys.dyn.f = simplify_(friction(sys, helper));
+    sys.dyn.f_b = simplify_(friction(sys, helper));
+    sys.dyn.f_k = simplify_(spring_force(sys, helper));
     sys.dyn.U = simplify_(-jacobian(helper.l_r, u));
     
     symbs_qp = [qp; qpp];
@@ -32,6 +33,7 @@ function sys = dyn_matrices(sys, helper)
     sys.dyn.H = sys.dyn.M;
     sys.dyn.Hp = dmatdt(sys.dyn.H, q, C*p);
     
-    sys.dyn.h = simplify_(sys.dyn.nu + sys.dyn.g + sys.dyn.f);
+    sys.dyn.h = simplify_(sys.dyn.nu + sys.dyn.g + ...
+                          sys.dyn.f_b + sys.dyn.f_k);
     sys.dyn.Z = simplify_(sys.dyn.U);
 end
