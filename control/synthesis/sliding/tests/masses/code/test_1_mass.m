@@ -7,9 +7,7 @@ params_lims = [(1-imprecision).*model_params, ...
 rel_qqbar = sys.kin.q;
 
 [~, m] = size(sys.dyn.Z);
-phi = 0.5;
-phi_min = -0.5;
-phi_max = 0.5;
+
 
 % Control action
 eta = 50*ones(m, 1);
@@ -18,13 +16,21 @@ u = sliding_underactuated(sys, eta, poles, params_lims, ...
                           rel_qqbar);
 u.switch_type = switch_type;
 
+if(strcmp(switch_type, 'sat'))
+    u.phi = 0.5;
+elseif(strcmp(switch_type, 'hyst'))
+    u.phi_min = -0.5;
+    u.phi_max = 0.5;
+else    
+end
+
 len_params = length(sys.descrip.model_params);
 
 % Initial values
 x0 = [0; 0];
 
 % Tracking values
-w = 1;
+w = 10;
 x_d = @(t) [sin(w*t); w*cos(w*t)];
 x_xp_d = @(t) [x_d(t); -w^2*sin(w*t)];
 
@@ -33,8 +39,10 @@ tf = 2*pi/w;
 dt = 0.01;
 tspan = 0:dt:tf;
 
-output_fun = @(t, x) output_sliding(t, x, x_xp_d, u, sys, tf);
-sol = validate_model(sys, tspan, x0, output_fun, false);
+dx = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
+% output_fun = @(t, x) output_sliding(t, x, x_xp_d, u, sys, tf);
+% sol = validate_model(sys, tspan, x0, output_fun, false);
+sol = my_ode45(dx, tspan, x0);
 x = sol';
 
 [m, ~] = size(sys.dyn.Z);

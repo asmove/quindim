@@ -1,6 +1,4 @@
-function u = sliding_underactuated(sys, etas, poles, ...
-                                   params_lims, rel_qqbar, ...
-                                   switch_type)    
+function u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar)    
     
     [U, S, V] = svd(sys.dyn.Z);
     sys.dyn.H = inv(U)*sys.dyn.H;

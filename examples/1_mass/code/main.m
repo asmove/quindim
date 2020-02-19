@@ -79,11 +79,7 @@ tspan = 0:dt:tf;
 u_func = @(t, x) 0;
 
 % System modelling
-<<<<<<< HEAD
-sol = validate_model(sys, t, x0, u_func, false);
-=======
-sol = validate_model(sys, tspan, x0, u_func);
->>>>>>> bp-master
+sol = validate_model(sys, tspan, x0, u_func, false);
 x = sol';
 
 % Plot properties

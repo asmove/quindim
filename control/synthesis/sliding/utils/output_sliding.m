@@ -17,12 +17,11 @@ function u = output_sliding(t, x, q_p_ref_fun, u_struct, sys, tf)
     if(isempty(switch_func))
         % Control output
         if(strcmp(u_struct.switch_type, 'sat'))
-            phi = evalin('base', 'phi');
-            switch_func = @(s) sat_sign(s, phi);
+            switch_func = @(s) sat_sign(s, u_struct.phi);
         elseif(strcmp(u_struct.switch_type, 'hyst'))
-            phi_min = evalin('base', 'phi_min');
-            phi_max = evalin('base', 'phi_max');
-            switch_func = @(s) hyst_sign(s, phi_min, phi_max);
+            switch_func = @(s) hyst_sign(s, ...
+                                         u_struct.phi_min, ...
+                                         u_struct.phi_max);
         elseif(strcmp(u_struct.switch_type, 'sign'))
             switch_func = @(s) sign(s);
         else
@@ -32,12 +31,10 @@ function u = output_sliding(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     % States and velocities
     q = sys.kin.q;
-    
     p = sys.kin.p{end};
     pp = sys.kin.pp{end};
     
-    C = sys.kin.C;
-    
+    C = sys.kin.C;    
     Cp = sys.kin.Cp;
     
     q_p = x(1:end);
@@ -66,9 +63,9 @@ function u = output_sliding(t, x, q_p_ref_fun, u_struct, sys, tf)
     fs_hat_n = u_struct.fs_hat_n;
     sr_p = u_struct.sr_p;
     K = u_struct.K;
-    u_expr = -inv(Ms_hat)*(fs_hat_n + sr_p + K*switched_sn);
-    
-    u = subs(u_expr, symbs, nums);
+    u = subs(-inv(u_struct.Ms_hat)*...
+             (u_struct.fs_hat_n + u_struct.sr_p + ...
+             u_struct.K*switched_sn), symbs, nums);
 
     u = inv(u_struct.V.')*u;
     
@@ -77,11 +74,16 @@ function u = output_sliding(t, x, q_p_ref_fun, u_struct, sys, tf)
     symbs = sys.descrip.syms;
     model_params = sys.descrip.model_params;
     Z = sys.dyn.Z;
-    u_sym = sys.descrip.u;Hinv
+    u_sym = sys.descrip.u;
     h = sys.dyn.h;
     
-    plant = [C*p; Hinv*(-h + Z*u)];
-    plant = subs(plant, symbs, model_params);
+     plant = [C*p; ...
+             -sys.dyn.H\sys.dyn.h + sys.dyn.H\sys.dyn.Z*sys.descrip.u];
+    plant = subs(plant, sys.descrip.syms, sys.descrip.model_params);
+    plant = subs(plant, sys.descrip.u, u);
+    
+%     plant = [C*p; Hinv*(-h + Z*u)];
+%     plant = subs(plant, symbs, model_params);
     plant = subs(plant, u_sym, u);
     
     u_acc = [u_acc; u'];
