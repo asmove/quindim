@@ -76,9 +76,12 @@ sys = dynamic_model(sys);
 % Initia conditions [m; m/s]
 x0 = [pi/3; 0];
 
+L_num = sys.descrip.model_params(end);
+g_num = sys.descrip.model_params(end-1);
+
 % Time [s]
 dt = 0.01;
-tf = 5;
+tf = 2*pi*sqrt(L_num/g_num)*1.5;
 t = 0:dt:tf; 
 
 % System modelling

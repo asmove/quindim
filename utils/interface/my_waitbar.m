@@ -76,14 +76,23 @@ classdef my_waitbar
         end
         
         function h = find_handle(obj)
-            h = findall(0,'type','figure','tag','TMWWaitbar');
-            h = h(obj.waitbar_id);
+            handles = findall(0,'type','figure','tag','TMWWaitbar');
+            
+            for i = 1:length(handles)
+                children = handles(i).Children;
+                titleStr = children(2).Title;
+                if(strcmp(titleStr, obj.msg))
+                    break
+                end
+            end
+            
+            h = handles(i);
         end
         
         function delete(obj)
             % obj is always scalar
-            F = findall(0,'type','figure','tag','TMWWaitbar');
-            delete(F);
+            h = find_handle(obj);
+            delete(h);
         end
                 
         function obj = update_waitbar(obj, t, tf)
@@ -179,8 +188,6 @@ classdef my_waitbar
         end
         
         function close_window(obj)
-            h = obj.find_handle();
-            
             if(~isempty(obj.tf_real_vec))
                % Erase waitbar
                 tf = obj.tf_real_vec(end);
@@ -188,7 +195,7 @@ classdef my_waitbar
                 fprintf('Elapsed time is %.6f seconds.\n', tf); 
             end
             
-            delete(h);
+            obj.delete();
         end
     end
 end

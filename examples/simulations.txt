@@ -8,10 +8,12 @@ helicopter  OK
 inverted_pendulum  OK
 rolling_disk  OK
 rolling_falling_disk  OK
-gyroscope
+sphere OK
+2D_unicycle OK 
+gyroscope OK 
+single_pendulum OK
 omnirobot
-2D_unicycle
-differential
-single_pendulum
-sphere
-unicycle
+differential 
+unicycle 
+
+

@@ -64,8 +64,6 @@ sys.descrip.g = g;
 sys.descrip.syms = [m, R, diag(I).', g, L];
 
 % Penny data
-% m_num = 2.5e-3;
-% R_num = 9.75e-3;
 m_num = 0.4;
 R_num = 0.05;
 L_num = 0.2;
@@ -95,8 +93,8 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Time [s]
-dt = 0.1;
-tf = 10;
+dt = 0.01;
+tf = 1;
 t = 0:dt:tf; 
 
 % Initial conditions

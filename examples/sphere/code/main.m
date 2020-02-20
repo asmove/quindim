@@ -1,6 +1,5 @@
 % Author: Bruno Peixoto
 % Date: 30/10/19
-
 if(exist('CLEAR_ALL'))
     if(CLEAR_ALL)
         clear all
@@ -17,6 +16,17 @@ syms m R real;
 syms x y th phi real;
 syms xp yp thp phip real;
 syms xpp ypp thpp phipp real;
+
+sys.descrip.latex_origs = {{'xpp'}, {'\mathrm{xp}'}, {'ypp'}, {'\mathrm{yp}'}, ...
+                           {'thpp'}, {'thp'}, {'\mathrm{th}'}, ...
+                           {'\mathrm{phipp}'}, {'\mathrm{phip}'}, {'\mathrm{phi}'}, ...
+                           {'\mathrm{p1}'}, {'\mathrm{p2}'}, {'\mathrm{p3}'}};
+
+sys.descrip.latex_text = {'\ddot{x}', '\dot{x}', '\ddot{y}', '\dot{y}', ...                          
+                          '\ddot{\theta}', '\dot{\theta}', '\theta', ...
+                          '\ddot{\phi}', '\dot{\phi}', '\phi', ...
+                          '\, \mathrm{v}', '\omega_{\theta}', '\, \mathrm{\omega_{\phi}}'};
+
 
 Is = sym('I', [3, 1], 'real');
 I = diag(Is);
@@ -38,10 +48,10 @@ sys.kin.qpp = [xpp; ypp; thpp; phipp];
 % Previous body
 previous = struct('');
 
-wheel = build_body(m, I, Ts, L, {}, {}, ...
+sphere = build_body(m, I, Ts, L, {}, {}, ...
                    sys.kin.q, sys.kin.qp, sys.kin.qpp, ...
                    previous, []);
-sys.descrip.bodies = {wheel};
+sys.descrip.bodies = {sphere};
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];
@@ -93,8 +103,8 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Time [s]
-dt = 0.1;
-tf = 10;
+dt = 0.01;
+tf = 1;
 t = 0:dt:tf; 
 
 % Initial conditions [m; m/s]
@@ -115,7 +125,7 @@ plot_info_q.grid_size = [2, 2];
 
 hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
 
-plot_info_p.titles = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
+plot_info_p.titles = {'', ''};
 plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
 plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$'};
 plot_info_p.grid_size = [2, 1];
@@ -124,7 +134,7 @@ plot_info_p.grid_size = [2, 1];
 hfigs_speeds = my_plot(x, y(:, 5:6), plot_info_p);
 
 % Energies plot
-hfig_energies = plot_energies(sys, x, y');
+hfig_energies = plot_energies(sys, x, y);
 hfig_consts = plot_constraints(sys, x, y);
 
 % Images

@@ -60,7 +60,7 @@ function dq = df(t, q_p, sys, u_func, is_dyn_control)
     else
         u_num = u_func(t, q_p);
     end
-        
+    
     Hinv = double(H_num\eye(m));
     
     accel = Hinv*(-h_num + Z_num*u_num);
