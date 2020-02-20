@@ -1,4 +1,4 @@
-% Double Single example
+ % Double Single example
 % @Author: Bruno Peixoto
 
 if(exist('CLEAR_ALL'))
@@ -28,7 +28,7 @@ L1g_ = [0; 0; L1g];
 
 % Bodies transformations
 T1 = T3d(th0, [0; 0; 1], [0; 0; 0]);
-T2 = T3d(0, [0; 0; 1], [2*L0; 0; 0]);
+T2 = T3d(0, [1; 0; 0], [2*L0; 0; 0]);
 T3 = T3d(th1, [1; 0; 0], [0; 0; 0]);
 
 % Body 1 and 2 related transformation matrices
@@ -60,8 +60,7 @@ I1_2 = I1(2, 2);
 I1_3 = I1(3, 3);
               
 % Without spring and damping
-sys.descrip.syms = [m0, L0, L0g, ...
-                    m1, L1, L1g, ...
+sys.descrip.syms = [m0, L0, L0g, m1, L1, L1g, ...
                     I0_1, I0_2, I0_3, ...
                     I1_1, I1_2, I1_3, ...
                     b, g];
@@ -122,17 +121,16 @@ sys = dynamic_model(sys);
 x0 = [0; pi/3; 0; 0];
 
 % Time [s]
-dt = 0.001;
-tf = 5;
+tf = 2;
+dt = 0.01;
 t = 0:dt:tf; 
 
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
 
 % System modelling
-sol = validate_model(sys, t, x0, 0);
-
-x = sol.x;
-y = sol.y.';
+sol = validate_model(sys, t, x0, u_func, false);
+y = sol';
+x = t';
 
 plot_info.titles = {'$\theta_0$', '$\theta_1$', ...
                     '$\dot \theta_0$', '$\dot \theta_1$'};

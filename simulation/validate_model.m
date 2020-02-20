@@ -1,10 +1,16 @@
-function sol = validate_model(sys, t, x0, u_func, is_dyn_control)
+function xout = validate_model(sys, tspan, x0, ...
+                                       u_func, is_dyn_control)
+    if(nargin == 4)
+        is_dyn_control = false;
+    end
+    
     [n, m] = size(sys.kin.C);
     
-    df_ = @(t_, q_p) df(t_, q_p, sys, t(end), u_func, is_dyn_control);
+    odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
     
     % Mass matrix
-    sol = my_ode45(df_, t, x0);
+    % options = odeset('RelTol', 1e-7, 'AbsTol', 1e-7);
+    xout = my_ode45(odefun, tspan, x0);
 end
 
 function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
@@ -15,7 +21,7 @@ function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
     direction = 0;
 end
 
-function dq = df(t, q_p, sys, tf, u_func, is_dyn_control)    
+function dq = df(t, q_p, sys, u_func, is_dyn_control)
     [n, m] = size(sys.kin.C);
     
     t0 = tic;
@@ -65,8 +71,7 @@ function dq = df(t, q_p, sys, tf, u_func, is_dyn_control)
     else
         dq = vpa([speed; accel]);
     end
-    
-    
+        
     % Time elapsed
     dt = toc(t0);
 end

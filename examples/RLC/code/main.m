@@ -67,22 +67,26 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Decay time
-m_num = sys.descrip.model_params(1);
-b_num = sys.descrip.model_params(2);
-T = m_num/b_num;
+L_num = sys.descrip.model_params(1);
+R_num = sys.descrip.model_params(2);
+C_num = 1/sys.descrip.model_params(3);
 
 % Time [s]
-tf = 0.05;
-dt = 0.001;
-t = 0:dt:tf; 
+omega = 1/sqrt(L_num*C_num);
+tf = 2*pi/omega;
+dt = tf/100;
+t = 0:dt:tf;
 
 % Initia conditions [m; m/s]
 x0 = [0; 1];
 
+u_func = @(t, x) 0;
+
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, t, x0, u_func, false);
 x = sol';
+t = t';
 
 titles = {'', ''};
 xlabels = {'$t$ [s]', '$t$ [s]'};

@@ -34,12 +34,16 @@ function hfig = plot_constraints(sys, time, states)
     wb = my_waitbar('Calculating constraints time lapse');
     
     bar_len = 0;
+    
     [n_const, n_p] = size(As);
+    
     for A = As
+        A = A{1};
         [n_const, n_p] = size(A);
+
         bar_len = bar_len + 2*n_const*n_t;
     end
-    
+
     acc = 0;
     i_acc = 0;
     % Each constraint line
@@ -83,7 +87,7 @@ function hfig = plot_constraints(sys, time, states)
                 i_acc = i_acc + 1;
                 wb.update_waitbar(i_acc, bar_len);
             end
-            
+
             % Each time instant
             for k = 1:n_t
                 p_n_1_i = p_n_1(:, i);
@@ -102,7 +106,6 @@ function hfig = plot_constraints(sys, time, states)
         end
         
         p_n = p_n_1;
-        
         acc = acc + n_const;
     end
         
@@ -115,10 +118,10 @@ function hfig = plot_constraints(sys, time, states)
         [m, ~] = size(sys.kin.As{i});
                 
         for j = 1:m
-            idx = idx + j;
+            idx = idx + 1;
             
             const = Aqps(idx);
-            constraint = latex(const);
+            constraint = latex(const)
             
             latex_origs = sys.descrip.latex_origs;
             latex_convert = sys.descrip.latex_text;

@@ -5,11 +5,15 @@ clc
 run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
 
 % Preamble for images and persistent variables cleaning
+<<<<<<< HEAD
 close all
 delete(findall(0,'type','figure','tag','TMWWaitbar'));
 for filepath = strsplit(ls, ':')
     clear filepath;
 end
+=======
+clear_inner_close_all();
+>>>>>>> staging
 
 % Ellipsoid trajectory
 a = 1;

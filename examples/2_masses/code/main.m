@@ -56,7 +56,7 @@ syms g u1;
 sys.descrip.syms = [m1, b1, k1, m2, b2, k2, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [1, 1, 1, 1, 1, 1, 9.8];
+sys.descrip.model_params = [1, 1, 9, 1, 1, 9, 9.8];
 
 sys.descrip.bodies = {body1, body2};
 
@@ -98,9 +98,13 @@ T = m_num/b_num;
 % Initia conditions [m; m/s]
 x0 = [0; 1; 0; 1];
 
+m_num = sys.descrip.model_params(1);
+k_num = sys.descrip.model_params(3);
+omega = sqrt(k_num/m_num);
+
 % Time [s]
-dt = 0.1;
-tf = 1;
+tf = 2*pi/omega;
+dt = tf/100;
 t = 0:dt:tf;
 
 [~, m] = size(sys.dyn.Z);
@@ -108,11 +112,12 @@ t = 0:dt:tf;
 u_func = @(t, x) zeros(m, 1);
 
 % System modelling
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, t, x0, u_func, false);
 
 plot_info.titles = {'$x_1$', '$\dot x_1$', '$x_2$', '$\dot x_2$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info.ylabels = {'$x_1$ $[m]$', '$\dot x_1$ $[m/s]$', '$x_2$ $[m]$', '$\dot x_2$ $[m/s]$'};
+plot_info.ylabels = {'$x_1$ $[m]$', '$\dot x_1$ $[m/s]$', ...
+                     '$x_2$ $[m]$', '$\dot x_2$ $[m/s]$'};
 plot_info.grid_size = [2, 2];
 
 % States and energies plot

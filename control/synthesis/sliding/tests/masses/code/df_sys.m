@@ -1,19 +1,7 @@
 function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
-    persistent t_1;
-    persistent dt;
-    persistent wb;
-    persistent u_acc;
-    persistent s_acc;
+    persistent s_acc u_acc switch_func;
     
     [n, m] = size(sys.dyn.Z);
-    
-    if((isempty(dt) && isempty(t_1) && isempty(wb)) ||...
-        (~isgraphics(wb.wb)))
-        t_1 = t;
-        dt = 0;
-        wb = my_waitbar('Simulate underactuated');
-        u_acc = [];
-    end
     
     if(t == 0)
        s_acc = [];
@@ -41,18 +29,19 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     q_p_pp = [q; p; pp];
     q_p_pp_d = [q_d; p_d; pp_d];
     
-    % Control output
-    if(strcmp(u_struct.switch_type, 'sat'))
-        phi = evalin('base', 'phi');
-        switch_func = @(s) sat_sign(s, phi);
-    elseif(strcmp(u_struct.switch_type, 'hyst'))
-        phi_min = evalin('base', 'phi_min');
-        phi_max = evalin('base', 'phi_max');
-        switch_func = @(s) hyst_sign(s, phi_min, phi_max);
-    elseif(strcmp(u_struct.switch_type, 'sign'))
-        switch_func = @(s) sign(s);
-    else
-        error('The options are sat, hyst and sign.');
+    if(isempty(switch_func))
+        % Control output
+        if(strcmp(u_struct.switch_type, 'sat'))
+            switch_func = @(s) sat_sign(s, u_struct.phi);
+        elseif(strcmp(u_struct.switch_type, 'hyst'))
+            switch_func = @(s) hyst_sign(s, ...
+                                         u_struct.phi_min, ...
+                                         u_struct.phi_max);
+        elseif(strcmp(u_struct.switch_type, 'sign'))
+            switch_func = @(s) sign(s);
+        else
+            error('The options are sat, hyst and sign.');
+        end
     end
     
     symbs = [q_p_s; q_p_pp_d];
@@ -84,11 +73,4 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     assignin('base', 'u_control', u_acc);
     assignin('base', 'sliding_s', s_acc);
-    assignin('base', 'wb', wb);
-    
-    wb.update_waitbar(t, tf);
-    
-    dt = t - t_1;
-    t_1 = t;
 end
-

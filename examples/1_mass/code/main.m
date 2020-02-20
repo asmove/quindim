@@ -19,7 +19,7 @@ syms m b k g real;
 sys.descrip.syms = [m, b, k, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [1, 0.1, 1, 9.8];
+sys.descrip.model_params = [1, 0, 9, 9.8];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];
@@ -66,34 +66,36 @@ sys = dynamic_model(sys);
 % Decay time
 m_num = sys.descrip.model_params(1);
 b_num = sys.descrip.model_params(2);
+k_num = sys.descrip.model_params(3);
 T = m_num/b_num;
-
-% Time [s]
-dt = 0.01;
-tf = 1;
-t = 0:dt:tf; 
 
 % Initia conditions [m; m/s]
 x0 = [0; 1];
 
+% Final time
+tf = 2*pi*sqrt(m_num/k_num);
+dt = 0.01;
+tspan = 0:dt:tf;
+
 u_func = @(t, x) 0;
 
 % System modelling
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, tspan, x0, u_func, false);
 x = sol';
+tspan = tspan';
 
+% Plot properties
 titles = {'$x$', '$\dot x$'};
 xlabels = {'$t$ [s]', '$t$ [s]'};
 ylabels = {'$x$ [m]', '$\dot x$ [m/s]'};
 grid_size = [2, 1];
 
-% Plot properties
 plot_info.titles = titles;
 plot_info.xlabels = xlabels;
 plot_info.ylabels = ylabels;
 plot_info.grid_size = grid_size;
 
-[hfigs_states, hfig_energies] = plot_sysprops(sys, t, x, plot_info);
+[hfigs_states, hfig_energies] = plot_sysprops(sys, tspan, x, plot_info);
 
 % Energies
 saveas(hfig_energies, '../imgs/energies.eps', 'epsc');

@@ -24,8 +24,7 @@ function [hfigs, axs] = my_plot(t, x, plot_config)
         
         j = 1;
         for i = 1:length(pos_uniques)
-            idx_uniques = find(pos_uniques(i) == pos_multiplots);
-            
+            idx_uniques = find(pos_uniques(i) == pos_multiplots);            
             len_i_multiplots = length(idx_uniques);
             
             legends_j = legends{j};
