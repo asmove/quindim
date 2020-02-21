@@ -54,15 +54,15 @@ Lg_s = [0; 0; 0];
 % Bodies transformations
 T0 = T3d(th, [0; 0; 1], [x; y; 0]);
 
-T1 = T3d(thr, [1; 0; 0], [L/2; 0; 0]);
+T1 = T3d(thl, [0; 1; 0], [0; L/2; 0]);
 
-T2 = T3d(pi/2, [0; 0; 1], [0; 0; 0]);
-T3 = T3d(thl, [0; 1; 0], [0; L/2; 0]);
+T2 = T3d(-pi/2, [1; 0; 0], [0; 0; 0]);
+T3 = T3d(thr, [1; 0; 0], [L/2; 0; 0]);
 
-T4 = T3d(0, [0; 0; 1], [0; L_f; 0]);
+T4 = T3d(0, [0; 0; 1], [L_f; 0; 0]);
 T5 = T3d(beta, [0; 0; 1], [0; 0; 0]);
 
-T6 = T3d(ths, [1; 0; 0], [L_s; 0; 0]);
+T6 = T3d(ths, [0; 1; 0], [0; 0; -L_s]);
 
 % Body 1 and 2 related transformation matrices
 Ts_c = {T0};
@@ -145,7 +145,7 @@ wheel_s = build_body(m_s, I_s, Ts_s, Lg_s, {damper_s}, {}, ...
                
 sys.descrip.syms = [m_r, m_l, m_c, m_f, m_s, ...
                     R, R_f, g, Lg_x, Lg_y, Lg_f_y, L, L_f, L_s, ...
-                    b_r, b_l, b_f, ...
+                    b_r, b_l, b_f, b_s, ...
                     diag(I_c).', diag(I_r).', ...
                     diag(I_l).', diag(I_f).', diag(I_s).'];
 
@@ -163,19 +163,20 @@ Lg_f_y_n = 1;
 L_n = 1;
 L_f_n = 1;
 L_s_n = 1;
-b_r_n = 1;
-b_l_n = 1;
-b_f_n = 1;
-Is_c = ones(1, 3);
-Is_r = ones(1, 3);
-Is_l = ones(1, 3);
-Is_f = ones(1, 3);
-Is_s = ones(1, 3);
+b_r_n = 0;
+b_l_n = 0;
+b_f_n = 0;
+b_s_n = 0;
+Is_c = 0.1*ones(1, 3);
+Is_r = 0.1*ones(1, 3);
+Is_l = 0.1*ones(1, 3);
+Is_f = 0.1*ones(1, 3);
+Is_s = 0.1*ones(1, 3);
 
 sys.descrip.model_params = [m_r_n, m_l_n, m_c_n, m_f_n, m_s_n, ...
                             R_n, R_f_n, g_n, Lg_x_n, Lg_y_n, ...
                             Lg_f_y_n, L_n, L_f_n, L_s_n, ...
-                            b_r_n, b_l_n, b_f_n, ...
+                            b_r_n, b_l_n, b_f_n, b_s_n, ...
                             Is_c, Is_r, Is_l, Is_f, Is_s];
 
 sys.descrip.gravity = [0; 0; -g];
@@ -205,27 +206,25 @@ sys.descrip.y = [thr; thl];
 % State space representation
 sys.descrip.states = [sys.kin.q; sys.kin.p];
 
-p_r = point(T0*T1, [0; 0; 0]);
-p_l = point(T0*T2*T3, [0; 0; 0]);
-p_f = point(T0*T4*T5*T6, [0; 0; 0]);
+T_r = sys.descrip.bodies{2}.T;
+T_l = sys.descrip.bodies{3}.T;
+T_s = sys.descrip.bodies{5}.T;
 
-R0 = rot3d(th, [0; 0; 1]); 
-Rr = rot3d(thr, [0; 0; 1]);
-Rl = rot3d(thl, [0; 0; 1]);
-R1 = rot3d(beta, [0; 0; 1]);
-R2 = rot3d(ths, [1; 0; 0]);
+R0r = T_r(1:3, 1:3);
+R0l = T_l(1:3, 1:3);
+R0s = T_s(1:3, 1:3);
 
-R0r = R0*Rr;
-R0l = R0*Rl;
-R0f = R0*R1*R2;
+p_r = point(T_r, [0; 0; 0]);
+p_l = point(T_l, [0; 0; 0]);
+p_s = point(T_s, [0; 0; 0]);
 
 i_r = R0r(:, 1);
 j_l = R0l(:, 2);
-i_f = R0f(:, 1);
+i_f = R0s(:, 1);
 
 u_r = jacobian(p_r, sys.kin.q)*sys.kin.qp;
 u_l = jacobian(p_l, sys.kin.q)*sys.kin.qp;
-u_f = jacobian(p_f, sys.kin.q)*sys.kin.qp;
+u_f = jacobian(p_s, sys.kin.q)*sys.kin.qp;
 
 sys.descrip.unhol_constraints = [dot(u_r, i_r) - thrp*R; ...
                                  dot(u_l, j_l) - thlp*R; ...
@@ -236,7 +235,7 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Initial conditions [m; m/s]
-x0 = [0; 0; 0; 0; 0; 0; 0; 1; 1; 1];
+x0 = [0; 0; 0; 0; 0; 0; 0; 0; 1; 1; 1];
 
 % Time [s]
 dt = 0.01;
@@ -254,7 +253,7 @@ plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
                      '$t$ [s]', '$t$ [s]', '$t$ [s]'};
 plot_info.ylabels = {'$x$', '$y$', '$\theta$', ...
                     '$\theta_1$', '$\theta_2$', '$\theta_3$', ...
-                    '$\dot \theta_1$', '$\dot \theta_2$', '$\dot \theta_3$'};
+                    '$p_1$', '$p_2$', '$p_3$'};
 plot_info.grid_size = [3, 3];
 
 % States and energies plot

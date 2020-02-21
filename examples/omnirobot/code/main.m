@@ -1,6 +1,5 @@
 % Omnirobot
 % @Author: Bruno Peixoto
-
 if(exist('CLEAR_ALL'))
     if(CLEAR_ALL)
         clear all
@@ -20,6 +19,18 @@ syms x xp xpp real;
 syms y yp ypp real;
 syms th thp thpp real;
 
+sys.descrip.latex_origs = {{'\mathrm{xp}'}, {'\mathrm{yp}'}, ...
+                           {'\mathrm{thp}'}, {'\mathrm{th}'}, ...
+                           {'\mathrm{th3}'}, {'\mathrm{th3p}'}, ...
+                           {'\mathrm{th2}'}, {'\mathrm{th2p}'}, ...
+                           {'\mathrm{th1}'}, {'\mathrm{th1p}'}};
+
+sys.descrip.latex_text = {'\dot{x}', '\dot{y}', ...
+                          '\dot{\theta}', '\theta', ...
+                          '\dot{\theta}_3', '\theta_3', ...
+                          '\dot{\theta}_2', '\theta_2', ...
+                          '\dot{\theta}_1', '\theta_1'};
+
 % Body inertia
 is_diag1 = true;
 I_r = inertia_tensor('r', is_diag1);
@@ -29,7 +40,7 @@ I_R = inertia_tensor('R', is_diag2);
 
 % Position relative to body coordinate system
 Lg_r = [0; 0; 0];
-Lg_R = [Lg_x; Lg_y; 0];
+Lg_R = [0; 0; 0];
 
 % Bodies transformations
 T0 = T3d(th, [0; 0; 1], [x; y; 0]);
@@ -77,7 +88,7 @@ states_main = th1;
 speed_main = th1p;
 accel_main = th1pp;
 
-wheel_1 = build_body(m_r, I_r, Ts_r1, Lg_r, damper1, {}, ...
+wheel_1 = build_body(m_r, I_r, Ts_r1, Lg_r, {damper1}, {}, ...
                      th1, th1p, th1pp, previous_r1, params_r1);
 
 previous_r2 = main_body;
@@ -86,7 +97,7 @@ states_main = th2;
 speed_main = th2p;
 accel_main = th2pp;
 
-wheel_2 = build_body(m_r, I_r, Ts_r2, Lg_r, damper2, {}, ...
+wheel_2 = build_body(m_r, I_r, Ts_r2, Lg_r, {damper2}, {}, ...
                      th2, th2p, th2pp, previous_r2, params_r2);
                  
 previous_r3 = main_body;
@@ -95,13 +106,9 @@ states_main = th3;
 speed_main = th3p;
 accel_main = th3pp;
 
-wheel_3 = build_body(m_r, I_r, Ts_r3, Lg_r, damper3, {}, ...
+wheel_3 = build_body(m_r, I_r, Ts_r3, Lg_r, {damper3}, {}, ...
                      th3, th3p, th3pp, previous_r3, params_r3);
               
-sys.descrip.syms = [m_r, L, Lg_x, Lg_y, ...
-                    m_R, diag(I_r).', diag(I_R).', ...
-                    b1, b2, b3, g, R, r];
-
 rho = 1050e-3;
 ell = 86e-3;
 h = 9e-3;
@@ -110,18 +117,22 @@ r_n = 55e-3;
 m_r_n = 74e-3;
 m_R_n = 200e-3;
 L_n = 86e-3;
-Lg_x_n = 40e-3;
-Lg_y_n = 0;
 I0_1_n = 0;
 I0_2_n = 0;
 I0_3_n = (rho*ell^4)*(9*sqrt(3)/32)*h;
 I1_1_n = (1/12)*(3*r_n^2 + h^2);
 I1_2_n = (1/12)*(3*r_n^2 + h^2);
 I1_3_n = (1/12)*r_n^2;
-b1_n = 0.01;
-b2_n = 0.01;
-b3_n = 0.01;
+Lg_x_n = 0;
+Lg_y_n = 0;
+b1_n = 0.0;
+b2_n = 0.0;
+b3_n = 0.0;
 g_n = 9.8;
+                 
+sys.descrip.syms = [m_r, L, Lg_x, Lg_y, ...
+                    m_R, diag(I_r).', diag(I_R).', ...
+                    b1, b2, b3, g, R, r];
 
 sys.descrip.model_params = [m_r_n, L_n, Lg_x_n, Lg_y_n, ...
                             m_R_n, I0_1_n, I0_2_n, I0_3_n, ...
@@ -155,6 +166,9 @@ sys.descrip.y = [th1; th2; th3];
 % State space representation
 sys.descrip.states = [sys.kin.q; sys.kin.p];
 
+q = sys.kin.q;
+qp = sys.kin.qp;
+
 p1 = point(T0*T1, [0; 0; 0]);
 p2 = point(T0*T2*T3, [0; 0; 0]);
 p3 = point(T0*T4*T5, [0; 0; 0]);
@@ -172,9 +186,9 @@ j1 = R01(:, 2);
 j2 = R02(:, 2);
 j3 = R03(:, 2);
 
-u1 = jacobian(p1, sys.kin.q)*sys.kin.qp;
-u2 = jacobian(p2, sys.kin.q)*sys.kin.qp;
-u3 = jacobian(p3, sys.kin.q)*sys.kin.qp;
+u1 = dvecdt(p1, q, qp);
+u2 = dvecdt(p2, q, qp);
+u3 = dvecdt(p3, q, qp);
 
 sys.descrip.unhol_constraints = [dot(u1, j1) - th1p*R; ...
                                  dot(u2, j2) - th2p*R; ...
@@ -185,7 +199,7 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Initial conditions [m; m/s]
-x0 = [0; 0; 0; 0; 0; 0; 1; 1; 1];
+x0 = [0; 0; 0; 0; 0; 0; 5; 5; 5];
 u0 = [0; 0; 0];
 
 % Time [s]
@@ -196,6 +210,7 @@ t = 0:dt:tf;
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
 sol = validate_model(sys, t, x0, u_func, false);
+x = sol';
 
 plot_info.titles = {'', '', '', '', '', '', '', '', ''};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
@@ -207,8 +222,9 @@ plot_info.ylabels = {'$x$', '$y$', '$\theta$', ...
 plot_info.grid_size = [3, 3];
 
 % States and energies plot
-hfigs_states = my_plot(t, sol', plot_info);
-hfig_energies = plot_energies(sys, t, sol);
+hfigs_states = my_plot(t, x, plot_info);
+hfig_energies = plot_energies(sys, t, x);
+hfig_constraints = plot_constraints(sys, t, x);
 
 % Energies
 saveas(hfig_energies, '../imgs/energies', 'epsc');
