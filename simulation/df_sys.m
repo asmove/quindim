@@ -26,17 +26,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     p = sys.kin.p{end};
     pp = sys.kin.pp{end};
     
-    if((length(sys.kin.C) ~= 1) && (iscell(sys.kin.p)))
-        [m, ~] = size(sys.kin.C{1});
-        
-        C = eye(m);
-        for i = 1:length(sys.kin.C)
-            C = C*sys.kin.C{i};
-        end
-    else
-        C = sys.kin.C{end};
-    end
-    
+    C = sys.kin.C;
     Cp = sys.kin.Cp;
     
     q_p = x(1:end);
@@ -73,9 +63,8 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
 
     u = inv(u_struct.V.')*u;
     
-    plant = subs(sys.dyn.plant, ...
-                 sys.descrip.syms, sys.descrip.model_params);
-    
+    plant = inv(sys.dyn.H)*(-sys.dyn.h + sys.dyn.Z*sys.descrip.u);
+    plant = subs(plant, sys.descrip.syms, sys.descrip.model_params);
     plant = subs(plant, sys.descrip.u, u);
     
     u_acc = [u_acc; u'];

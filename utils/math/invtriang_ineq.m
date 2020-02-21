@@ -125,13 +125,12 @@ function result = invtriang_ineq(expr, x, label, symbs, params_lims, is_min)
         func_cond = @(params) func_bounds(params, params_lims);
 
         params0 = (params_min + params_max)/2;
-        options = optimoptions('fmincon','Algorithm','interior-point');
+        options = optimoptions('fmincon', 'Algorithm', 'interior-point');
 
         % run interior-point algorithm
-        options = optimoptions('fmincon', 'Display', 'final-detailed');
         [~, result] = fmincon(func_obj, params0, [], [], [], [], ...
-                                        params_min, params_max, func_cond, ...
-                                        options);
+                              params_min, params_max, func_cond, ...
+                              options);
                                     
         if(~is_min)
             result = -result;

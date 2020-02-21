@@ -34,7 +34,7 @@ function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_l
         end
     end
     
-    % Dtilde calculation
+    % D prime calculation
     D_Omega_sq_inf = supinf_matrix(Omega, q_p, params_syms, params_lims, 1);
     D_Omega_1_sq_inf = supinf_matrix(Omega_1, q_p, params_syms, params_lims, 1);
     
@@ -46,9 +46,9 @@ function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_l
     for i = 1:n
         for j = 1:n
             if(I_m_D_Omega_inf(i, j) < I_m_D_Omega_1_inf(i, j))
-                Dtilde(i, j) = I_m_D_Omega_inf(i, j);
+                Dprime(i, j) = I_m_D_Omega_inf(i, j);
             else
-                Dtilde(i, j) = I_m_D_Omega_1_inf(i, j);
+                Dprime(i, j) = I_m_D_Omega_1_inf(i, j);
             end
         end
     end

@@ -41,16 +41,7 @@ function u = sliding_underactuated(sys, etas, poles, ...
     q_a = q(1:m);
     q_u = q(m+1:n);
     
-    if(length(sys.kin.C) ~= 1)
-        [m, ~] = size(sys.kin.C{1});
-        
-        Cs = eye(m);
-        for i = 1:length(sys.kin.C)
-            Cs = Cs*sys.kin.C{i};
-        end
-    else
-        Cs = sys.kin.C{end};
-    end
+    Cs = sys.kin.C;
     
     p = p{end};
     
@@ -58,8 +49,7 @@ function u = sliding_underactuated(sys, etas, poles, ...
     q_p = [q; qp];
     
     % Sliding constant matrices
-    [alpha_a, alpha_u, lambda_a, lambda_u] = alpha_lambda(sys, poles, ...
-                                                          rel_qqbar);
+    [alpha_a, alpha_u, lambda_a, lambda_u] = alpha_lambda(sys, poles, rel_qqbar);
     
     % Matrix and dynamic matrices
     [Ms_s, fs_s] = Ms_fs(sys, alpha_a, alpha_u);
@@ -73,7 +63,6 @@ function u = sliding_underactuated(sys, etas, poles, ...
     params_hat_n = (params_min + params_max)/2;
     
     fs_hat_s = subs(fs_s, params_s, params_hat_s);
-    fs_hat_s
     fs_hat_n = subs(fs_hat_s, params_hat_s, params_hat_n);
 
     % Dynamics uncertainties
