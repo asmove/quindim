@@ -49,11 +49,14 @@ function dq = df(t, q_p, sys, u_func, is_dyn_control)
     
     qp_s = [sys.kin.q; p];
     qp_n = [q_num; p_num];
+
+    symbs = [symbs.'; qp_s];
+    m_params = [m_params.'; qp_n];
     
-    C_num = subs(C_params, qp_s, qp_n);
-    H_num = subs(H_params, qp_s, qp_n);
-    h_num = subs(h_params, qp_s, qp_n);
-    Z_num = subs(Z_params, qp_s, qp_n);
+    C_num = subs(C_params, symbs, m_params);
+    H_num = subs(H_params, symbs, m_params);
+    h_num = subs(h_params, symbs, m_params);
+    Z_num = subs(Z_params, symbs, m_params);
     
     if(is_dyn_control)
         [dz, u_num] = u_func(t, q_p);

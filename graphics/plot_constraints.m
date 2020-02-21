@@ -120,8 +120,8 @@ function hfig = plot_constraints(sys, time, states)
         for j = 1:m
             idx = idx + 1;
             
-            const = Aqps(idx);
-            constraint = latex(const)
+            const = simplify_(Aqps(idx));
+            constraint = latex(const);
             
             latex_origs = sys.descrip.latex_origs;
             latex_convert = sys.descrip.latex_text;
@@ -141,7 +141,7 @@ function hfig = plot_constraints(sys, time, states)
     plot_info.titles = repeat_str('', length(consts_label));
     plot_info.xlabels = xlabels;
     plot_info.ylabels = consts_label;
-    plot_info.grid_size = [2, 1];
+    plot_info.grid_size = [1, 1];
     
     hfig = my_plot(time, unhol, plot_info);
 end

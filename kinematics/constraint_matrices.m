@@ -33,5 +33,6 @@ function [A, C] = constraint_matrices(sys)
         end
     end
     
-    C = dedenominatorify(C);
+    x = [sys.kin.q; sys.kin.p];
+    C = dedenominatorify(C, x);
 end

@@ -1,8 +1,8 @@
-% clear all
-% close all
-% clc
-% 
-% run('~/github/Robotics4fun/examples/1_mass/code/main.m');
+clear all
+close all
+clc
+
+run('~/github/Robotics4fun/examples/1_mass/code/main.m');
 
 percs = [0];
 switch_types = {'sign '};
