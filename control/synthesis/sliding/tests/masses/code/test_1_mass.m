@@ -39,11 +39,11 @@ tf = 2*pi/w;
 dt = 0.01;
 tspan = 0:dt:tf;
 
-dx = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
-% output_fun = @(t, x) output_sliding(t, x, x_xp_d, u, sys, tf);
-% sol = validate_model(sys, tspan, x0, output_fun, false);
-sol = my_ode45(dx, tspan, x0);
+output_fun = @(t, x) output_sliding(t, x, x_xp_d, u, sys, tf);
+sol = validate_model(sys, tspan, x0, output_fun, false);
+
 x = sol';
+tspan = tspan'; 
 
 [m, ~] = size(sys.dyn.Z);
 

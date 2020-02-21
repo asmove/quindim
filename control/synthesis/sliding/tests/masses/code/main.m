@@ -5,7 +5,7 @@
 % run('~/github/Robotics4fun/examples/1_mass/code/main.m');
 
 percs = [0];
-switch_types = {'sat'};
+switch_types = {'sign '};
 clear_inner_close_all();
 
 for perc = percs
