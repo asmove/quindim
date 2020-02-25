@@ -246,6 +246,8 @@ u_func = @(t, x) zeros(length(sys.descrip.u), 1);
 
 % System modelling
 sol = validate_model(sys, t, x0, u_func, false);
+t = t';
+x = sol';
 
 plot_info.titles = {'', '', '', '', '', '', '', '', ''};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
@@ -258,7 +260,8 @@ plot_info.grid_size = [3, 3];
 
 % States and energies plot
 hfigs_states = my_plot(t, sol', plot_info);
-hfig_energies = plot_energies(sys, t, sol);
+hfig_energies = plot_energies(sys, t, x);
+hfig_consts = plot_constraints(sys, t, x);
 
 % Energies
 saveas(hfig_energies, '../imgs/energies', 'epsc');

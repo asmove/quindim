@@ -30,16 +30,16 @@ function [hfigs, axs] = my_plot(t, x, plot_config)
             legends_j = legends{j};
             markers_j = markers{j};
             
-            if(iscell(legends_j))
-                len_legends = length(legends_j);
+            if(iscell(legends{j}))
+                len_legends = length(legends{j});
             else
-                len_legends = length(legends(i));
+                len_legends = length(legends);
             end
             
-            if(iscell(markers_j))
-                len_markers = length(markers_j);
+            if(iscell(markers{j}))
+                len_markers = length(markers{j});
             else
-                len_markers = length(markers_j(i));            
+                len_markers = length(markers);
             end
                         
             if(len_i_multiplots + 1 ~= len_legends)
@@ -129,7 +129,7 @@ function [hfigs, axs] = my_plot(t, x, plot_config)
                 is_multiplot = ~isempty(multiplot_idxs);
                 
                 if(is_multiplot)
-                    if(iscell(legends))
+                    if(iscell(legends{j}))
                         legends_j = legends{h};
                         markers_j = markers{h};
                     else
@@ -154,6 +154,10 @@ function [hfigs, axs] = my_plot(t, x, plot_config)
                     for multiplot_idx = multiplot_idxs
                         markers_f = markers_j{f};
                         legends_f = legends_j{f};
+                        
+                        markers_f
+                        legends_f
+                        tail_x(:, multiplot_idx)
                         
                         if(~isfield(plot_config, 'plot_type'))
                             plot(t, tail_x(:, multiplot_idx), markers_f);

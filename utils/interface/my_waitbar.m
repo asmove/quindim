@@ -76,23 +76,14 @@ classdef my_waitbar
         end
         
         function h = find_handle(obj)
-            handles = findall(0,'type','figure','tag','TMWWaitbar');
-            
-            for i = 1:length(handles)
-                children = handles(i).Children;
-                titleStr = children(2).Title;
-                if(strcmp(titleStr, obj.msg))
-                    break
-                end
-            end
-            
-            h = handles(i);
+            h = findall(0,'type','figure','tag','TMWWaitbar');
+            h = h(obj.waitbar_id);
         end
         
         function delete(obj)
             % obj is always scalar
-            h = find_handle(obj);
-            delete(h);
+            F = findall(0,'type','figure','tag','TMWWaitbar');
+            delete(F);
         end
                 
         function obj = update_waitbar(obj, t, tf)
@@ -149,26 +140,12 @@ classdef my_waitbar
                 part2 = '00';
             else
                 part2 = parts{2};
-                part2 = terop(length(part2)==2, part2, [part2, '0']);    
+                part2 = terop(length(part2)==2, part2, [part2, '0']);
+                
             end
             
             a = str2num([parts{1}, '.', part2]);
-            speed = num2str(a*10^b);
-            parts = strsplit(speed, '.');
-            
-            if(length(parts) == 1)
-                part2 = '00';
-            else
-                part2 = parts{2};                
-                
-                if(length(part2) == 1)
-                    part2 = [part2, '0'];
-                else
-                    part2 = part2(1:2);
-                end
-            end
-            
-            speed_new = [parts{1}, '.', part2];
+            speed_new = num2str(a*10^b);
             
             obj.t_end_str = datestr(seconds(t_f), 'HH:MM:SS');
             obj.msg = sprintf(obj.time_mask, perc, speed_new, ...
@@ -183,11 +160,18 @@ classdef my_waitbar
             
             waitbar(t/tf, obj.wb, obj.msg);
             
+            EPS = 1/100;
+            if(t == (1-EPS)*tf)
+                obj.close_window();
+            end
+            
             obj.previous_t = tic;
             obj.t_prev = obj.t_real;
         end
         
         function close_window(obj)
+            h = obj.find_handle();
+            
             if(~isempty(obj.tf_real_vec))
                % Erase waitbar
                 tf = obj.tf_real_vec(end);
@@ -195,7 +179,7 @@ classdef my_waitbar
                 fprintf('Elapsed time is %.6f seconds.\n', tf); 
             end
             
-            obj.delete();
+            delete(h);
         end
     end
 end
