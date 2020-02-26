@@ -1,4 +1,4 @@
-function Fs = dynamics_uncertainties(fs, q_p, params_s, params_lims)
+function [Fs, abs_fs_fshat] = dynamics_uncertainties(fs, q_p, params_s, params_lims)
     params_hat_s = add_symsuffix(params_s, '_hat');
     fs_hat = subs(fs, params_s, params_hat_s);
 

@@ -74,7 +74,7 @@ x0 = [0; 1];
 
 % Final time
 tf = 2*pi*sqrt(m_num/k_num);
-dt = 0.01;
+dt = 0.1;
 tspan = 0:dt:tf;
 
 u_func = @(t, x) 0;

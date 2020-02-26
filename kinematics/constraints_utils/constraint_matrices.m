@@ -26,13 +26,16 @@ function [A, C] = constraint_matrices(sys)
         A = [];
         n = length(sys.kin.q);
         C = eye(n);
-    
+        
+        sys.kin.p = sym('p', size(sys.kin.qp));
+        sys.kin.pp = sym('pp', size(sys.kin.qp));
+        
         if(is_holonomic || is_nonholonomic)
             msg = ['When unconstrained, the fields hol_constraints and unhol_constraints cannot be presented.'];
             error(msg);
         end
     end
     
-    x = [sys.kin.q; sys.kin.p];
+    x = [sys.kin.q; ];
     C = dedenominatorify(C, x);
 end

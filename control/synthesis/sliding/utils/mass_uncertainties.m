@@ -1,4 +1,5 @@
-function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_lims)
+function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, ...
+                                                  params_syms, params_lims)
     
     n = length(Ms);
     
@@ -8,6 +9,8 @@ function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, params_syms, params_l
     
     Ms_min = subs(Ms, params_syms, params_min);
     Ms_max = subs(Ms, params_syms, params_max);
+    
+    
     
     % inv(Mu) = I + inv(Ms_hat)
     % Mu = I + Ms_hat

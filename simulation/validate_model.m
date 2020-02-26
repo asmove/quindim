@@ -10,7 +10,9 @@ function xout = validate_model(sys, tspan, x0, ...
     
     % Mass matrix
     % options = odeset('RelTol', 1e-7, 'AbsTol', 1e-7);
-    xout = my_ode45(odefun, tspan, x0);
+    % xout = my_ode45(odefun, tspan, x0);
+    degree = 8;
+    [t, xout] = ode(degree, odefun, x0, tspan);
 end
 
 function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)

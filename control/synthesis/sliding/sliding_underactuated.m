@@ -74,11 +74,15 @@ function u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar)
     fs_hat_n = subs(fs_hat_s, params_hat_s, params_hat_n);
 
     % Dynamics uncertainties
-    Fs = dynamics_uncertainties(fs_s, q_p, params_s, params_lims);
+    [Fs, Fs, abs_fs_fshat]= dynamics_uncertainties(fs_s, q_p, ...
+                                                   params_s, params_lims);
     
     % Mass matrix uncertainties
     [D, Dtilde, Ms_hat_n] = mass_uncertainties(Ms_s, q_p, params_s, ...
                                                   params_lims);
+    Ms_hat = subs(Ms_s, params_s, params_hat_s);
+    n_M = length(Ms_hat);
+    Delta = Ms_s*inv(Ms_hat) - eye(n_M);
     
     if(all(eig(Dtilde) > 1) || all(eig(Dtilde) < 0))
         error('D_tilde MUST have eigenvalues lower than 1 and greater than 0');
@@ -97,6 +101,8 @@ function u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar)
     % Dynamics approximations
     u.Ms_hat = vpa(Ms_hat_n);    
     u.fs_hat = vpa(fs_hat_n);
+    
+    u.Delta = Delta
     
     u.fs_hat_s = fs_hat_s;
     u.fs_hat_n = fs_hat_n;

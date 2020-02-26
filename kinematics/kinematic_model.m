@@ -24,6 +24,7 @@ function sys = kinematic_model(sys)
     % States and its derivatives
     q = sys.kin.q;
     qp = sys.kin.qp;
+    
     x = [sys.kin.q; sys.kin.qp];
     xp = [sys.kin.qp; sys.kin.qpp];
     
