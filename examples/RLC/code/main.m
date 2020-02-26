@@ -18,7 +18,8 @@ syms L R k g real;
 sys.descrip.syms = [L, R, k, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
+% sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
+sys.descrip.model_params = [0.5, 1000, 1/25e-6, 9.8];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; 0];
@@ -72,9 +73,23 @@ R_num = sys.descrip.model_params(2);
 C_num = 1/sys.descrip.model_params(3);
 
 % Time [s]
-omega = 1/sqrt(L_num*C_num);
-tf = 2*pi/omega;
-dt = tf/100;
+% omega = 1/sqrt(L_num*C_num);
+% tf = 2*pi/omega;
+R = model_params(2);
+L = model_params(1);
+C = 1/model_params(3);
+
+alpha = R/(2*L);
+w_d = sqrt(1/(L*C) - R^2/(4*L^2));
+xi = w_d/alpha;
+zeta = sqrt(1/(1 + xi^2));
+w_n = alpha/zeta;
+
+perc = 1/100;
+tf = -log(perc)/(zeta*w_n);
+
+scaler = 100;
+dt = tf/scaler;
 t = 0:dt:tf;
 
 % Initia conditions [m; m/s]

@@ -32,7 +32,7 @@ function dq = df(t, q_p, sys, u_func, is_dyn_control)
 
     symbs = sys.descrip.syms;
     m_params = sys.descrip.model_params;
-    
+
     if(isempty(C_params))
         C_params = subs(sys.kin.C, symbs, m_params);
         H_params = subs(sys.dyn.H, symbs, m_params);
