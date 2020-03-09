@@ -20,15 +20,10 @@ function Ms_struct = mass_uncertainties2(Ms, q_p, params_s, params_lims)
     Ms_struct.Omega = Omega;
     Ms_struct.Omega_1 = Omega_1;
     
-    det_Ms_max = det(Ms_max);
-    det_Ms_min = det(Ms_min);
-    adjMs_max_Ms_min = adjoint(Ms_max)*Ms_min;
-    adjMs_min_Ms_max = adjoint(Ms_min)*Ms_max;
-    
     % D calculation
-    F = abs(sqrt(adjMs_max_Ms_min) - det(Ms_max)*eye(n));
-    G = abs(sqrt(adjMs_min_Ms_max) - det(Ms_min)*eye(n));
-    den_D = det(Ms_min);
+    F = abs(sqrt(adjoint(Ms_max)*Ms_min) - sqrt(det(Ms_max))*eye(n));
+    G = abs(sqrt(adjoint(Ms_min)*Ms_max) - sqrt(det(Ms_min))*eye(n));
+    den_D = abs(sqrt(det(Ms_min)));
     den_D = subs(den_D, params_s, params_lims(:, 1));
     
     Ms_struct.F = F;

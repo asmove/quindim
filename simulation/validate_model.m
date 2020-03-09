@@ -14,7 +14,7 @@ function xout = validate_model(sys, tspan, x0, ...
     % options = odeset('RelTol', 1e-7, 'AbsTol', 1e-7);
     % [t, xout] = ode45(odefun, tspan, x0, options);
     
-    degree = 6;
+    degree = 10;
     [t, xout] = ode(degree, odefun, x0, tspan);
     
     xout = double(xout);
