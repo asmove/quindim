@@ -1,4 +1,4 @@
-function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
+function result = triang_ineq(expr, x, label, symbs, params_eval)
     expr = expand(expr);
     expr_strip = strsplit(char(expr));
     
@@ -69,12 +69,7 @@ function result = triang_ineq(expr, x, label, symbs, params_eval, is_min)
                     is_bounded = ismember(char(bounded_func), char(monome));
 
                     if(all(is_bounded))
-                        if(is_min)
-                            expr_x = sym(0);
-                            break;
-                        else
-                            expr_x = expr_x*sym(1);
-                        end
+                        expr_x = expr_x*sym(1);
                     end
                 end
             end

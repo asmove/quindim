@@ -68,51 +68,27 @@ function u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar)
     % Parameter limits
     params_min = params_lims(:, 1);
     params_max = params_lims(:, 2);
-    params_hat_n = (params_min + params_max)/2;
-    
-    fs_hat_s = subs(fs_s, params_s, params_hat_s);
-    fs_hat_n = subs(fs_hat_s, params_hat_s, params_hat_n);
 
     % Dynamics uncertainties
-    [Fs, Fs, abs_fs_fshat]= dynamics_uncertainties(fs_s, q_p, ...
-                                                   params_s, params_lims);
+    Fs_struct = dynamics_uncertainties(fs_s, q_p, ...
+                                       params_s, params_lims, ...
+                                       sys.descrip.model_params');
     
     % Mass matrix uncertainties
-    [D, Dtilde, Ms_hat_n] = mass_uncertainties(Ms_s, q_p, params_s, ...
-                                                  params_lims);
-    Ms_hat = subs(Ms_s, params_s, params_hat_s);
-    n_M = length(Ms_hat);
-    Delta = Ms_s*inv(Ms_hat) - eye(n_M);
+    Ms_struct = mass_uncertainties2(Ms_s, q_p, params_s, params_lims);
     
-    if(all(eig(Dtilde) > 1) || all(eig(Dtilde) < 0))
-        error('D_tilde MUST have eigenvalues lower than 1 and greater than 0');
-    end
-                                            
     % Gains
-    k = simplify_(inv(Dtilde)*(Fs + D*abs(sr_p + fs_hat_n) + etas));
+    u.K = @(Fs_struct, Ms_struct) ...
+            diag(simplify_(Ms_struct.C*(Fs_struct.Fs + ...
+                                        Ms_struct.D*abs(sr_p + ...
+                                        Fs_struct.fs_hat) + etas)));
+        
+    u.Ms_struct = Ms_struct;
+    u.Fs_struct = Fs_struct;
     
-    k = subs(k, params_hat_s, params_hat_n);
-    K = vpa(diag(k));
-       
     % Manifold parameters
     u.lambda = [lambda_a, lambda_u];
     u.alpha = [alpha_a, alpha_u];
-    
-    % Dynamics approximations
-    u.Ms_hat = vpa(Ms_hat_n);    
-    u.fs_hat = vpa(fs_hat_n);
-    
-    u.Delta = Delta
-    
-    u.fs_hat_s = fs_hat_s;
-    u.fs_hat_n = fs_hat_n;
-    
-    u.K = K;
-    
-    % Maximum and minimum of mass matrix and dynamic vector
-    u.D = double(D);
-    u.Dtilde = double(Dtilde);
-    u.Fs = double(Fs);
     
     % Sliding surface
     u.s = s;

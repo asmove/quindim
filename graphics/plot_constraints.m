@@ -123,10 +123,12 @@ function hfig = plot_constraints(sys, time, states)
             const = simplify_(Aqps(idx));
             constraint = latex(const);
             
-            latex_origs = sys.descrip.latex_origs;
-            latex_convert = sys.descrip.latex_text;
-            
-            constraint = str2latex(constraint, latex_origs, latex_convert);
+            if(isfield(sys.descrip, 'latex_origs'))
+                latex_origs = sys.descrip.latex_origs;
+                latex_convert = sys.descrip.latex_text;
+
+                constraint = str2latex(constraint, latex_origs, latex_convert);                           
+            end
             
             if(iscell(constraint))
                constraint = constraint{1}; 

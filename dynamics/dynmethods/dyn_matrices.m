@@ -36,4 +36,11 @@ function sys = dyn_matrices(sys, helper)
     sys.dyn.h = simplify_(sys.dyn.nu + sys.dyn.g + ...
                           sys.dyn.f_b + sys.dyn.f_k);
     sys.dyn.Z = simplify_(sys.dyn.U);
+    
+    n = length(sys.dyn.H);
+    m = length(sys.descrip.u);
+    
+    if(isempty(sys.dyn.Z))
+        sys.dyn.Z = zeros(n, m);
+    end
 end

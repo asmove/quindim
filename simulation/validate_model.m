@@ -8,11 +8,16 @@ function xout = validate_model(sys, tspan, x0, ...
     
     odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
     
-    % Mass matrix
+%     % Mass matrix    
+%     xout = my_ode45(odefun, tspan, x0);
+    
     % options = odeset('RelTol', 1e-7, 'AbsTol', 1e-7);
-    % xout = my_ode45(odefun, tspan, x0);
-    degree = 8;
+    % [t, xout] = ode45(odefun, tspan, x0, options);
+    
+    degree = 6;
     [t, xout] = ode(degree, odefun, x0, tspan);
+    
+    xout = double(xout);
 end
 
 function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
@@ -68,8 +73,12 @@ function dq = df(t, q_p, sys, u_func, is_dyn_control)
     
     Hinv = double(H_num\eye(m));
     
-    accel = Hinv*(-h_num + Z_num*u_num);
     speed = C_num*p_num;
+    if(isempty(Z_num))
+        accel = -Hinv*h_num;
+    else
+        accel = Hinv*(-h_num + Z_num*u_num);
+    end
     
     if(is_dyn_control)
         dq = vpa([speed; accel; dz]);

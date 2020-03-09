@@ -1,27 +1,22 @@
-function [Fs, abs_fs_fshat] = dynamics_uncertainties(fs, q_p, params_s, params_lims)
+function Fs_struct = ...
+        dynamics_uncertainties(fs, q_p, params_s, ...
+                               params_lims, params_hat)
     params_hat_s = add_symsuffix(params_s, '_hat');
-    fs_hat = subs(fs, params_s, params_hat_s);
+    fs_hat = subs(fs, params_s, params_hat);
 
     % Parameter boundaries
     params_min = params_lims(:, 1);
     params_max = params_lims(:, 2);
 
-    abs_fs_fshat = expand(fs - fs_hat);
-   
-    fs_len = length(fs);
-    Fs = sym(zeros(fs_len, 1));
-    for i = 1:fs_len
-        [num, den] = numden(abs_fs_fshat(i));
-
-        % Numerator and denominator for f vector
-        num_sup = triang_ineq(num, q_p, 'F calculation', ...
-                              [params_s; params_hat_s], ...
-                              [params_max; params_max], 0);
-        
-        den_inf = triang_ineq(den, q_p, 'F calculation', ...
-                              [params_s; params_hat_s], ...
-                              [params_min; params_min], 1);
-        
-        Fs(i) = num_sup./den_inf;
-    end
+    abs_fs_fshat = abs(expand(fs - fs_hat));
+    
+    [num, den] = numden(simplify_(abs_fs_fshat));
+    den = subs(den, ...
+               [params_hat_s; params_s], ...
+               [params_lims(:, 1); params_lims(:, 1)]);
+    
+    Fs_struct.Fs_num = num;
+    Fs_struct.Fs_den = den;
+    Fs_struct.abs_fs_fshat = abs_fs_fshat;
+    Fs_struct.fs_hat = fs_hat;
 end

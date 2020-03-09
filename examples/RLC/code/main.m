@@ -19,7 +19,8 @@ sys.descrip.syms = [L, R, k, g];
 
 % Paramater symbolics of the system
 % sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
-sys.descrip.model_params = [0.5, 1000, 1/25e-6, 9.8];
+sys.descrip.model_params = [0.5, 1, 1/25e-6, 9.8];
+model_params = sys.descrip.model_params;
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; 0];
@@ -85,10 +86,9 @@ xi = w_d/alpha;
 zeta = sqrt(1/(1 + xi^2));
 w_n = alpha/zeta;
 
-perc = 1/100;
-tf = -log(perc)/(zeta*w_n);
+tf = 2*pi/w_n;
 
-scaler = 100;
+scaler = 10;
 dt = tf/scaler;
 t = 0:dt:tf;
 

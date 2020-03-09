@@ -1,5 +1,4 @@
-function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, ...
-                                                  params_syms, params_lims)
+function Ms_struct = mass_uncertainties(Ms, q_p, params_syms, params_lims)
     
     n = length(Ms);
     
@@ -10,17 +9,22 @@ function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, ...
     Ms_min = subs(Ms, params_syms, params_min);
     Ms_max = subs(Ms, params_syms, params_max);
     
-    
-    
     % inv(Mu) = I + inv(Ms_hat)
     % Mu = I + Ms_hat
     Omega = Ms_max/Ms_min;
     Omega_1 = inv(Omega);
     Ms_hat = sqrt(Ms_max*Ms_min);
     
+    Ms_struct.Ms_min = Ms_min;
+    Ms_struct.Ms_max = Ms_max;
+    Ms_struct.Omega = Omega;
+    Ms_struct.Omega_1 = Omega_1;
+    
     % D calculation
-    D_Omega_sq_sup = supinf_matrix(Omega, q_p, params_syms, params_lims, 0);
-    D_Omega_1_sq_sup = supinf_matrix(Omega_1, q_p, params_syms, params_lims, 0);
+    D_Omega_sq_sup = supinf_matrix(Omega, q_p, params_syms, ...
+                                   params_lims, 0);
+    D_Omega_1_sq_sup = supinf_matrix(Omega_1, q_p, params_syms, ...
+                                     params_lims, 0);
     
     D_Omega_sup = abs(-eye(n) + sqrt(D_Omega_sq_sup));
     D_Omega_1_sup = abs(-eye(n) + sqrt(D_Omega_1_sq_sup));
@@ -38,8 +42,10 @@ function [D, Dtilde, Ms_hat] = mass_uncertainties(Ms, q_p, ...
     end
     
     % Dtilde calculation
-    D_Omega_sq_inf = supinf_matrix(Omega, q_p, params_syms, params_lims, 1);
-    D_Omega_1_sq_inf = supinf_matrix(Omega_1, q_p, params_syms, params_lims, 1);
+    D_Omega_sq_inf = supinf_matrix(Omega, q_p, ...
+                                   params_syms, params_lims, 1);
+    D_Omega_1_sq_inf = supinf_matrix(Omega_1, q_p, ...
+                                     params_syms, params_lims, 1);
     
     I_m_D_Omega_inf = abs(sqrt(D_Omega_sq_inf));
     I_m_D_Omega_1_inf = abs(sqrt(D_Omega_1_sq_inf));

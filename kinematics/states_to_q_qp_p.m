@@ -23,8 +23,10 @@ function [q, qp, p] = states_to_q_qp_p(sys, states)
         
         C_qp = C*p_s;
         
-        C_qp_n = subs(C_qp, [q_s, p_s.', syms], ...
-                            [q_i, p_i, model_params]);
+        symbs = [q_s, p_s.', syms];
+        nums = [q_i, p_i, model_params];
+        
+        C_qp_n = subs(C_qp, symbs, nums);
         
         qp(i, :) = vpa(C_qp_n');
     end

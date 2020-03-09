@@ -19,7 +19,7 @@ syms m b k g real;
 sys.descrip.syms = [m, b, k, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [1, 0, 9, 9.8];
+sys.descrip.model_params = [1, 1, 9, 9.8];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];
