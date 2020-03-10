@@ -44,7 +44,7 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
         if(is_dyn_bound)
             switch_func = @(s) poly_sat(s, phi, u_struct.degree);
         else
-            switch_func = @(s) poly_sat(s, u.phi, u_struct.degree);
+            switch_func = @(s) poly_sat(s, u_struct.phi, u_struct.degree);
         end
     else
         error('The options are sat, hyst, sign or poly.');

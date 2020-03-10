@@ -47,6 +47,10 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
     qp_u_d = subs(qp_u, [q; p], [q_d; p_d]);
     qpp_u_d = subs(qpp_u, [q; p; pp], [q_d; p_d; pp_d]);
     
+    q_d = [q_a_d; q_u_d];
+    qp_d = [qp_a_d; qp_u_d];
+    qpp_d = [qpp_a_d; qpp_u_d];
+    
     % Sliding function
     error_a = q_a - q_a_d;
     errorp_a = qp_a - qp_a_d;
@@ -86,8 +90,8 @@ function [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u)
     qp = C*p;
     qpp = Cp*p + C*pp;
     
-    q_p = [q; p];
-    qp_pp = [qp; pp];
+    q_p = [q; p; q_d; qp_d];
+    qp_pp = [qp; pp; qp_d; qpp_d];
     
     sr_p = dvecdt(sr, q_p, qp_pp);
 end

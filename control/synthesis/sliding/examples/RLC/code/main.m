@@ -4,16 +4,16 @@
 % 
 % run('~/github/Robotics4fun/examples/RLC/code/main.m');
 
-percs = 0;
-switch_types = {'sign'};
-is_dyn_bounds = false;
+percs = [0, 0.2];
+switch_types = {'sign', 'sat', 'poly', 'hyst'};
+is_dyn_bounds = [false, true];
 
 n_percs = length(percs);
 n_switchs = length(switch_types);
 
 for n_perc = 1:n_percs
     for n_switch = 1:n_switchs
-        perc_ = percs(n_perc);
+        perc = percs(n_perc);
         switch_type = switch_types{n_switch};
         
         if(strcmp(switch_type, 'sat') || strcmp(switch_type, 'poly'))

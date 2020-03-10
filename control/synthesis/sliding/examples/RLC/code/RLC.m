@@ -4,30 +4,33 @@ clear sliding_s;
 clear u
 clear(func2str(@output_sliding))
 
-% vars = whos;
-% 
-% for i = 1:length(vars)
-%     var = vars(i);
-%     name = var.name;
-%     
-%     except_names = {'sys', 'vars', ...
-%                     'perc', 'switch_type', ...
-%                     'is_dyn_bound'};
-%     is_not_except_names = true;
-%     
-%     for j = 1:length(except_names)
-%         except_name = except_names{j};
-%         is_not_except_names = is_not_except_names & ~strcmp(name, except_name);
-%     end
-%     
-%     if(is_not_except_names)
-%         clear(name);
-%     end
-% end
+vars = whos;
+
+for i = 1:length(vars)
+    var = vars(i);
+    name = var.name;
+    
+    except_names = {'sys', 'vars', ...
+                    'perc', 'switch_type', ...
+                    'is_dyn_bound', 'perc', ...
+                    'n_perc', 'n_percs', ...
+                    'n_switch', 'n_switchs', ...
+                    'is_dyn_bounds', 'switch_types', 'percs'};
+    is_not_except_names = true;
+    
+    for j = 1:length(except_names)
+        except_name = except_names{j};
+        is_not_except_names = is_not_except_names & ~strcmp(name, except_name);
+    end
+    
+    if(is_not_except_names)
+        clear(name);
+    end
+end
 
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
-imprecision = perc_*ones(size(sys.descrip.syms))';
+imprecision = perc*ones(size(sys.descrip.syms))';
 params_lims = [(1-imprecision).*model_params, ...
                (1+imprecision).*model_params];
 
@@ -53,17 +56,12 @@ x_d0 = x_d(0);
 pole = -10;
 poles = pole*ones(m, 1);
 
+x0 = [0; 0];
+
 E = equationsToMatrix(rel_qqbar, sys.kin.q);
 alpha = E;
 C = eig_to_matrix(poles);
 lambda = -E*C;
-
-% Initial values
-if(is_dyn_bound)
-    x0 = [0; 0; terop(s0 > 0, u.phi, -u.phi)];
-else
-    x0 = [0; 0];
-end
 
 ep0 = x0(2) - x_d0(2);
 e0 = x0(1) - x_d0(1);
@@ -91,6 +89,13 @@ elseif(strcmp(switch_type, 'poly'))
     u.phi = phi;
     u.degree = 5;
 else
+end
+
+% Initial values
+if(is_dyn_bound)
+    x0 = [0; 0; terop(s0 > 0, u.phi, -u.phi)];
+else
+    x0 = [0; 0];
 end
 
 % Controller gain 
@@ -121,7 +126,7 @@ u.Fs_struct.Fs_num = subs(u.Fs_struct.Fs_num, ...
 u.Fs_struct.Fs = u.Fs_struct.Fs_num/u.Fs_struct.Fs_den;
 
 % Initial conditions
-n_diff = 100;
+n_diff = 50;
 tf = T;
 dt = perc_T*T/(n_diff+1);
 
