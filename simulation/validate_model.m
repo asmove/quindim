@@ -1,14 +1,23 @@
-function sol = validate_model(sys, t, x0, u_func)
-    [n, m] = size(sys.kin.C);
-    
-    if(length(x0) ~= n + m)
-        error('Initial values MUST have the same length as states!')
+function xout = validate_model(sys, tspan, x0, ...
+                                       u_func, is_dyn_control)
+    if(nargin == 4)
+        is_dyn_control = false;
     end
     
-    df_ = @(t_, q_p) df(t_, q_p, sys, t(end), u_func);
+    [n, m] = size(sys.kin.C);
     
-    % Mass matrix
-    sol = my_ode45(df_, t, x0);
+    odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
+    
+%     % Mass matrix    
+%     xout = my_ode45(odefun, tspan, x0);
+    
+    % options = odeset('RelTol', 1e-7, 'AbsTol', 1e-7);
+    % [t, xout] = ode45(odefun, tspan, x0, options);
+    
+    degree = 6;
+    [t, xout] = ode(degree, odefun, x0, tspan);
+    
+    xout = double(xout);
 end
 
 function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
@@ -19,7 +28,7 @@ function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
     direction = 0;
 end
 
-function dq = df(t, q_p, sys, tf, u_func)    
+function dq = df(t, q_p, sys, u_func, is_dyn_control)
     [n, m] = size(sys.kin.C);
     
     t0 = tic;
@@ -28,7 +37,7 @@ function dq = df(t, q_p, sys, tf, u_func)
 
     symbs = sys.descrip.syms;
     m_params = sys.descrip.model_params;
-    
+
     if(isempty(C_params))
         C_params = subs(sys.kin.C, symbs, m_params);
         H_params = subs(sys.dyn.H, symbs, m_params);
@@ -43,25 +52,40 @@ function dq = df(t, q_p, sys, tf, u_func)
     end
     
     q_num = q_p(1:n);
-    p_num = q_p(n+1:end);
+    p_num = q_p(n+1:n+m);
     
     qp_s = [sys.kin.q; p];
     qp_n = [q_num; p_num];
+
+    symbs = [symbs.'; qp_s];
+    m_params = [m_params.'; qp_n];
     
-    C_num = subs(C_params, qp_s, qp_n);
-    H_num = subs(H_params, qp_s, qp_n);
-    h_num = subs(h_params, qp_s, qp_n);
-    Z_num = subs(Z_params, qp_s, qp_n);
+    C_num = subs(C_params, symbs, m_params);
+    H_num = subs(H_params, symbs, m_params);
+    h_num = subs(h_params, symbs, m_params);
+    Z_num = subs(Z_params, symbs, m_params);
     
-    u_num = u_func(t, q_p);
+    if(is_dyn_control)
+        [dz, u_num] = u_func(t, q_p);
+    else
+        u_num = u_func(t, q_p);
+    end
     
     Hinv = double(H_num\eye(m));
     
-    accel = Hinv*(-h_num + Z_num*u_num);
     speed = C_num*p_num;
+    if(isempty(Z_num))
+        accel = -Hinv*h_num;
+    else
+        accel = Hinv*(-h_num + Z_num*u_num);
+    end
     
-    dq = double([speed; accel]);    
-    
+    if(is_dyn_control)
+        dq = vpa([speed; accel; dz]);
+    else
+        dq = vpa([speed; accel]);
+    end
+        
     % Time elapsed
     dt = toc(t0);
 end

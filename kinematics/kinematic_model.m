@@ -24,6 +24,7 @@ function sys = kinematic_model(sys)
     % States and its derivatives
     q = sys.kin.q;
     qp = sys.kin.qp;
+    
     x = [sys.kin.q; sys.kin.qp];
     xp = [sys.kin.qp; sys.kin.qpp];
     
@@ -44,7 +45,6 @@ function sys = kinematic_model(sys)
         
         % Body angular velocity
         R = body_curr.T(1:3, 1:3);
-
         omega_ = omega(R, x, xp);
         
         sys.descrip.bodies{i}.omega = simplify_(omega_);

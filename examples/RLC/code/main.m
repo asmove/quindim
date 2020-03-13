@@ -18,7 +18,9 @@ syms L R k g real;
 sys.descrip.syms = [L, R, k, g];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
+% sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
+sys.descrip.model_params = [0.5, 1, 1/25e-6, 9.8];
+model_params = sys.descrip.model_params;
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; 0];
@@ -67,22 +69,39 @@ sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
 % Decay time
-m_num = sys.descrip.model_params(1);
-b_num = sys.descrip.model_params(2);
-T = m_num/b_num;
+L_num = sys.descrip.model_params(1);
+R_num = sys.descrip.model_params(2);
+C_num = 1/sys.descrip.model_params(3);
 
 % Time [s]
-tf = 0.05;
-dt = 0.001;
-t = 0:dt:tf; 
+% omega = 1/sqrt(L_num*C_num);
+% tf = 2*pi/omega;
+R = model_params(2);
+L = model_params(1);
+C = 1/model_params(3);
+
+alpha = R/(2*L);
+w_d = sqrt(1/(L*C) - R^2/(4*L^2));
+xi = w_d/alpha;
+zeta = sqrt(1/(1 + xi^2));
+w_n = alpha/zeta;
+
+tf = 2*pi/w_n;
+
+scaler = 10;
+dt = tf/scaler;
+t = 0:dt:tf;
 
 % Initia conditions [m; m/s]
 x0 = [0; 1];
 
+u_func = @(t, x) 0;
+
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, t, x0, u_func, false);
 x = sol';
+t = t';
 
 titles = {'', ''};
 xlabels = {'$t$ [s]', '$t$ [s]'};

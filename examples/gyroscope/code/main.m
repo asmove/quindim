@@ -92,10 +92,10 @@ Id_1_n = 0.1;
 Id_2_n = 0.1;
 Id_3_n = 0.1;
 
-b_a_n = 0.1;
-b_b_n = 0.1;
-b_c_n = 0.1;
-b_d_n = 0.1;
+b_a_n = 0;
+b_b_n = 0;
+b_c_n = 0;
+b_d_n = 0;
 
 g_n = 9.8;
 
@@ -149,16 +149,12 @@ t = 0:dt:tf;
 [~, m] = size(sys.dyn.Z);
 
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+sol = validate_model(sys, t, x0, u_func, false);
 
-sol = validate_model(sys, t, x0, u0);
-
-x = t;
+x = t';
 y = sol';
 
-plot_info.titles = {'$\theta_a$', '$\theta_b$', ...
-                    '$\theta_c$', '$\theta_d$', ...
-                    '$\dot \theta_a$', '$\dot \theta_b$', ...
-                    '$\dot \theta_c$', '$\dot \theta_d$'};
+plot_info.titles = repeat_str('', 8);
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', ...
                      '$t$ [s]', '$t$ [s]', ...
                      '$t$ [s]', '$t$ [s]', ...

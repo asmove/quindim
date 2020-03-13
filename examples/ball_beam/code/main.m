@@ -17,6 +17,12 @@ syms phi th r real;
 syms phip thp rp real;
 syms phipp thpp rpp real;
 
+sys.descrip.latex_origs = {{'\mathrm{phi}'}, ...
+                           {'\mathrm{thp}'}, ...
+                           {'\mathrm{rp}'}};
+
+sys.descrip.latex_text = {'\phi', '\dot{\theta}', '\dot{r}'};
+
 I_b = sym('I_b_', [3, 1]);
 I_b = diag(I_b);
 
@@ -62,9 +68,6 @@ sys.descrip.model_params = ones(1, length(sys.descrip.syms));
 sys.descrip.Fq = [f_phi; 0; 0];
 sys.descrip.u = f_phi;
 
-% Constraint condition
-sys.descrip.is_constrained = true;
-
 % State space representation
 sys.descrip.states = [phi; th];
 
@@ -73,8 +76,6 @@ sys.descrip.is_constrained = false;
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
-
-sys.descrip.is_constrained = true;
 
 % Velocity from wheel equal to bar
 T_b = sys.descrip.bodies{1}.T;
@@ -89,6 +90,7 @@ v_wheel_center = dvecdt(p_w, sys.kin.q, sys.kin.qp);
 omega_w = omega(R_bw, sys.kin.q, sys.kin.qp);
 v_wheel_contact = v_wheel_center + cross(omega_w, R_b*[0; -R; 0]);
 
+sys.descrip.is_constrained = true;
 constraints = v_wheel_contact - v_bar_contact;
 sys.descrip.unhol_constraints = {simplify_(constraints(1:2))};
 
@@ -107,7 +109,7 @@ x0 = [0; 0; 1; 0; 0];
 u_func = @(t, x) 0;
 
 % System modelling
-sol = validate_model(sys, t, x0, u_func);
+sol = validate_model(sys, t, x0, u_func, false);
 
 x = t';
 y = sol';
@@ -122,11 +124,11 @@ hfigs_states = my_plot(x, y(:, 1:3), plot_info_q);
 
 plot_info_p.titles = {'', ''};
 plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
-plot_info_p.ylabels = {'$\omega_{\phi}$', '$\dot r$'};
+plot_info_p.ylabels = {'$\omega_{\phi}$', '$\omega_{\theta}$'};
 plot_info_p.grid_size = [2, 1];
 
 % States plot
-hfigs_speeds = my_plot(x, y(:, 4:5), plot_info_p);
+hfigs_speeds = my_plot(x, [y(:, 4), -y(:, 5)], plot_info_p);
 
 % Energies plot
 hfig_consts = plot_constraints(sys, x, y);

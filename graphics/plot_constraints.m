@@ -19,7 +19,7 @@ function hfig = plot_constraints(sys, time, states)
     p_n = p';
     
     n_As = 0;
-    for i = 1:length(sys.kin.A)
+    for i = 1:length(sys.kin.As)
         [n_Ai, ~] = size(sys.kin.As{i});
         n_As = n_As + n_Ai;
     end
@@ -29,10 +29,25 @@ function hfig = plot_constraints(sys, time, states)
     n_p = length(sys.kin.p);
     
     As = sys.kin.As;
+    n_As = length(As);
     
+    wb = my_waitbar('Calculating constraints time lapse');
+    
+    bar_len = 0;
+    
+    [n_const, n_p] = size(As);
+    
+    for A = As
+        A = A{1};
+        [n_const, n_p] = size(A);
+
+        bar_len = bar_len + 2*n_const*n_t;
+    end
+
     acc = 0;
+    i_acc = 0;
     % Each constraint line
-    for i = length(As):-1:1
+    for i = n_As:-1:1
         A_s = As{i};
         C = sys.kin.Cs(i);
         C = C{1};
@@ -68,8 +83,11 @@ function hfig = plot_constraints(sys, time, states)
                 
                 p_n_1(:, k) = double(subs(C*p_s, ...
                                           syms_params, num_params))';
+                
+                i_acc = i_acc + 1;
+                wb.update_waitbar(i_acc, bar_len);
             end
-            
+
             % Each time instant
             for k = 1:n_t
                 p_n_1_i = p_n_1(:, i);
@@ -81,11 +99,13 @@ function hfig = plot_constraints(sys, time, states)
                 consts = vpa(subs(A_s*p_s_1, qp_pars_s, qp_pars_n));
 
                 unhol(i, acc + j) = double(consts(j));
+            
+                i_acc = i_acc + 1;
+                wb.update_waitbar(i_acc, bar_len);
             end
         end
         
         p_n = p_n_1;
-        
         acc = acc + n_const;
     end
         
@@ -98,9 +118,21 @@ function hfig = plot_constraints(sys, time, states)
         [m, ~] = size(sys.kin.As{i});
                 
         for j = 1:m
-            idx = idx + j;
+            idx = idx + 1;
             
-            constraint = latex(Aqps(idx));
+            const = simplify_(Aqps(idx));
+            constraint = latex(const);
+            
+            if(isfield(sys.descrip, 'latex_origs'))
+                latex_origs = sys.descrip.latex_origs;
+                latex_convert = sys.descrip.latex_text;
+
+                constraint = str2latex(constraint, latex_origs, latex_convert);                           
+            end
+            
+            if(iscell(constraint))
+               constraint = constraint{1}; 
+            end
             
             consts_label{end+1} = sprintf('Constraint %d - $%s$', ...
                                     idx, constraint);
@@ -111,7 +143,7 @@ function hfig = plot_constraints(sys, time, states)
     plot_info.titles = repeat_str('', length(consts_label));
     plot_info.xlabels = xlabels;
     plot_info.ylabels = consts_label;
-    plot_info.grid_size = [2, 1];
+    plot_info.grid_size = [1, 1];
     
     hfig = my_plot(time, unhol, plot_info);
 end
