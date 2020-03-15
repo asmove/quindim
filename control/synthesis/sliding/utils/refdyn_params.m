@@ -1,5 +1,4 @@
-function [alpha_a, alpha_u, ...
-          lambda_a, lambda_u] = alpha_lambda(sys, poles, rel_qqbar)
+function refdyn_str = refdyn_params(sys, poles, rel_qqbar, is_int)
     
     [n, m] = size(sys.dyn.Z);
       
@@ -22,10 +21,9 @@ function [alpha_a, alpha_u, ...
 
     alpha_ = D;
     lambda_ = -C*D;
+    mu_ = ;
     
-    alpha_a = alpha_(1:m, 1:m);
-    alpha_u = alpha_(1:m, m+1:end);
-    
-    lambda_a = lambda_(1:m, 1:m);
-    lambda_u = lambda_(1:m, m+1:end);
+    refdyn_str.alpha = alpha_; 
+    refdyn_str.lambda = lambda_; 
+     
 end

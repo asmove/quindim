@@ -44,16 +44,17 @@ n = length(sys.kin.q);
 % Amplitude [A]
 A = 0.1;
 
-% Amplitude [rad/s]
+% angular speed [rad/s]
 omega_ = 100;
 w = 2*pi*omega_;
+
 x_d = @(t) [A*sin(w*t)/w; A*cos(w*t)];
 x_xp_d = @(t) [x_d(t); -A*w*sin(w*t)];
-
 x_d0 = x_d(0);
 
 % Control project design parameters
 pole = -10;
+m = 2;
 poles = pole*ones(m, 1);
 
 x0 = [0; 0];
@@ -75,7 +76,8 @@ t_r = perc_T*T;
 eta = double(abs(s0)/t_r);
 etas = eta*ones(m, 1);
 
-u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar);
+u = sliding_underactuated(sys, etas, poles, ...
+                          params_lims, rel_qqbar, is_int);
 u.switch_type = switch_type;
 
 % Available switch functions
@@ -130,7 +132,7 @@ n_diff = 50;
 tf = T;
 dt = perc_T*T/(n_diff+1);
 
-tspan = 0:dt:tf;
+tspan = (0:dt:tf)';
 df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
 
 u_func = @(t, x) output_sliding(t, x, x_xp_d, ...
@@ -201,8 +203,22 @@ if(is_dyn_bound)
 else
     t_ = linspace(0, tf, length(sliding_s))';
     
-    if(strcmp(switch_type, 'sat') || strcmp(switch_type, 'poly'))
-        phis = [-u.phi*ones(size(t_)), u.phi*ones(size(t_))];
+    switch_types = {'sat', 'poly', 'hyst'};
+    
+    has_phi = false;
+    for i = 1:length(switch_types)
+        has_phi = has_phi || strcmp(switch_type, switch_types{i});
+    end
+        
+    if(has_phi)
+        if(strcmp(switch_type, 'hyst'))
+            phi_maxs = u.phi_max*ones(size(t_));
+            phi_mins = u.phi_min*ones(size(t_));
+        else
+            phi_mins = -u.phi*ones(size(t_));
+            phi_maxs = u.phi*ones(size(t_));
+        end
+        phis = [phi_mins, phi_maxs];
         s_plots = {sliding_s, phis};
 
         hfigs_s = my_plot(t_, s_plots, plot_config);

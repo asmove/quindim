@@ -1,4 +1,5 @@
-function u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar)    
+function u = sliding_underactuated(sys, etas, poles, ...
+                                   params_lims, rel_qqbar, is_int)
     
     [U, S, V] = svd(sys.dyn.Z);
     sys.dyn.H = inv(U)*sys.dyn.H;
@@ -55,22 +56,14 @@ function u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar)
     qp = Cs*p;
     q_p = [q; qp];
     
-    % Sliding constant matrices
-    [alpha_a, alpha_u, lambda_a, lambda_u] = alpha_lambda(sys, poles, ...
-                                                          rel_qqbar);
-    
-    % Matrix and dynamic matrices
-    [Ms_s, fs_s] = Ms_fs(sys, alpha_a, alpha_u);
-    
-    % Sliding surface and auxiliary matrices
-    [s, sr, sr_p] = s_sr_srp(sys, alpha_a, alpha_u, lambda_a, lambda_u);
+    cparams_str = controller_params(sys, poles, rel_qqbar, is_int);
     
     % Parameter limits
     params_min = params_lims(:, 1);
     params_max = params_lims(:, 2);
 
     % Dynamics uncertainties
-    Fs_struct = dynamics_uncertainties(fs_s, q_p, ...
+    Fs_struct = dynamics_uncertainties(cparams_str.fs_s, q_p, ...
                                        params_s, params_lims, ...
                                        sys.descrip.model_params');
     
@@ -87,19 +80,12 @@ function u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar)
     u.Fs_struct = Fs_struct;
     
     % Manifold parameters
-    u.lambda = [lambda_a, lambda_u];
-    u.alpha = [alpha_a, alpha_u];
-    
-    % Sliding surface
-    u.s = s;
+    u.cparams = cparams;
     
     % Converting matrix
     u.U = U;
     u.V = V;
-    
-    u.sr = sr;
-    u.sr_p = sr_p;
-        
+            
     u.params = params_s;
     u.params_hat = params_hat_s;
     

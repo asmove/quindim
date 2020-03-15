@@ -1,11 +1,14 @@
-% Author: Bruno Peixoto
-% Date: 08/01/19
-clear all
+% Minimal example
+% @Author: Bruno Peixoto
+
 if(exist('CLEAR_ALL'))
     if(CLEAR_ALL)
         clear all
     end
 end
+
+close all
+clc
 
 close all
 clc
@@ -79,20 +82,26 @@ sys.descrip.is_constrained = false;
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
-% Time [s]
-dt = 0.1;
+% Decay time
+m_num = sys.descrip.model_params(1);
+b_num = sys.descrip.model_params(2);
+k_num = sys.descrip.model_params(3);
+T = m_num/b_num;
+
+% Final time
 tf = 5;
-t = 0:dt:tf; 
+dt = 0.01;
+tspan = 0:dt:tf;
 
 % Initial conditions
-x0 = [0, 0, 1, 1]';
+x0 = [0, 0, 1, 1, 0, 0, 0, 0]';
 
 % System modelling
-u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func, false);
+u_eval = @(t, x) u_brownian_2D(t, x, 1, 1, sys);
+sol = validate_model(sys, tspan, x0, u_eval, true);
 
-x = t';
-y = sol';
+x = tspan';
+y = sol(1:4, :)';
 
 % Generalized coordinates
 plot_info_q.titles = repeat_str('', 2);
@@ -107,6 +116,9 @@ plot_info_p.xlabels = {'', '$t$ [s]'};
 plot_info_p.ylabels = {'$\dot{x}$', '$\dot{y}$'};
 plot_info_p.grid_size = [2, 1];
 
+% States plot
+hfigs_speeds = my_plot(x, y(:, 3:4), plot_info_p);
+
 % Generalized coordinates
 plot_info_xy.titles = repeat_str('', 1);
 plot_info_xy.xlabels = {'$x$'};
@@ -114,9 +126,6 @@ plot_info_xy.ylabels = {'$y$'};
 plot_info_xy.grid_size = [1, 1];
 
 hfigs_xy = my_plot(y(:, 1), y(:, 2), plot_info_q);
-
-% States plot
-hfigs_speeds = my_plot(x, y(:, 3:4), plot_info_p);
 
 % Energies plot
 hfig_energies = plot_energies(sys, x, y);

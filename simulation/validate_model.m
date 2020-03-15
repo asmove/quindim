@@ -7,14 +7,11 @@ function xout = validate_model(sys, tspan, x0, ...
     [n, m] = size(sys.kin.C);
     
     odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
-    
-%     % Mass matrix    
-%     xout = my_ode45(odefun, tspan, x0);
-    
+        
     % options = odeset('RelTol', 1e-7, 'AbsTol', 1e-7);
     % [t, xout] = ode45(odefun, tspan, x0, options);
     
-    degree = 10;
+    degree = 5;
     [t, xout] = ode(degree, odefun, x0, tspan);
     
     xout = double(xout);
@@ -28,7 +25,7 @@ function [value, is_terminal, direction] = cancel_simulation(t, q_p, wb)
     direction = 0;
 end
 
-function dq = df(t, q_p, sys, u_func, is_dyn_control)
+function dq = df(t, q_p, sys, u_function, is_dyn_control)
     [n, m] = size(sys.kin.C);
     
     t0 = tic;
@@ -66,9 +63,9 @@ function dq = df(t, q_p, sys, u_func, is_dyn_control)
     Z_num = subs(Z_params, symbs, m_params);
     
     if(is_dyn_control)
-        [dz, u_num] = u_func(t, q_p);
+        [dz, u_num] = u_function(t, q_p);
     else
-        u_num = u_func(t, q_p);
+        u_num = u_function(t, q_p);
     end
     
     Hinv = double(H_num\eye(m));
