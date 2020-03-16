@@ -1,7 +1,7 @@
 function A = eig_to_matrix(eigs)
     A = [];
 
-    [id_imags, ~] = is_valid_poles(eigs);
+    [id_imags, ~] = are_valid_poles(eigs);
     
     A_imag = [];
     

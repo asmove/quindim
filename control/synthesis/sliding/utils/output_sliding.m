@@ -1,6 +1,6 @@
 function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
-                            sys, tf, dt, is_dyn_bound)
-    persistent u_acc s_acc s_0 counter k_gains;
+                                    sys, tf, dt, is_dyn_bound, is_int)
+    persistent u_acc s_acc counter k_gains;
     
     [~, m] = size(sys.dyn.Z);
     n = length(sys.kin.q);
@@ -19,15 +19,23 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
         assignin('base', 'sliding_s', s_acc);
     end
     
+    % XXX: Deprecated for the moment
     if(is_dyn_bound)
+        error('Boundary layer deprecated');
         q_p = x(1:end-m);
         phi = abs(x(end-m+1:end));
-        
-    else
-        q_p = x(1:end);
     end
     
-    % Control output
+    if(is_int)
+        n_int = length(u_struct.cparams.int_q);
+        
+        q_p = x(1:end-n_int, 1);
+        z = x(end-n_int+1:end, 1);
+    else
+        q_p = x;
+    end
+
+    % Switching function
     if(strcmp(u_struct.switch_type, 'sat'))
         if(is_dyn_bound)
             switch_func = @(s) sat_sign(s, phi);
@@ -66,28 +74,34 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
     
     Ms_struct = u_struct.Ms_struct;
     Fs_struct = u_struct.Fs_struct;
+    cparams = u_struct.cparams;
     
     Ms_hat = Ms_struct.Ms_hat;
     fs_hat = Fs_struct.fs_hat;
-    sr_p = u_struct.sr_p;
+    sr_p = cparams.sr_p;
     
     % Symbolics
     q_p_s = [q; p];
     q_p_pp = [q; p; pp];
     q_p_pp_d = [q_d; p_d; pp_d];
     
-    symbs =  [q_p_s; q_p_pp_d];
-    
     % Nummerical
-    params = double([q_p; q_p_ref_fun(t)]);
+    symbs =  u_struct.cparams.symvars;
     
+    if(is_dyn_bound || is_int)
+        params = double([q_p; z; q_p_ref_fun(t)]);
+    else
+        params = double([q_p; q_p_ref_fun(t)]);
+    end
+
     % Gain
     K = u_struct.K(Fs_struct, Ms_struct);
+    
     K = subs(K, symbs, params);
     
     % Control law
     switched_sn = zeros(m, 1);
-    s_n = subs(u_struct.s, symbs, params);
+    s_n = subs(cparams.s, symbs, params);
     
     for i = 1:m
         switched_sn(i) = double(switch_func(s_n(i)));
@@ -98,21 +112,22 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
     end
     
     u_sym = -inv(Ms_hat)*(fs_hat + sr_p + K*switched_sn);
+    
     u_sym = inv(u_struct.V.')*u_sym;
     
-    symbs = sys.descrip.syms;
-    params = sys.descrip.model_params;
-    
-    u_sym = subs(u_sym, symbs, params);
-    
-    symbs =  [q_p_s; q_p_pp_d];
-    params = double([q_p; q_p_ref_fun(t)]);
-    
+    params_symbs = sys.descrip.syms;
+    params_vals = sys.descrip.model_params;    
+    u_sym = subs(u_sym, params_symbs, params_vals);
+        
     u = subs(u_sym, symbs, params);
     k = diag(K);
     
-    % dphi
+    varargout{1} = [];
+
+    % XXX: Review the deduction and re-program
     if(is_dyn_bound)
+        error('Dynamic boundary layer is deprecated.');
+
         if((s_n <= phi)&&(s_n >= -phi))
             EPS = 1e-4;
             one_vec = ones(length(k), 1);
@@ -126,10 +141,21 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
             dz = zeros_vec;
         end
 
-        varargout{1} = dz;
-        varargout{2} = u;
+        varargout{1} = u;
+        varargout{2} = dz;
+    
+        % Integrative portion
+        if(u_struct.is_int)
+            varargout{2} = [varargout{2}; ...
+                            u_struct.cparams.int_q];
+        end
     else
         varargout{1} = u;
+    
+        % Integrative portion
+        if(u_struct.is_int)
+            varargout{2} = subs(u_struct.cparams.int_q, symbs, params);
+        end
     end
     
     counter = counter + 1;

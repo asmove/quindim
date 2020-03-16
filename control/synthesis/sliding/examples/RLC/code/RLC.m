@@ -1,33 +1,3 @@
-clear_inner_close_all('~/github/Robotics4fun')
-clear u_control;
-clear sliding_s;
-clear u
-clear(func2str(@output_sliding))
-
-vars = whos;
-
-for i = 1:length(vars)
-    var = vars(i);
-    name = var.name;
-    
-    except_names = {'sys', 'vars', ...
-                    'perc', 'switch_type', ...
-                    'is_dyn_bound', 'perc', ...
-                    'n_perc', 'n_percs', ...
-                    'n_switch', 'n_switchs', ...
-                    'is_dyn_bounds', 'switch_types', 'percs'};
-    is_not_except_names = true;
-    
-    for j = 1:length(except_names)
-        except_name = except_names{j};
-        is_not_except_names = is_not_except_names & ~strcmp(name, except_name);
-    end
-    
-    if(is_not_except_names)
-        clear(name);
-    end
-end
-
 % Params and parameters estimation
 model_params = sys.descrip.model_params.';
 imprecision = perc*ones(size(sys.descrip.syms))';
@@ -48,25 +18,60 @@ A = 0.1;
 omega_ = 100;
 w = 2*pi*omega_;
 
-x_d = @(t) [A*sin(w*t)/w; A*cos(w*t)];
-x_xp_d = @(t) [x_d(t); -A*w*sin(w*t)];
+if(is_int)
+    x_d = @(t) [-A*cos(w*t)/w^2; A*sin(w*t)/w; A*cos(w*t)];
+    x_xp_d = @(t) [x_d(t); -A*w*sin(w*t)];
+else
+    x_d = @(t) [A*sin(w*t)/w; A*cos(w*t)];
+    x_xp_d = @(t) [x_d(t); -A*w*sin(w*t)];
+end
+
 x_d0 = x_d(0);
 
 % Control project design parameters
 pole = -10;
+
 m = 2;
-poles = pole*ones(m, 1);
 
-x0 = [0; 0];
+% Initial conditions
+if(is_dyn_bound)
+    phi0 = terop(s0 > 0, u.phi0, -u.phi0);
+    x0 = [0; 0; phi0];
+else
+    x0 = [0; 0];
+end
 
-E = equationsToMatrix(rel_qqbar, sys.kin.q);
-alpha = E;
-C = eig_to_matrix(poles);
-lambda = -E*C;
+% Initial conditions
+if(is_int)
+    poles = [-10, -5];
+    coeffs = poly(poles);
 
-ep0 = x0(2) - x_d0(2);
-e0 = x0(1) - x_d0(1);
-s0 = alpha*ep0 + lambda*e0;
+    x0 = [x0; 0];
+
+    alpha_ = coeffs(1);
+    lambda_ = coeffs(2);
+    mu_ = coeffs(3);
+
+    int_e0 = x0(3) - x_d0(1);
+    e0 = x0(1) - x_d0(2);
+    ep0 = x0(2) - x_d0(3);
+
+    s0 = alpha_*ep0 + lambda_*e0 + mu_*int_e0;
+
+else
+    poles = -10;
+    coeffs = poly(poles);
+
+    alpha_ = coeffs(1);
+    lambda_ = coeffs(2);
+
+    e0 = x0(1) - x_d0(1);
+    ep0 = x0(2) - x_d0(2);
+
+    s0 = alpha_*ep0 + lambda_*e0;
+end
+
+is_int = false;
 
 % [s]
 perc_T = 0.5;
@@ -74,30 +79,26 @@ T = 2*pi/w;
 t_r = perc_T*T;
 
 eta = double(abs(s0)/t_r);
-etas = eta*ones(m, 1);
+etas = eta*ones(1, 1);
+
+error = 1e-2; 
+errorp = 1e-2;
 
 u = sliding_underactuated(sys, etas, poles, ...
-                          params_lims, rel_qqbar, is_int);
+                          params_lims, rel_qqbar, ...
+                          error, errorp, is_int);
 u.switch_type = switch_type;
 
 % Available switch functions
-phi = 0.01;
 if(strcmp(switch_type, 'sat'))
-    u.phi = phi;
+    u.phi = u.phi;
 elseif(strcmp(switch_type, 'hyst'))
-    u.phi_min = -phi;
-    u.phi_max = phi;
+    u.phi_min = -u.phi;
+    u.phi_max = u.phi;
 elseif(strcmp(switch_type, 'poly'))
-    u.phi = phi;
+    u.phi = u.phi;
     u.degree = 5;
 else
-end
-
-% Initial values
-if(is_dyn_bound)
-    x0 = [0; 0; terop(s0 > 0, u.phi, -u.phi)];
-else
-    x0 = [0; 0];
 end
 
 % Controller gain 
@@ -127,7 +128,6 @@ u.Fs_struct.Fs_num = subs(u.Fs_struct.Fs_num, ...
                           [L_min R_max k_max L_max R_min k_min]);
 u.Fs_struct.Fs = u.Fs_struct.Fs_num/u.Fs_struct.Fs_den;
 
-% Initial conditions
 n_diff = 50;
 tf = T;
 dt = perc_T*T/(n_diff+1);
@@ -137,9 +137,9 @@ df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
 
 u_func = @(t, x) output_sliding(t, x, x_xp_d, ...
                                 u, sys, tf, ...
-                                dt, is_dyn_bound);
+                                dt, is_dyn_bound, is_int);
 
-sol = validate_model(sys, tspan, x0, u_func, is_dyn_bound);
+sol = validate_model(sys, tspan, x0, u_func, is_dyn_bound || is_int);
 x = sol';
 
 [m, ~] = size(sys.dyn.Z);

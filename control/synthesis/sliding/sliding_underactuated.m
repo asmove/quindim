@@ -1,5 +1,6 @@
 function u = sliding_underactuated(sys, etas, poles, ...
-                                   params_lims, rel_qqbar, is_int)
+                                   params_lims, rel_qqbar, ...
+                                   error, errorp, is_int)
     
     [U, S, V] = svd(sys.dyn.Z);
     sys.dyn.H = inv(U)*sys.dyn.H;
@@ -27,12 +28,16 @@ function u = sliding_underactuated(sys, etas, poles, ...
         end
     end
     
-    if(length(etas) ~= m)
-        error('Number of etas MUST be equal to inputs!');
-    end
+%     if(length(etas) ~= m)
+%         error('Number of etas MUST be equal to inputs!');
+%     end
     
     params_s = sys.descrip.syms.';
     params_hat_s = add_symsuffix(params_s, '_hat');
+    
+    % Parameter limits
+    params_min = params_lims(:, 1);
+    params_max = params_lims(:, 2);
     
     q = sys.kin.q;
     p = sys.kin.p;
@@ -56,24 +61,23 @@ function u = sliding_underactuated(sys, etas, poles, ...
     qp = Cs*p;
     q_p = [q; qp];
     
-    cparams_str = controller_params(sys, poles, rel_qqbar, is_int);
-    
-    % Parameter limits
-    params_min = params_lims(:, 1);
-    params_max = params_lims(:, 2);
+    cparams = controller_params(sys, poles, rel_qqbar, is_int);
 
     % Dynamics uncertainties
-    Fs_struct = dynamics_uncertainties(cparams_str.fs_s, q_p, ...
+    Fs_struct = dynamics_uncertainties(cparams.fs_s, q_p, ...
                                        params_s, params_lims, ...
                                        sys.descrip.model_params');
     
     % Mass matrix uncertainties
-    Ms_struct = mass_uncertainties2(Ms_s, q_p, params_s, params_lims);
+    Ms_struct = mass_uncertainties2(cparams.Ms_s, ...
+                                    q_p, params_s, params_lims);
+    
+    u.phi0 = abs(cparams.alpha)*errorp + abs(cparams.lambda)*errorp;
     
     % Gains
     u.K = @(Fs_struct, Ms_struct) ...
             diag(simplify_(Ms_struct.C*(Fs_struct.Fs + ...
-                                        Ms_struct.D*abs(sr_p + ...
+                                        Ms_struct.D*abs(cparams.sr_p + ...
                                         Fs_struct.fs_hat) + etas)));
         
     u.Ms_struct = Ms_struct;
@@ -81,6 +85,8 @@ function u = sliding_underactuated(sys, etas, poles, ...
     
     % Manifold parameters
     u.cparams = cparams;
+    
+    u.is_int = is_int;
     
     % Converting matrix
     u.U = U;

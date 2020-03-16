@@ -1,5 +1,17 @@
-function [s, sr, sr_p] = s_sr_srp(sys, , is_int)
+function s_struct = s_sr_srp(sys, refdyn_str, is_int)
     [n, m] = size(sys.dyn.Z);
+    
+    alpha_ = refdyn_str.alpha;
+    lambda_ = refdyn_str.lambda;
+    
+    if(is_int)
+        mu_ = refdyn_str.mu;
+    end
+    
+    alpha_a = alpha_(:, 1:m);
+    alpha_u = alpha_(:, m+1:end);
+    lambda_a = lambda_(:, 1:m);
+    lambda_u = lambda_(:, m+1:end);
     
     % Generalized coordinates, velocities and accelerations
     q = sys.kin.q;
@@ -27,21 +39,12 @@ function [s, sr, sr_p] = s_sr_srp(sys, , is_int)
     qpp = Cp*p + Cs*pp;
     
     % Actuated and unactuated systems
-    q_d = add_symsuffix(r_d, '_d');
+    q_d = add_symsuffix(q, '_d');
+    qp_d = add_symsuffix(qp, '_d');
+    qpp_d = add_symsuffix(qpp, '_d');
+    
     p_d = add_symsuffix(p, '_d');
     pp_d = add_symsuffix(pp, '_d');
-    
-    q_a_d = add_symsuffix(q_a, '_d');
-    qp_a_d = subs(qp_a, [q; p], [q_d; p_d]);
-    qpp_a_d = subs(qpp_a, [q; p; pp], [q_d; p_d; pp_d]);
-
-    q_u_d = add_symsuffix(q_u, '_d');
-    qp_u_d = subs(qp_u, [q; p], [q_d; p_d]);
-    qpp_u_d = subs(qpp_u, [q; p; pp], [q_d; p_d; pp_d]);
-
-    q_d = [q_a_d; q_u_d];
-    qp_d = [qp_a_d; qp_u_d];
-    qpp_d = [qpp_a_d; qpp_u_d];
     
     if(is_int)
         r_d = add_symsuffix(r, '_d');
@@ -49,47 +52,24 @@ function [s, sr, sr_p] = s_sr_srp(sys, , is_int)
     end
     
     % Sliding function
-    int_error_ = q_a - q_a_d;
-    error_ = q_a - q_a_d;
-    errorp_ = qp_a - qp_a_d;
+    error_ = q - q_d;
+    errorp_ = qp - qp_d;
     
-    error_u = q_u - q_u_d;
-    errorp_u = qp_u - qp_u_d;
-    
-    if(~is_int)
-        if(m == n)
-            s = alpha_a*errorp_a + lambda_a*error_a;
-
-            % Auxiliary variable
-            sr = -alpha_a*qp_a_d + lambda_a*error_a;
-            
-        elseif(m < n)
-            s = alpha_a*errorp_a + alpha_u*errorp_u + ...
-                lambda_a*error_a + lambda_u*error_u;
-
-            % Auxiliary variable
-            sr = -alpha_a*qp_a_d - alpha_u*qp_u_d +...
-                  lambda_a*error_a + lambda_u*error_u; 
-        else
-            error('Overactuated systems are not implemented!')
-        end
-    else
-        if(m == n)
-            s = alpha_a*errorp_a + lambda_a*error_a;
-
-            % Auxiliary variable
-            sr = -alpha_a*qp_a_d + lambda_a*error_a;
+    if(is_int)
+        r = sym('r', size(sys.kin.q));
+        r_d = add_symsuffix(r, '_d');
         
-        elseif(m < n)
-            s = alpha_a*errorp_a + alpha_u*errorp_u + ...
-                lambda_a*error_a + lambda_u*error_u;
-
-            % Auxiliary variable
-            sr = -alpha_a*qp_a_d - alpha_u*qp_u_d +...
-                  lambda_a*error_a + lambda_u*error_u; 
-        else
-            error('Overactuated systems are not implemented!')
-        end
+        int_error_ = r - r_d;
+        
+        s = alpha_*errorp_ + lambda_*error_ + mu_*int_error_;
+        sr = -alpha_*qp_d + lambda_*error_ + mu_*int_error_;
+        
+        symvars = [q; qp; r; r_d; q_d; qp_d; qpp_d];
+    else
+        s = alpha_*errorp_ + lambda_*error_;
+        sr = -alpha_*qp_d + lambda_*error_;
+        
+        symvars = [q; qp; q_d; qp_d; qpp_d];
     end
     
     if(length(sys.kin.C) ~= 1) && (iscell(sys.kin.C))
@@ -111,11 +91,15 @@ function [s, sr, sr_p] = s_sr_srp(sys, , is_int)
     q_p = [q; p; q_d; qp_d];
     qp_pp = [qp; pp; qp_d; qpp_d];
     
-    sr_p = dvecdt(sr, q_p, qp_pp);
+    vars = [r; q; qp];
+    dvars = [q; qp; qpp];
+    
+    sr_p = dvecdt(sr, vars, dvars);
     
     % Struct construction
     s_struct.s = s;
     s_struct.sr = sr;
     s_struct.sr_p = sr_p;
-    
+    s_struct.symvars = symvars;
+    s_struct.int_q = q;
 end

@@ -7,12 +7,9 @@ function xout = validate_model(sys, tspan, x0, ...
     [n, m] = size(sys.kin.C);
     
     odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
-        
-    % options = odeset('RelTol', 1e-7, 'AbsTol', 1e-7);
-    % [t, xout] = ode45(odefun, tspan, x0, options);
     
-    degree = 5;
-    [t, xout] = ode(degree, odefun, x0, tspan);
+    options.degree = 5;
+    [t, xout] = ode('rk', odefun, x0, tspan, options);
     
     xout = double(xout);
 end
@@ -63,11 +60,11 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
     Z_num = subs(Z_params, symbs, m_params);
     
     if(is_dyn_control)
-        [dz, u_num] = u_function(t, q_p);
+        [u_num, dz_num] = u_function(t, q_p);
     else
         u_num = u_function(t, q_p);
     end
-    
+
     Hinv = double(H_num\eye(m));
     
     speed = C_num*p_num;
@@ -78,11 +75,11 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
     end
     
     if(is_dyn_control)
-        dq = vpa([speed; accel; dz]);
+        dq = vpa([speed; accel; dz_num]);
     else
         dq = vpa([speed; accel]);
     end
-        
+    
     % Time elapsed
     dt = toc(t0);
 end
