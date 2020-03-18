@@ -35,8 +35,8 @@ function s_struct = s_sr_srp(sys, refdyn_str, is_int)
     p = p{end};
     pp = pp{end};
     
-    qp = Cs*p;
-    qpp = Cp*p + Cs*pp;
+    qp = C*p;
+    qpp = Cp*p + C*pp;
     
     % Actuated and unactuated systems
     q_d = add_symsuffix(q, '_d');

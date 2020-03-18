@@ -27,7 +27,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     pp = sys.kin.pp{end};
     
     C = sys.kin.C;
-    
+ 
     Cp = sys.kin.Cp;
     
     q_p = x(1:end);
@@ -73,6 +73,7 @@ function dx = df_sys(t, x, q_p_ref_fun, u_struct, sys, tf)
     
     plant = [C*p; ...
              -sys.dyn.H\sys.dyn.h + sys.dyn.H\sys.dyn.Z*sys.descrip.u];
+
     plant = subs(plant, sys.descrip.syms, sys.descrip.model_params);
     plant = subs(plant, sys.descrip.u, u);
     

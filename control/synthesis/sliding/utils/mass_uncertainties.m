@@ -55,9 +55,9 @@ function Ms_struct = mass_uncertainties(Ms, q_p, params_syms, params_lims)
     for i = 1:n
         for j = 1:n
             if(I_m_D_Omega_inf(i, j) < I_m_D_Omega_1_inf(i, j))
-                Dtilde(i, j) = I_m_D_Omega_inf(i, j);
+                Dprime(i, j) = I_m_D_Omega_inf(i, j);
             else
-                Dtilde(i, j) = I_m_D_Omega_1_inf(i, j);
+                Dprime(i, j) = I_m_D_Omega_1_inf(i, j);
             end
         end
     end
