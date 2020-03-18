@@ -1,5 +1,4 @@
-function xout = validate_model(sys, tspan, x0, ...
-                                       u_func, is_dyn_control)
+function xout = validate_model(sys, tspan, x0, u_func, is_dyn_control)
     if(nargin == 4)
         is_dyn_control = false;
     end
@@ -8,7 +7,7 @@ function xout = validate_model(sys, tspan, x0, ...
     
     odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
     
-    options.degree = 5;
+    options.degree = 10;
     [t, xout] = ode('rk', odefun, x0, tspan, options);
     
     xout = double(xout);

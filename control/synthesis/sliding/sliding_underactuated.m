@@ -1,6 +1,6 @@
-function u = sliding_underactuated(sys, etas, poles, ...
-                                   params_lims, rel_qqbar, ...
-                                   error, errorp, is_int)
+function u = sliding_underactuated(sys, etas, poles, params_lims, ...
+                                   rel_qqbar, error, errorp, is_int, ...
+                                   switch_type, options)
     
     [U, S, V] = svd(sys.dyn.Z);
     sys.dyn.H = inv(U)*sys.dyn.H;
@@ -74,6 +74,24 @@ function u = sliding_underactuated(sys, etas, poles, ...
     
     u.phi0 = abs(cparams.alpha)*errorp + abs(cparams.lambda)*errorp;
     
+    if(strcmp(switch_type, 'sign'))
+        % Do nothing
+
+    elseif(strcmp(switch_type, 'sat'))
+        u.phi = u.phi0;
+
+    elseif(strcmp(switch_type, 'poly'))
+        u.phi = u.phi0;
+        u.degree = options.degree;
+        
+    elseif(strcmp(switch_type, 'hyst'))
+        u.phi_min = -u.phi0;
+        u.phi_max = u.phi0;
+
+    else
+        error('The accepted tokens are sign, sat, poly or hyst.');
+    end
+    
     % Gains
     u.K = @(Fs_struct, Ms_struct) ...
             diag(simplify_(Ms_struct.C*(Fs_struct.Fs + ...
@@ -96,4 +114,6 @@ function u = sliding_underactuated(sys, etas, poles, ...
     u.params_hat = params_hat_s;
     
     u.etas = etas;
+
+    u.switch_type = switch_type;
 end

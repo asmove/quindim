@@ -91,8 +91,13 @@ function s_struct = s_sr_srp(sys, refdyn_str, is_int)
     q_p = [q; p; q_d; qp_d];
     qp_pp = [qp; pp; qp_d; qpp_d];
     
-    vars = [r; q; qp];
-    dvars = [q; qp; qpp];
+    if(is_int)
+        vars = [r; q; qp; r_d; q_d; qp_d];
+        dvars = [q; qp; qpp; q_d; qp_d; qpp_d];
+    else
+        vars = [q; qp; q_d; qp_d];
+        dvars = [qp; qpp; qp_d; qpp_d];
+    end
     
     sr_p = dvecdt(sr, vars, dvars);
     

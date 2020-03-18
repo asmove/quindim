@@ -1,5 +1,6 @@
 function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
                                     sys, tf, dt, is_dyn_bound, is_int)
+    % ----------------------------------------------------------------- %
     persistent u_acc s_acc counter k_gains;
     
     [~, m] = size(sys.dyn.Z);
@@ -18,6 +19,7 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
         s_acc = [];
         assignin('base', 'sliding_s', s_acc);
     end
+    % ----------------------------------------------------------------- %
     
     % XXX: Deprecated for the moment
     if(is_dyn_bound)
@@ -34,13 +36,14 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
     else
         q_p = x;
     end
-
+    
+    % ----------------------------------------------------------------- %
     % Switching function
     if(strcmp(u_struct.switch_type, 'sat'))
         if(is_dyn_bound)
             switch_func = @(s) sat_sign(s, phi);
         else
-            switch_func = @(s) sat_sign(s, u_struct.phi);
+            switch_func = @(s) sat_sign(s, u_struct.phi0);
         end
     elseif(strcmp(u_struct.switch_type, 'hyst'))
         switch_func = @(s) hyst_sign(s, ...
@@ -52,11 +55,12 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
         if(is_dyn_bound)
             switch_func = @(s) poly_sat(s, phi, u_struct.degree);
         else
-            switch_func = @(s) poly_sat(s, u_struct.phi, u_struct.degree);
+            switch_func = @(s) poly_sat(s, u_struct.phi0, u_struct.degree);
         end
     else
         error('The options are sat, hyst, sign or poly.');
     end
+    % ----------------------------------------------------------------- %
     
     % States and velocities
     q = sys.kin.q;
@@ -94,9 +98,10 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
         params = double([q_p; q_p_ref_fun(t)]);
     end
 
+    % ----------------------------------------------------------------- %
+    
     % Gain
     K = u_struct.K(Fs_struct, Ms_struct);
-    
     K = subs(K, symbs, params);
     
     % Control law

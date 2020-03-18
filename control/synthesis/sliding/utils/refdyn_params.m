@@ -66,7 +66,7 @@ function refdyn_str = refdyn_params(sys, poles, rel_qqbar, is_int)
         
         alpha_ = D;
         lambda_ = -C*D;
-
+        
         refdyn_str.alpha = alpha_; 
         refdyn_str.lambda = lambda_; 
     end
