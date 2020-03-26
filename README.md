@@ -1,5 +1,7 @@
 # Robotics4fun
 
+## Introduction
+
 This is a robotics library made using trustworthy literature on Robotics during the course "Multibody dynamics and its applications in Robotics and automobile Engineering". However, it is a WIP, though already advanced. Hence, contributions are welcome. In case you are interested on contributing with a comment, issue or pull request, report on the issue tab or make a pull request.
 
 In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
@@ -14,7 +16,7 @@ git clone git@github.com:brunolnetto/Robotics4fun.git
 
 Most likely, the reader may use Windows. For such, the author recommends either the Git Bash or Tortoise Git as source management software. Git bash, although it a terminal, the copy-paste of above commands works the same manner as for linux terminal.
 
-# Installation
+## Installation
 
 If you wish to use it, follow the instructions:
 
@@ -31,7 +33,7 @@ where ```$ROB4FUN_PATH``` stands for the path where you cloned the repository, `
 
 3) Have fun.
 
-# Additional libraries
+## Additional libraries
 
 There are several utilitaries for the current library, which are not on it to avoid a greater library than it is already. Follow the instructions below:
 
@@ -40,10 +42,10 @@ There are several utilitaries for the current library, which are not on it to av
     - ```baryopt```  : ```https://github.com/brunolnetto/baryopt```.
 2) Add the repositories to MatLab path as on "Installation" section.
 
-# Documentation
+## Documentation
 It is still small, but take a look at wiki: https://github.com/brunolnetto/Robotics4fun/wiki
 
-# Reference
+## Reference
 
 - John J. Craig. 1989. Introduction to Robotics: Mechanics and Control (2nd ed.). Addison-Wesley Longman Publishing Co., Inc., Boston, MA, USA.
 - Baruh, Haim. Analytical dynamics. Boston: WCB/McGraw-Hill, 1999.
