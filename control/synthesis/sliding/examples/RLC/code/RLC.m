@@ -38,26 +38,22 @@ perc_T = 0.5;
 T = 2*pi/w;
 t_r = perc_T*T;
 
+% [q(t); i(t)]
 x0 = [0; 0];
-
-% Initial conditions
-if(is_dyn_bound)
-    phi0 = terop(s0 > 0, u.phi0, -u.phi0);
-    x0 = [x0; phi0];
-end
 
 % Sliding function initial value and dynamic parameters
 if(is_int)
+    % [x(t); w(t)]
     x0 = [x0; 0];
     
     % Errors and its family
-    int_e0 = x0(3) - x_d0(1);
-    e0 = x0(1) - x_d0(2);
-    ep0 = x0(2) - x_d0(3);
+    wtilde_0 = x0(3) - x_d0(1);
+    qtilde_0 = x0(1) - x_d0(2);
+    itilde_0 = x0(2) - x_d0(3);
     
     % Percentage of reaching time [-]
-    n_1 = 0.5;
-    n_2 = 0.75;
+    n_1 = 0.3;
+    n_2 = 0.4;
     poles_1 = -1/(n_1*t_r);
     poles_2 = -1/(n_2*t_r);
     
@@ -69,10 +65,12 @@ if(is_int)
     lambda_ = coeffs(2);
     mu_ = coeffs(3);
     
-    s0 = alpha_*ep0 + lambda_*e0 + mu_*int_e0;
+    s0 = alpha_*itilde_0 + ...
+         lambda_*qtilde_0 + ...
+         mu_*wtilde_0;
 
 else
-    n = 0.5;
+    n = 0.1;
     poles = -1/(n*t_r);
     coeffs = poly(poles);
 
@@ -82,21 +80,36 @@ else
     e0 = x0(1) - x_d0(1);
     ep0 = x0(2) - x_d0(2);
 
-    s0 = alpha_*ep0 + lambda_*e0;
+    s0 = alpha_*itilde_0 + ...
+         lambda_*qtilde_0;
 end
 
 eta = double(abs(s0)/t_r);
 etas = eta*ones(1, 1);
 
-% Tracking precisio
-error = 1e-5;
-errorp = 1e-5;
+% Tracking precision
+if(is_int)
+    errors.error_w = 1e-6;
+    errors.error_q = 1e-6;
+    errors.error_qp = 1e-6;
+else
+    errors.error_q = 1e-5;
+    errors.error_qp = 1e-5;
+end
 
-u = sliding_underactuated(sys, etas, poles, params_lims, rel_qqbar, ...
-                          error, errorp, is_int, switch_type, options);
+u = sliding_underactuated(sys, etas, poles, ...
+                          params_lims, rel_qqbar, ...
+                          errors, is_int, ...
+                          is_dyn_bound, switch_type, ...
+                          options);
 
+% Initial conditions
+if(is_dyn_bound)
+    x0 = [x0; u.phi0];
+end
+
+                      
 % XXX: Provide systematic to calculate C and D
-
 % Controller gain 
 L_min = params_lims(1, 1);
 R_min = params_lims(2, 1);
@@ -126,9 +139,9 @@ u.Fs_struct.Fs_num = subs(u.Fs_struct.Fs_num, ...
 u.Fs_struct.Fs = u.Fs_struct.Fs_num/u.Fs_struct.Fs_den;
 
 
-if(is2plot)
-    n_diff = 75;
-    n_T = 1.5;
+if(is2sim)
+    n_diff = 100;
+    n_T = 1;
     tf = n_T*T;
     dt = perc_T*T/(n_diff+1);
 
@@ -136,10 +149,11 @@ if(is2plot)
     df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);
 
     u_func = @(t, x) output_sliding(t, x, x_xp_d, ...
-                                    u, sys, tf, ...
-                                    dt, is_dyn_bound, is_int);
-
-    sol = validate_model(sys, tspan, x0, u_func, is_dyn_bound || is_int);
+                                    u, sys, dt, ...
+                                    is_dyn_bound, is_int);
+    
+    is_dyn_control = is_dyn_bound || is_int;
+    sol = validate_model(sys, tspan, x0, u_func, is_dyn_control);
 
     run('./plot_results.m');
 end

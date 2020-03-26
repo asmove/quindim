@@ -1,7 +1,7 @@
 function [dz, u] = calc_control_2DRobot(sys, poles_)
     % Output and reference
     y = sys.kin.q(1:2);
-
+    
     % States of the system
     states = sys.dyn.states;
 
@@ -181,5 +181,6 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     x_orig = [q; p; x_sym(n_q + n_p + 1)];
     
     u = subs(inv(Z)*(H*v_ + h), x_orig, x_sym);
+    
     dz = w(1);
 end

@@ -1,11 +1,7 @@
-function [dz, u] = calc_control_rolling(sys, poles_)
-    % Plant
-    f = sys.dyn.f;
-    G = sys.dyn.G;
-
+function [dz, u] = calc_control_2DRobot(sys, poles_)
     % Output and reference
     y = sys.kin.q(1:2);
-
+    
     % States of the system
     states = sys.dyn.states;
 
@@ -22,18 +18,23 @@ function [dz, u] = calc_control_rolling(sys, poles_)
     H = sys.dyn.H;
     h = sys.dyn.h;
     Z = sys.dyn.Z;
-
+    
     % Input
     u = sys.descrip.u;
+    
+    [n_q, n_p] = size(C);
+    [n_p, n_u] = size(Z);
+    
+    % Plant
+    f = [C*p; -inv(H)*h];
+    G = [zeros([n_q, n_p]); -inv(H)*Z];
+    
     v = sym('v', size(u));
-
+    
     % New input
     w_1 = sym('w_1');
     w_2 = sym('w_2');
     w = sym('w', [2, 1]);
-
-    z_1 = sym('z_1');
-    z_sym = sym('z_', [7, 1]);
     
     syms xppp yppp;
     
@@ -41,9 +42,10 @@ function [dz, u] = calc_control_rolling(sys, poles_)
     yp_ref = add_symsuffix(sys.kin.qp(1:2), '_ref');
     ypp_ref = add_symsuffix(sys.kin.qpp(1:2), '_ref');
     yppp_ref = add_symsuffix([xppp; yppp], '_ref');
-
+    
+    z_1 = sym('z_1');
     x_orig = [q; p; v(2)];
-    x_sym = sym('x_', [7, 1]);
+    x_sym = sym('x_', [n_q + n_p + 1, 1]);
 
     v = sym('v', [2, 1]);
 
@@ -69,59 +71,24 @@ function [dz, u] = calc_control_rolling(sys, poles_)
 
     L_G_L_f_2_h1 = equationsToMatrix(d2y1dt2, v);
     L_G_L_f_2_h2 = equationsToMatrix(d2y2dt2, v);
-
+    
+    A1 = [L_G_L_f_2_h1; L_G_L_f_2_h2];
+    
     L_2_f_h1 = simplify_(d2y1dt2 - L_G_L_f_h1*v);
     L_2_f_h2 = simplify_(d2y2dt2 - L_G_L_f_h2*v);
-
-    R = sys.descrip.syms(2);
-    symbs = sys.descrip.syms;
-    model_params = sys.descrip.model_params;
     
-    % X to z and y to x transformations
-    x_to_z = [x_sym(1); ...
-              R*x_sym(6)*cos(x_sym(3)); ...
-              R*(x_sym(7)*cos(x_sym(3)) - ...
-              x_sym(5)*x_sym(6)*sin(x_sym(3))); ...
-              x_sym(2); ...
-              R*x_sym(6)*sin(x_sym(3)); ...
-              R*(x_sym(7)*sin(x_sym(3)) + ...
-              x_sym(5)*x_sym(6)*cos(x_sym(3))); ...
-              x_sym(4)];
-
-    z_to_x = [z_sym(1); ...
-              z_sym(4); ...
-              atan2(z_sym(5), z_sym(2)); ...
-              z_sym(7); ...
-              (z_sym(6)*z_sym(2) - ...
-              z_sym(3)*z_sym(5))/(z_sym(2)^2 + ...
-              z_sym(5)^2); ...
-              sqrt(z_sym(2)^2 + z_sym(5)^2)/R; ...
-              (z_sym(3)*z_sym(2) + ...
-               z_sym(6)*z_sym(5))/(R*sqrt(z_sym(2)^2 + ...
-                                   z_sym(5)^2))];
-
-    x2z_fun = @(x) subs(x_to_z, x_sym, x);
-    z2x_fun = @(z) subs(z_to_x, z_sym, z);
-
     % System analysis
     x_params = ones(length(x_sym), 1);
-    model_params = sys.descrip.model_params;
-    z1 = double(subs(x_to_z, [x_sym; symbs.'], [x_params; model_params.']));
-    x1 = double(subs(z_to_x, [z_sym; symbs.'], [z1; model_params.']));
-
-    jac_xz = jacobian(x_to_z, x_sym);
-    det_xz = simplify_(det(jac_xz));
 
     w_syms = [w_1; w_2];
 
     u_new = [z_1; w_2];
-    V = [0 1; 1, 0];
+    V = eye([2, 2]);
     qpz = [q; p; z_1];
-
+    
     % Plant
     plant = subs([C*p; V*u_new; w_1], qpz, x_sym);
-    zp = simplify_(dvecdt(x_to_z, x_sym, plant));
-    zp = simplify_(subs(zp, x_sym, z_to_x));
+    zp = w_1;
 
     G_x = equationsToMatrix(plant, [w_1; w_2]);
     f_x = simplify_(plant - G_x*[w_1; w_2]);
@@ -133,18 +100,18 @@ function [dz, u] = calc_control_rolling(sys, poles_)
     y1 = subs(y1, x_orig, x_sym);
     dy1dt = subs(dy1dt, x_orig, x_sym);
     d2y1dt2 = subs(d2y1dt2, x_orig, x_sym);
-
+    d2y1dt2 = subs(d2y1dt2, v(1), x_sym(n_q + n_p + 1));
+    d3y1dt3 = simplify_(dvecdt(d2y1dt2, x_sym, plant));
+    
     % y2
     y2 = subs(y2, x_orig, x_sym);
     dy2dt = subs(dy2dt, x_orig, x_sym);
     d2y2dt2 = subs(d2y2dt2, x_orig, x_sym);
-
+    d2y2dt2 = subs(d2y2dt2, v(1), x_sym(n_q + n_p + 1));
+    d3y2dt3 = simplify_(dvecdt(d2y2dt2, x_sym, plant));
+    
     dydt = [dy1dt; dy2dt];
     d2ydt2 = [d2y1dt2; d2y2dt2];
-    
-    % Third derivative for outputs
-    d3y1dt3 = simplify_(dvecdt(d2y1dt2, x_sym, plant));
-    d3y2dt3 = simplify_(dvecdt(d2y2dt2, x_sym, plant));
     
     % Lie derivative terms
     % ---------------------------------------------------------
@@ -170,9 +137,9 @@ function [dz, u] = calc_control_rolling(sys, poles_)
 
     L_3_f_h1 = simplify_(d3y1dt3 - L_G_L_2_f_h1*w_syms);
     L_3_f_h2 = simplify_(d3y2dt3 - L_G_L_2_f_h2*w_syms);
-
+    
     A2 = [L_G_L_2_f_h1; L_G_L_2_f_h2];
-
+    
     y = sys.kin.q(1:2);
     yp = sys.kin.qp(1:2);
     ypp = sys.kin.qpp(1:2);
@@ -185,9 +152,10 @@ function [dz, u] = calc_control_rolling(sys, poles_)
 
     coeffs_1 = poly(poles_{1});
     coeffs_1 = coeffs_1(2:end);
+    
     coeffs_2 = poly(poles_{2});
     coeffs_2 = coeffs_2(2:end);
-
+    
     coeffs_K0 = [coeffs_1(3); coeffs_2(3)];
     coeffs_K1 = [coeffs_1(2); coeffs_2(2)];
     coeffs_K2 = [coeffs_1(1); coeffs_2(1)];
@@ -199,14 +167,21 @@ function [dz, u] = calc_control_rolling(sys, poles_)
     L_3_f_h = simplify_([L_3_f_h1; L_3_f_h2]);
 
     m = length(A2);
-
+    
+    symbs = sys.descrip.syms;
+    model_params = sys.descrip.model_params;
+    
     invA2 = simplify_(inv(A2));
+    
     w = simplify_(vpa(invA2*(-L_3_f_h-K2*epp-K1*ep-K0*e+yppp_ref)));
     w = vpa(subs(w, symbs, model_params));
-    v_ = V*[x_sym(7); w(2)];
+
+    v_ = V*[x_sym(n_q + n_p + 1); w(2)];
     
-    x_sym = sym('x_', [7, 1]);
-    x_orig = [q; p; x_sym(7)];
+    x_sym = sym('x_', [n_q + n_p + 1, 1]);
+    x_orig = [q; p; x_sym(n_q + n_p + 1)];
+    
     u = subs(inv(Z)*(H*v_ + h), x_orig, x_sym);
+    
     dz = w(1);
 end

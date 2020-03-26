@@ -2,22 +2,18 @@ clear all
 close all
 clc
 
-% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 % run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
-run('~/github/Robotics4fun/examples/2D_mass/code/main.m');
+% run('~/github/Robotics4fun/examples/2D_mass/code/main.m');
 
 % Preamble for images and persistent variables cleaning
-close all
-delete(findall(0,'type','figure','tag','TMWWaitbar'));
-for filepath = strsplit(ls, ':')
-    clear filepath;
-end
+clear_inner_close_all(pwd);
 
 field_intensity = @(x) x(1)^2 + x(2)^2;
 
 % Initial conditions
 x0 = [1, 1, 1, 1]';
-% x0 = [1, 1, 0, 0, 1, 1]';
+
 xhat_0 = x0(1:2);
 
 source_reference = sys.kin.q(1:2);
@@ -28,7 +24,7 @@ P = alpha*eye(length(sys.kin.q));
 
 % Parameters
 % []
-nu = 10;
+nu = 2;
 
 % []
 sigma = 1;
@@ -38,24 +34,13 @@ zeta = 1;
 
 % Control 
 beta = 1;
-W = beta*diag([1; 1]);
 
 % []
 lambda = 1;
 
-% []
-degree_interp = 3;
-
-% []
-V_degree = 1;
-
 % [s]
 T_cur = 0.1;
 T_traj = 0.1;
-
-% []
-perc = 0.95;
-eta = -(1/T_cur)*log(1-perc);
 
 % Time span
 dt = 0.01;
@@ -73,22 +58,17 @@ sestimation_info.lambda = lambda;
 sestimation_info.T_cur = T_cur;
 
 % Trajectory planning
-traj_type = 'polynomial';
 trajectory_info.T_traj = T_traj;
 trajectory_info.dt = dt;
-trajectory_info.degree_interp = degree_interp;
-trajectory_info.gentraj_fun = @(t, x_begin, x_end) ...
-        gen_trajectory_2Dmass(t, dt, T_traj, x_begin, x_end, ...
-                              source_reference, degree_interp, ...
-                              sys, true, traj_type);
+
+% Point to point control
+trajectory_info.gentraj_fun = @(t_i, T, P0, P1) point2point(t_i, T, P0, P1);
 
 % Control law arguments
-control_info.control_fun = @(t, q_p, ...
-                             xhat_traj, xphat_traj, xpphat_traj, ...
-                             phat_traj, pphat_traj) ...
-                             lyap_based(t, q_p, xhat_traj, xphat_traj, ...
-                                        xpphat_traj, phat_traj, ...
-                                        pphat_traj, sys, control_info);
+control_info.eta = eta;
+control_info.control_fun = @(t, q_p, refs, qp_symbs, refs_symbs) ...
+                             compute_control(t, q_p, refs, ...
+                                             qp_symbs, refs_symbs);
 
 % System modelling
 u_func = @(t, q_p) control_handler(t, q_p, sestimation_info, ...

@@ -7,7 +7,7 @@ function xout = validate_model(sys, tspan, x0, u_func, is_dyn_control)
     
     odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
     
-    options.degree = 10;
+    options.degree = 5;
     [t, xout] = ode('rk', odefun, x0, tspan, options);
     
     xout = double(xout);
@@ -82,4 +82,3 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
     % Time elapsed
     dt = toc(t0);
 end
-

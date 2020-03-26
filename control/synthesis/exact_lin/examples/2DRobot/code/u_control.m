@@ -1,4 +1,4 @@
-function [dz, u] = u_control(t, qp,  ref_func, sys, calc_u_func)
+function [u, dz] = u_control(t, qp,  ref_func, sys, calc_u_func)
     persistent control_law dz_law ...
                y_ref yp_ref ypp_ref yppp_ref ...
                x_sym ref_syms;
@@ -61,4 +61,14 @@ function [dz, u] = u_control(t, qp,  ref_func, sys, calc_u_func)
     if(counter == 4)
         counter = 0;
     end
+    
+    m = length(sys.descrip.u);
+    z = zeros(m, 1);
+    
+    sigma = 0.05;
+    for i = 1:m
+        z(i) = gaussianrnd(0, sigma);
+    end
+    
+    u = u + z;
 end

@@ -1,7 +1,6 @@
 function refdyn_str = refdyn_params(sys, poles, rel_qqbar, is_int)
     
-    [n, m] = size(sys.dyn.Z);
-    
+    [n, m] = size(sys.dyn.Z);    
     are_valid_poles(poles)
     
     if(is_int && (mod(length(poles), 2) ~= 0))

@@ -1,8 +1,8 @@
-clear all
-close all
-clc
-
-run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+% clear all
+% close all
+% clc
+% 
+% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 
 % Ellipsoid trajectory
 a = 1;

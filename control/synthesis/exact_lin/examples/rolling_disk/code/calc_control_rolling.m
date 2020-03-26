@@ -205,7 +205,6 @@ function [dz, u] = calc_control_rolling(sys, poles_)
     w = vpa(subs(w, symbs, model_params));
     v_ = V*[x_sym(7); w(2)];
     
-    
     x_sym = sym('x_', [7, 1]);
     x_orig = [q; p; x_sym(7)];
     u = subs(inv(Z)*(H*v_ + h), x_orig, x_sym);

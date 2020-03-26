@@ -1,4 +1,4 @@
-function [dz, u] = u_control(t, qp, ref_func, sys, calc_u_func)
+function [u, dz] = u_control(t, qp, ref_func, sys, calc_u_func)
     persistent control_law dz_law y_ref yp_ref ypp_ref yppp_ref x_sym ref_syms;
     persistent model_params model_symbs symbs us counter;
     
@@ -35,13 +35,19 @@ function [dz, u] = u_control(t, qp, ref_func, sys, calc_u_func)
     dz = vpa(subs(dz_law, symbs, vals));
     u = vpa(subs(control_law, symbs, vals));
     
+    sigma = 0.05;
+    for i = 1:length(u)
+        z_i = gaussianrnd(0, sigma)
+        u(i) = u(i) + z_i;
+    end
+    
     counter = counter + 1;
     if(counter == 1)
         us = [us; u'];
         assignin('base', 'input_torque', us);
     end
     
-    if(counter == 4)
+    if(counter == 8)
         counter = 0;
     end
 end

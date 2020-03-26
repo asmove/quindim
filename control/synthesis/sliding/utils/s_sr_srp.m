@@ -1,4 +1,5 @@
-function s_struct = s_sr_srp(sys, refdyn_str, is_int)
+function s_struct = s_sr_srp(sys, refdyn_str, ...
+                             is_int, is_dyn_bound)
     [n, m] = size(sys.dyn.Z);
     
     alpha_ = refdyn_str.alpha;
@@ -35,8 +36,8 @@ function s_struct = s_sr_srp(sys, refdyn_str, is_int)
     p = p{end};
     pp = pp{end};
     
-    qp = C*p;
-    qpp = Cp*p + C*pp;
+    qp = Cs*p;
+    qpp = Cp*p + Cs*pp;
     
     % Actuated and unactuated systems
     q_d = add_symsuffix(q, '_d');
@@ -55,6 +56,10 @@ function s_struct = s_sr_srp(sys, refdyn_str, is_int)
     error_ = q - q_d;
     errorp_ = qp - qp_d;
     
+    if(is_dyn_bound)
+        w = sym('w', [m, 1]);
+    end
+    
     if(is_int)
         r = sym('r', size(sys.kin.q));
         r_d = add_symsuffix(r, '_d');
@@ -64,12 +69,27 @@ function s_struct = s_sr_srp(sys, refdyn_str, is_int)
         s = alpha_*errorp_ + lambda_*error_ + mu_*int_error_;
         sr = -alpha_*qp_d + lambda_*error_ + mu_*int_error_;
         
-        symvars = [q; qp; r; r_d; q_d; qp_d; qpp_d];
+        
     else
         s = alpha_*errorp_ + lambda_*error_;
         sr = -alpha_*qp_d + lambda_*error_;
-        
-        symvars = [q; qp; q_d; qp_d; qpp_d];
+    end
+    
+    q_qp = [q; qp];
+    qd_qpd = [q_d; qp_d; qpp_d];
+    
+    if(is_int)
+        if(is_dyn_bound)
+            symvars = [q_qp; r; w; r_d; qd_qpd];
+        else
+            symvars = [q_qp; r; r_d; qd_qpd];
+        end
+    else
+        if(is_dyn_bound)
+            symvars = [q_qp; w; qd_qpd];
+        else
+            symvars = [q_qp; qd_qpd];
+        end
     end
     
     if(length(sys.kin.C) ~= 1) && (iscell(sys.kin.C))

@@ -17,8 +17,8 @@ q_p = [sys.kin.q; sys.kin.p];
 
 % States plot
 references = [];
-for i = 1:length(tspan)
-    ref_i = x_d(tspan(i));
+for k = 1:length(tspan)
+    ref_i = x_d(tspan(k));
     references = [references; ref_i'];
 end
 
@@ -51,7 +51,7 @@ else
     plot_config.markers = {{'-', 'r--'}, ...
                            {'-', 'r--'}};
 
-    x_plots = {x, references};
+    x_plots = {x(:, 1:2), references};
 end
 
 hfigs_x = my_plot(tspan, x_plots, plot_config);
@@ -79,25 +79,55 @@ q_tildes = [];
 [m, ~] = size(x);
 t_ = linspace(0, tf, m)';
 
-for i = 1:length(t_)
-    t_i = t_(i);
+if(is_int)
+    % Errors and its family
+    w0 = x0(3) - x_d0(1);
+    q0 = x0(1) - x_d0(2);
+    i0 = x0(2) - x_d0(3);
     
-    x_i = x(i, :);
-    q_i = x_i(1);
-    
-    x_di = x_d(t_i);
-    
-    if(is_int)
+    q_tildes = [];
+    for j = 1:length(t_)
+        t_i = t_(j);
+
+        x_i = x(j, :);
+        x_di = x_d(t_i);
+        q_i = x_i(1);
         q_di = x_di(2);
-    else
-        q_di = x_di(1);
+
+        q_tilde = q_i - q_di;
+        q_tildes = [q_tildes; q_tilde];
     end
     
-    q_tilde = q_i - q_di;
-    q_tildes = [q_tildes; q_tilde];
+    s0 = abs(alpha_)*abs(error_i) + ...
+         abs(lambda_)*abs(error_q) + ...
+         abs(mu_)*abs(error_w);
+else
+    q0 = x0(1) - x_d0(1);
+    i0 = x0(2) - x_d0(2);
+    
+    q_tildes = [];
+    for j = 1:length(t_)
+        t_i = t_(j);
+
+        x_i = x(j, :);
+        x_di = x_d(t_i);
+        q_i = x_i(1);
+        q_di = x_di(1);
+
+        q_tilde = q_i - q_di;
+        q_tildes = [q_tildes; q_tilde];
+    end
+    
+    A = [0, 1; ...
+         -mu_/alpha_, -lambda_/alpha_];
+    C = [1, 0];
+    x0_ = [q0; w0];
+    
+    s0 = abs(alpha_)*abs(error_i) + ...
+         abs(lambda_)*abs(error_q);
 end
 
-plot_config.titles = {'', ''};
+plot_config.titles = {''};
 plot_config.xlabels = {'t [s]'};
 plot_config.ylabels = {'$\tilde{q}(t)$ [C]'};
 plot_config.grid_size = [1, 1];
@@ -113,50 +143,53 @@ plot_config.legends = {'$s(t)$', '$\phi_-(t)$', '$\phi_+(t)$'};
 plot_config.pos_multiplots = [1, 1];
 plot_config.markers = {'-', 'r--', 'r--'};
 
-if(is_dyn_bound)
-    phis = x(:, 3);
-    s_plots = {sliding_s, [phis(1:end-1), -phis(1:end-1)]};
+has_phi = false;
+switch_types_ = {'sat', 'hyst', 'poly'};
 
-    t_ = linspace(0, tf, length(sliding_s))';
+for i = 1:length(switch_types_)
+    isin_switch_types = strcmp(switch_type, switch_types_{i});
+    has_phi = has_phi || isin_switch_types;
+end
+
+if(has_phi)
+    perc_s = 0.2;
+    
+    t_ = linspace(0, tf, m-1)';
+    
+    if(is_dyn_bound)
+        phi = x(:, 3);
+        phi_min = -phi;
+        phi_max = phi;
+
+        phis = [phi_min, phi_max];
+        phis = phis(1:end-1, :);
+    else
+        m = length(sliding_s);
+        t_ = linspace(0, tf, m)';
+
+        phi_mins = -u.phi0*ones(m, 1);
+        phi_maxs = u.phi0*ones(m, 1);
+
+        phis = [phi_mins, phi_maxs];
+    end
+
+    s_plots = {sliding_s, phis};
     hfigs_s = my_plot(t_, s_plots, plot_config);
 else
     t_ = linspace(0, tf, length(sliding_s))';
-    
-    switch_types_ = {'sat', 'hyst', 'poly'};
-    
-    has_phi = false;
-    for i = 1:length(switch_types)
-        has_phi = has_phi || strcmp(switch_type, switch_types_{i});
-    end
-    
-    perc_s = 0.2;
-    if(has_phi)
-        if(strcmp(switch_type, 'hyst'))
-            phi_mins = -u.phi0*ones(size(t_));
-            phi_maxs = u.phi0*ones(size(t_));            
-        else
-            phi_mins = -u.phi0*ones(size(t_));
-            phi_maxs = u.phi0*ones(size(t_));
-        end
-        
-        phis = [phi_mins, phi_maxs];
-        s_plots = {sliding_s, phis};
 
-        hfigs_s = my_plot(t_, s_plots, plot_config);
-        
-        axis(double([0 tf (1 + perc_s)*s0 (1 + perc_s)*u.phi0]));
-        
-    else
-        plot_config.titles = {''};
-        plot_config.xlabels = {'t [s]'};
-        plot_config.ylabels = {'Sliding function $s(t)$'};
-        plot_config.grid_size = [1, 1];
+    plot_config.titles = {''};
+    plot_config.xlabels = {'t [s]'};
+    plot_config.ylabels = {'Sliding function $s(t)$'};
+    plot_config.grid_size = [1, 1];
 
-        hfigs_s = my_plot(t_, sliding_s, plot_config);
-        
-        axis(double([0 tf (1 + perc_s)*s0 (1 + perc_s)*u.phi0]));
-    end
+    hfigs_s = my_plot(t_, sliding_s, plot_config);
 end
+
+% perc_s = 0.2;
+% xlim_ = (1 + perc_s)*(-abs(s0));
+% ylim_ = (1 + perc_s)*(abs(s0));
+% axis(double([0 tf xlim_ ylim_]));
 
 path = '../imgs/';
 
@@ -175,7 +208,9 @@ for i = 1:length(filenames)
     
     int_text = terop(is_int, 'int', 'nint');
     
-    filepath = [path, filenames{i},  ...
+    path_ = [path, switch_type];
+    
+    filepath = [path_, '/', filenames{i},  ...
                 switch_type, '_', ...
                 num2str(perc), '_',  ...
                 int_text, '.eps'];

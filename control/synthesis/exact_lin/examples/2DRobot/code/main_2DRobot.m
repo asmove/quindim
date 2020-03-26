@@ -1,19 +1,8 @@
-clear all
-close all
-clc
-
-run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
-
-% Preamble for images and persistent variables cleaning
-<<<<<<< HEAD
-close all
-delete(findall(0,'type','figure','tag','TMWWaitbar'));
-for filepath = strsplit(ls, ':')
-    clear filepath;
-end
-=======
-clear_inner_close_all();
->>>>>>> staging
+% clear all
+% close all
+% clc
+% 
+% run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
 
 % Ellipsoid trajectory
 a = 1;
@@ -21,8 +10,9 @@ b = 1;
 omega = 1;
 
 syms t_;
-k = 3;
 
+% Flower trajectory
+k = 3;
 xy_t = [cos(k*t_)*cos(t_); cos(k*t_)*sin(t_)];
 dxy_t = diff(xy_t, t_);
 d2xy_t = diff(dxy_t, t_);
@@ -43,6 +33,10 @@ dt = 0.01;
 
 % Time vector
 t = 0:dt:tf;
+
+m = length(sys.descrip.u);
+
+clear u_control
 
 calc_u_func = @() calc_control_2DRobot(sys, poles_);
 u_func = @(t, qp) u_control(t, qp, ref_func, sys, calc_u_func);
