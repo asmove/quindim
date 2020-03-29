@@ -6,6 +6,8 @@ This is a robotics library made using trustworthy literature on Robotics during 
 
 In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
 
+# Linux users
+
 If the reader is already familiar with github, skip the next steps. To clone this repository, type the following commands on linux:
 
 ```
@@ -14,7 +16,9 @@ cd ~/rob4fun
 git clone git@github.com:brunolnetto/Robotics4fun.git 
 ```
 
-Most likely, the reader may use Windows. For such, the author recommends either the Git Bash or Tortoise Git as source management software. Git bash, although it a terminal, the copy-paste of above commands works the same manner as for linux terminal.
+# Windows users
+
+Most likely, the reader may use Windows. For such, the author recommends either the [Git bash][https://gitforwindows.org/] or [Tortoise Git][https://tortoisegit.org/] as source management software. Git bash, although it is a terminal, the copy-paste of above commands works the same manner as for linux terminal. Typically the home path given by tilde '~' lays on ```$(PROGRAM_FILES)/Users```
 
 ## Installation
 
