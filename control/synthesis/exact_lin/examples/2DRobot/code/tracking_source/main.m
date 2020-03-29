@@ -1,8 +1,8 @@
-clear all
-close all
-clc
-
-run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
+% clear all
+% close all
+% clc
+% 
+% run('~/github/Robotics4fun/examples/rolling_disk/code/main.m');
 % run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
 % run('~/github/Robotics4fun/examples/2D_mass/code/main.m');
 
@@ -20,7 +20,6 @@ source_reference = sys.kin.q(1:2);
 
 % Stability matrices
 alpha = 1;
-P = alpha*eye(length(sys.kin.q));
 
 % Parameters
 % []
@@ -71,8 +70,10 @@ control_info.control_fun = @(t, q_p, refs, qp_symbs, refs_symbs) ...
                                              qp_symbs, refs_symbs);
 
 % System modelling
-u_func = @(t, q_p) control_handler(t, q_p, sestimation_info, ...
-                                   trajectory_info, control_info, sys);
+u_func = @(t, q_p) control_handler(t, q_p, ...
+                                   sestimation_info, ...
+                                   trajectory_info, ...
+                                   control_info, sys);
 
 sol = validate_model(sys, time, x0, u_func);
 time = time';

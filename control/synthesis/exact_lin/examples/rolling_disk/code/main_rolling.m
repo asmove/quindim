@@ -27,13 +27,17 @@ is_dyn_control = true;
 x0 = [1; 1; 0; 0; 0; 1; 0];
 
 tf = pi;
-dt = 0.01;
+dt = 0.001;
+
+n_pwm = 5;
+T_pwm = n_pwm*dt;
 
 % Time vector
 t = 0:dt:tf;
 
 calc_u_func = @() calc_control_rolling(sys, poles_);
-u_func = @(t, qp) u_control(t, qp, ref_func, sys, calc_u_func);
+u_func = @(t, qp) u_control(t, qp, ref_func, ...
+                            sys, calc_u_func, T_pwm);
 sol = validate_model(sys, t, x0, u_func, true);
 
 rob_path = '~/github/Robotics4fun/';

@@ -1,14 +1,23 @@
-function [u, dz] = u_control(t, qp,  ref_func, sys, calc_u_func)
+function [u, dz] = u_control(t, qp,  ref_func, ...
+                             sys, calc_u_func, T_pwm)
     persistent control_law dz_law ...
                y_ref yp_ref ypp_ref yppp_ref ...
                x_sym ref_syms;
     persistent model_params model_symbs symbs us counter;
-    persistent num den nums dens;
+    persistent num den nums dens u_curr t_1;
     
     if(isempty(control_law))
         [dz_law, control_law] = calc_u_func();
     end
     
+    if(isempty(t_1))
+        t_1 = t;
+    end
+        
+    if(isempty(u_curr))
+        u_curr = zeros(size(sys.descrip.u));
+    end
+        
     if(isempty(counter))
         counter = 0;
     end
@@ -43,7 +52,14 @@ function [u, dz] = u_control(t, qp,  ref_func, sys, calc_u_func)
     dz = vpa(subs(dz_law, symbs, vals));
     
     [num, den] = numden(control_law);
-    u = vpa(subs(control_law, symbs, vals));
+%     u = vpa(subs(control_law, symbs, vals));
+    
+    if(t - t_1 > T_pwm)
+        t_1 = t;
+        u_curr = vpa(subs(control_law, symbs, vals));
+    end
+    
+    u = u_curr;
     
     num_n = vpa(subs(num, symbs, vals));
     den_n = vpa(subs(den, symbs, vals));
@@ -62,13 +78,13 @@ function [u, dz] = u_control(t, qp,  ref_func, sys, calc_u_func)
         counter = 0;
     end
     
-    m = length(sys.descrip.u);
-    z = zeros(m, 1);
-    
-    sigma = 0.05;
-    for i = 1:m
-        z(i) = gaussianrnd(0, sigma);
-    end
-    
-    u = u + z;
+%     m = length(sys.descrip.u);
+%     z = zeros(m, 1);
+%     
+%     sigma = 0.05;
+%     for i = 1:m
+%         z(i) = gaussianrnd(0, sigma);
+%     end
+%     
+%     u = u + z;
 end
