@@ -18,7 +18,7 @@ git clone git@github.com:brunolnetto/Robotics4fun.git
 
 ### Windows users
 
-Most likely, the reader may use Windows. For such, the author recommends either the [Git bash](https://gitforwindows.org/) or [Tortoise Git](https://tortoisegit.org/) as source management software. Git bash, although it is a terminal, the copy-paste of above commands works the same manner as for linux terminal. Typically the home path given by tilde '~' lays on ```$(PROGRAM_FILES)/Users```
+Most likely, the reader may use Windows. For such, the author recommends either the [Git bash](https://gitforwindows.org/) or [Tortoise Git](https://tortoisegit.org/) as source management software. Git bash is a terminal and the copy-paste of above commands works the same manner as for linux terminal. Typically the home path given by tilde '~' lays on ```$(PROGRAM_FILES)/Users```
 
 ## Installation
 
