@@ -62,8 +62,6 @@ axis([-1 1.5 -1 1   ]);
 
 % --------------------------------------
 
-% ----------- Errors plot --------------
-x_sym = sym('x_', [7, 1]);
 syms xppp yppp;
 
 y_ref = add_symsuffix(sys.kin.q(1:2), '_ref');
@@ -71,10 +69,19 @@ yp_ref = add_symsuffix(sys.kin.qp(1:2), '_ref');
 ypp_ref = add_symsuffix(sys.kin.qpp(1:2), '_ref');
 yppp_ref = add_symsuffix([xppp; yppp], '_ref');
 
-e = x_sym(1:2) - y_ref;
-
+x_sym = sym('x_', [7, 1]);
+C = sys.kin.C;
+q = sys.kin.q;
+p = sys.kin.p{end};
+v = sym('v', [2, 1]);
+z_1 = sym('z_1');
 ref_sym = [y_ref; yp_ref; ypp_ref; yppp_ref];
 x_ref_sym = [x_sym; ref_sym];
+
+% ----------- Errors plot --------------
+
+e = x_sym(1:2) - y_ref;
+
 e_func = @(t, q_p) subs(e, x_ref_sym, [q_p; ref_func(t)]);
 
 errors_sim = [];
@@ -85,12 +92,6 @@ end
 % Output equations
 y1 = sys.kin.q(1);
 y2 = sys.kin.q(2);
-
-C = sys.kin.C;
-q = sys.kin.q;
-p = sys.kin.p{end};
-v = sym('v', [2, 1]);
-z_1 = sym('z_1');
 
 symbs = sys.descrip.syms;
 model_params = sys.descrip.model_params;
@@ -153,7 +154,9 @@ plot_info_e.ylabels = {'$\tau_{\theta}$', '$\tau_{\phi}$'};
 plot_info_e.xlabels = repeat_str('$t$ [s]', 2);
 plot_info_e.grid_size = [2, 1];
 
-hfigs_u = my_plot(t(1:end-1), input_torque, plot_info_e);
+input_torque_ = input_torque(1:length(t), :);
+
+hfigs_u = my_plot(t, input_torque_, plot_info_e);
 % --------------------------------------
 
 % ----------- Speed plot ---------------

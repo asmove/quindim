@@ -31,8 +31,12 @@ x0 = [1; 1; 0; 1; 0; 0];
 tf = pi;
 dt = 0.001;
 
-n_pwm = 5;
-T_pwm = n_pwm*dt;
+% PWM frequency
+n_s = 15;
+Ts = n_s*dt;
+
+% Noise standard deviation
+sigma_noise = 0.01;
 
 % Time vector
 t = 0:dt:tf;
@@ -40,10 +44,16 @@ t = 0:dt:tf;
 m = length(sys.descrip.u);
 
 clear u_control
+% options = struct('sigma_noise', sigma_noise);
+options = struct('Ts', Ts);
+% options = struct('model_params', sys.descrip.model_params);
+
+% Greater radius than expected
+% options.model_params(2) = 0.06;
 
 calc_u_func = @() calc_control_2DRobot(sys, poles_);
 u_func = @(t, qp) u_control(t, qp, ref_func, ...
-                            sys, calc_u_func, T_pwm);
+                            sys, calc_u_func, options);
 sol = validate_model(sys, t, x0, u_func, is_dyn_control);
 
 sol = sol';

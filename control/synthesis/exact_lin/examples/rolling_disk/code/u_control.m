@@ -15,10 +15,6 @@ function [u, dz] = u_control(t, qp, ref_func, sys, calc_u_func, T_pwm)
     if(isempty(t_1))
         t_1 = t;
     end
-        
-    if(isempty(u_curr))
-        u_curr = zeros(size(sys.descrip.u));
-    end
     
     if(isempty(us))
         us = [];
@@ -43,14 +39,19 @@ function [u, dz] = u_control(t, qp, ref_func, sys, calc_u_func, T_pwm)
     vals = [qp; ref_func(t); model_params.'];    
     
     dz = vpa(subs(dz_law, symbs, vals));
-    %u = vpa(subs(control_law, symbs, vals));
+    u = vpa(subs(control_law, symbs, vals));
     
-    if(t - t_1 > T_pwm)
-        t_1 = t;
-        u_curr = vpa(subs(control_law, symbs, vals));
-    end
-    
-    u = u_curr;
+%     if(isempty(u_curr))
+%         t_1 = t;
+%         u_curr = vpa(subs(control_law, symbs, vals));
+%     end
+%     
+%     if(t - t_1 > T_pwm)
+%         t_1 = t;
+%         u_curr = vpa(subs(control_law, symbs, vals));
+%     end
+%     
+%     u = u_curr;
     
 %     sigma = 0.1;
 %     for i = 1:length(u)
@@ -61,10 +62,12 @@ function [u, dz] = u_control(t, qp, ref_func, sys, calc_u_func, T_pwm)
     counter = counter + 1;
     if(counter == 1)
         us = [us; u'];
+        
         assignin('base', 'input_torque', us);
     end
     
-    if(counter == 8)
+    n_ode = 8;
+    if(counter == n_ode)
         counter = 0;
     end
 end

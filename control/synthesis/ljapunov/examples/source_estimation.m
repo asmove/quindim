@@ -3,12 +3,13 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     persistent t_readings readings counter is_T;
     persistent t_estimations estimations;
     
+    % Estimation structure unwrap
     xhat_0 = sestimation_info.xhat_0;
     nu = sestimation_info.nu;
     sigma = sestimation_info.sigma;
     lambda = sestimation_info.lambda;
     oracle = sestimation_info.oracle;
-    T = sestimation_info.T_cur;
+    T_curr = sestimation_info.T_cur;
     source_reference = sestimation_info.source_reference;
     
     if(isempty(xs_curr))
@@ -17,32 +18,33 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     end
     
     % Variables initialization
+    
+    % Integration algorithm counter
     if(isempty(counter))
         counter = 0;
     end
     
+    % Threshold init
     if(isempty(is_T))
         is_T = false;
     end
     
+    % Symbolic xhat
     if(isempty(xhat_s))
         xhat_s = xhat_0';
         assignin('base', 'xhat_s', []);
     end
     
+    % Accumulated estimation vector
     if(isempty(xhat_acc))
         xhat_acc = xhat_0';
         assignin('base', 'xhat_acc', xhat_acc);
     end
     
+    % Initial instant of comparisson with time interval
     if(isempty(t_0))
         t_0 = t;
         assignin('base', 't_0', t_0);
-    end
-    
-    if(isempty(t_curr))
-        t_curr = t;
-        assignin('base', 't_curr', t_curr);
     end
     
     if(isempty(t_estimations))
@@ -72,8 +74,11 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     
     % Special: First assignment of barycenter
     if(isempty(xhat_))
-        [xhat, ~, m] = drecexpbary_custom(oracle, 0, xhat_0, ...
-                                          nu, sigma, lambda, 1);
+        m0 = 0;
+        accel_fun = @(m_1, x_1, delta_xhat_1) zeros(size(x_1));
+        [xhat, ~, ~] = drecexpbary_custom(oracle, m0, ...
+                                          xhat_0, nu, sigma, ...
+                                          lambda, accel_fun);
                                       
         xhat_ = xhat;
         
@@ -92,11 +97,10 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     end
     
     % Current state
-    t_curr = t;
     counter = counter + 1;
     
     % Update source estimation window
-    if(t_curr >= t_0 + T)
+    if(t >= t_0 + T_curr)
         
         % Quick hack: Avoid multiple reads of runge-kutta algorithm
         is_T = true;
@@ -106,26 +110,19 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
             % New prediction
             [xhat, m] = expbary(oracle, xs_curr, nu);
             
-%             xhat_acc = [xhat_acc; xhat];
-            
             n_iterations = 1;
             [xhat, ~, m] = drecexpbary_custom(oracle, m, xhat, ...
                                               nu, sigma, lambda, ...
                                               n_iterations);
             
-            
-            xhat_acc = [xhat_acc; xhat];
-            
             x_curr = subs(source_reference.', ...
                           [sys.kin.q; sys.kin.p{end}], q_p);
-            xs_curr = [xs_curr; x_curr];
             
+            xhat_acc = [xhat_acc; xhat];
+            xs_curr = [xs_curr; x_curr];
             t_xhat = [t_xhat; t];
             xhat_s = [xhat_s; xhat];
-            
-            % Update previous and current values
-            xhat_ = xhat';
-            
+            xhat_ = xhat';            
             t_estimations = [t_estimations; t];
             estimations = [estimations; xhat_'];
             
@@ -144,7 +141,7 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     end
     
     x_curr = subs(source_reference.', ...
-                          [sys.kin.q; sys.kin.p{end}], q_p);
+                  [sys.kin.q; sys.kin.p{end}], q_p);
     xs_curr = [xs_curr; x_curr];
     
     % Update readings during excursion

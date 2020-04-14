@@ -1,5 +1,5 @@
-function [u, dz] = u_control(t, qp,  ref_func, ...
-                             sys, calc_u_func, T_pwm)
+function [u, dz] = u_control(t, qp,  ref_func, ... 
+                             sys, calc_u_func, options)
     persistent control_law dz_law ...
                y_ref yp_ref ypp_ref yppp_ref ...
                x_sym ref_syms;
@@ -52,14 +52,36 @@ function [u, dz] = u_control(t, qp,  ref_func, ...
     dz = vpa(subs(dz_law, symbs, vals));
     
     [num, den] = numden(control_law);
-%     u = vpa(subs(control_law, symbs, vals));
     
-    if(t - t_1 > T_pwm)
-        t_1 = t;
-        u_curr = vpa(subs(control_law, symbs, vals));
+    if(isfield(options, 'Ts'))
+        Ts = options.Ts;
+        if(t - t_1 > Ts)
+            t_1 = t;
+            u_curr = vpa(subs(control_law, symbs, vals));
+        end
+        
+        u = u_curr;
+    elseif(isfield(options, 'sigma_noise'))
+        sigma_noise = options.sigma_noise;
+        m = length(sys.descrip.u);
+        z = zeros(m, 1);
+
+        for i = 1:m
+            z(i) = gaussianrnd(0, sigma_noise);
+        end
+        
+        u = vpa(subs(control_law, symbs, vals));
+        u = u + z;
+    elseif(isfield(options, 'model_params'))
+        model_params = options.model_params;
+        vals = [qp; ref_func(t); model_params.'];
+        
+        m = length(sys.descrip.u);
+        
+        u = vpa(subs(control_law, symbs, vals));
+    else
+        u = vpa(subs(control_law, symbs, vals));
     end
-    
-    u = u_curr;
     
     num_n = vpa(subs(num, symbs, vals));
     den_n = vpa(subs(den, symbs, vals));
@@ -77,14 +99,4 @@ function [u, dz] = u_control(t, qp,  ref_func, ...
     if(counter == 4)
         counter = 0;
     end
-    
-%     m = length(sys.descrip.u);
-%     z = zeros(m, 1);
-%     
-%     sigma = 0.05;
-%     for i = 1:m
-%         z(i) = gaussianrnd(0, sigma);
-%     end
-%     
-%     u = u + z;
 end

@@ -1,7 +1,7 @@
-function [dz, u] = run_control_law(t, q_p, xhat, sestimation_info, ...
-                                   control_info, trajectory_info, sys)
+function [u, dz] = run_control_law(t, q_p, xhat, sestimation_info, ...
+                                   trajectory_info, control_info, sys)
     persistent tu_s u_s t_0 t_curr source_states counter;
-    persistent tail_traj head_traj;
+    persistent tail_traj head_traj xhat_trajs;
     
     % Metadata unwrap
     xhat_0 = sestimation_info.xhat_0;
@@ -33,6 +33,22 @@ function [dz, u] = run_control_law(t, q_p, xhat, sestimation_info, ...
         counter = 0;
     end
     
+    if(isempty(t_0))
+        t_0 = t;
+    end
+    
+    if(isempty(tail_traj))
+        tail_traj = q_p(1:2);
+    end
+    
+    if(isempty(head_traj))
+        head_traj = xhat;
+    end
+    
+    if(isempty(head_traj))
+        xhat_trajs = [];
+    end
+       
     % Time for periodic variables
     t_curr = t;
     
@@ -43,7 +59,6 @@ function [dz, u] = run_control_law(t, q_p, xhat, sestimation_info, ...
         error('Trajectory plan time span must be greater than curiosity time');
     end
     
-    counter = counter + 1;
     if(t_curr >= t_0 + T_cur)
         t_0 = t;
 
@@ -57,16 +72,19 @@ function [dz, u] = run_control_law(t, q_p, xhat, sestimation_info, ...
         head_traj = xhat;
         
         P0 = tail_traj;
-        P1 = head_traj; 
+        P1 = head_traj;
+        thetaA = q_p(3);
         
         t_i = t_curr - t_0;
         
-        xhat_traj = P0 + (t_i/T_traj)*(P1 - P0);
-        xphat_traj = (P1 - P0)/T_traj;
-        xpphat_traj = zeros(size(P1));
-        xppphat_traj = zeros(size(P1));
+        traj = trajectory_info.gentraj_fun(t_i, P0, P1, thetaA);
+        
+        xhat_traj = traj(1:2);
+        xphat_traj = traj(2:3);
+        xpphat_traj = traj(4:5);
+        xppphat_traj = traj(6:7);
 
-        xhat_traj_.t = [xhat_traj_.t; time(j)];
+        xhat_traj_.t = [xhat_traj_.t; t];
         xhat_traj_.x = [xhat_traj_.x; xhat_traj'];            
 
         xhat_trajs = [xhat_trajs; xhat_traj_];
@@ -75,12 +93,20 @@ function [dz, u] = run_control_law(t, q_p, xhat, sestimation_info, ...
     
     P0 = tail_traj;
     P1 = head_traj;
+    thetaA = q_p(3);
+    
     t_i = t_curr - t_0;
-
-    xhat_traj = P0 + (t_i/T_traj)*(P1 - P0);
-    xphat_traj = (P1 - P0)/T_traj;
-    xpphat_traj = zeros(size(P1));
-    xppphat_traj = zeros(size(P1));
+    
+    double(t_i)
+    double(t_curr)
+    double(t_0)
+    
+    traj = trajectory_info.gentraj_fun(t_i, P0, P1, thetaA);
+        
+    xhat_traj = traj(1:2);
+    xphat_traj = traj(2:3);
+    xpphat_traj = traj(4:5);
+    xppphat_traj = traj(6:7);
     
     xppp = sym('xppp');
     yppp = sym('yppp');
@@ -89,33 +115,23 @@ function [dz, u] = run_control_law(t, q_p, xhat, sestimation_info, ...
     ypp_ref = add_symsuffix(sys.kin.qpp(1:2), '_ref');
     yppp_ref = add_symsuffix([xppp; yppp], '_ref');
     
-    qp_symbs = [q; p];
-    refs_symbs = [y_ref; yp_ref; ypp_ref; ypp_ref];
+    qp_symbs = sym('x_', [6, 1]);
+    refs_symbs = [y_ref; yp_ref; ypp_ref; yppp_ref];
     refs = [xhat_traj; xphat_traj; xpphat_traj; xppphat_traj];
     
-    [dz, u] = control_info.control_fun(t, q_p, ...
-                                       refs, qp_symbs, refs_symbs);
+    [dz, u] = control_info.control_fun(t, q_p, refs, ...
+                                       qp_symbs, refs_symbs);
     
-%     z_traj = normrnd(zeros(size(u)), sigma_traj);
-%     u = u + z_traj;
-
+    counter = counter + 1;
     if(counter == 1)        
-        phat_t = [phat_t; phat_traj'];
-        xhat_t = [xhat_t; xhat_traj'];
-        pphat_t = [pphat_t; pphat_traj'];
-        xphat_t = [xphat_t; xphat_traj'];
         u_s = [u_s; u'];
         tu_s = [tu_s; t];
         
         assignin('base', 'u_s', u_s);
         assignin('base', 'tu_s', tu_s);
-        assignin('base', 'xhat_t', xhat_t);
-        assignin('base', 'phat_t', phat_t);
-        assignin('base', 'xphat_t', xphat_t);
-        assignin('base', 'pphat_t', pphat_t);
     end
     
-    if(counter == 4)
+    if(counter == 8)
         counter = 0;
     end
 end

@@ -58,7 +58,7 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     % First derivative for outputs
     dy1dt = dvecdt(y1, [q; p], [C*p; v]);
     dy2dt = dvecdt(y2, [q; p], [C*p; v]);
-
+    
     L_G_L_f_h1 = equationsToMatrix(dy1dt, v);
     L_G_L_f_h2 = equationsToMatrix(dy2dt, v);
 
@@ -68,7 +68,7 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     % Second derivative for outputs
     d2y1dt2 = dvecdt(dy1dt, [q; p], [C*p; v]);
     d2y2dt2 = dvecdt(dy2dt, [q; p], [C*p; v]);
-
+    
     L_G_L_f_2_h1 = equationsToMatrix(d2y1dt2, v);
     L_G_L_f_2_h2 = equationsToMatrix(d2y2dt2, v);
     
@@ -138,7 +138,9 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     L_3_f_h1 = simplify_(d3y1dt3 - L_G_L_2_f_h1*w_syms);
     L_3_f_h2 = simplify_(d3y2dt3 - L_G_L_2_f_h2*w_syms);
     
-    A2 = [L_G_L_2_f_h1; L_G_L_2_f_h2];
+    latex([L_3_f_h1; L_3_f_h2])
+    
+    A2 = [L_G_L_2_f_h1; L_G_L_2_f_h2]
     
     y = sys.kin.q(1:2);
     yp = sys.kin.qp(1:2);

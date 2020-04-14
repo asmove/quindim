@@ -29,7 +29,7 @@ x0 = [1; 1; 0; 0; 0; 1; 0];
 tf = pi;
 dt = 0.001;
 
-n_pwm = 5;
+n_pwm = 10;
 T_pwm = n_pwm*dt;
 
 % Time vector

@@ -149,12 +149,9 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     e = x_sym(1:2) - y_ref;
     ep = dydt - yp_ref;
     epp = d2ydt2 - ypp_ref;
-
-    coeffs_1 = poly(poles_{1});
-    coeffs_1 = coeffs_1(2:end);
     
+    coeffs_1 = poly(poles_{1});
     coeffs_2 = poly(poles_{2});
-    coeffs_2 = coeffs_2(2:end);
     
     coeffs_K0 = [coeffs_1(3); coeffs_2(3)];
     coeffs_K1 = [coeffs_1(2); coeffs_2(2)];
