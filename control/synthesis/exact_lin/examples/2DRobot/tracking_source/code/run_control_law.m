@@ -1,7 +1,8 @@
 function [u, dz] = run_control_law(t, q_p, xhat, sestimation_info, ...
                                    trajectory_info, control_info, sys)
-    persistent tu_s u_s t_0 t_curr source_states counter;
-    persistent tail_traj head_traj xhat_trajs;
+    persistent tu_s u_s t_0 source_states counter;
+    persistent tail_traj head_traj is_T;
+    persistent t_trajs trajs t_trajs_curr trajs_curr;
     
     % Metadata unwrap
     xhat_0 = sestimation_info.xhat_0;
@@ -29,12 +30,28 @@ function [u, dz] = run_control_law(t, q_p, xhat, sestimation_info, ...
         source_states = states_reference.';
     end
     
+    if(isempty(t_trajs))
+        t_trajs = {};
+    end
+    
+    if(isempty(trajs))
+        trajs = {};
+    end
+    
+    if(isempty(t_trajs_curr))
+        t_trajs_curr = [];
+    end
+    
+    if(isempty(trajs_curr))
+        trajs_curr = [];
+    end
+    
     if(isempty(counter))
         counter = 0;
     end
     
     if(isempty(t_0))
-        t_0 = t;
+        t_0 = 0;
     end
     
     if(isempty(tail_traj))
@@ -48,7 +65,11 @@ function [u, dz] = run_control_law(t, q_p, xhat, sestimation_info, ...
     if(isempty(head_traj))
         xhat_trajs = [];
     end
-       
+    
+    if(isempty(is_T))
+        is_T = false;
+    end
+    
     % Time for periodic variables
     t_curr = t;
     
@@ -59,7 +80,7 @@ function [u, dz] = run_control_law(t, q_p, xhat, sestimation_info, ...
         error('Trajectory plan time span must be greater than curiosity time');
     end
     
-    if(t_curr >= t_0 + T_cur)
+    if(xhat ~= head_traj)
         t_0 = t;
 
         n = length(q);
@@ -67,46 +88,46 @@ function [u, dz] = run_control_law(t, q_p, xhat, sestimation_info, ...
 
         xhat_traj_.t = [];
         xhat_traj_.x = [];
-        
+
         tail_traj = q_p(1:2);
         head_traj = xhat;
-        
+
         P0 = tail_traj;
         P1 = head_traj;
         thetaA = q_p(3);
-        
+
         t_i = t_curr - t_0;
-        
+
         traj = trajectory_info.gentraj_fun(t_i, P0, P1, thetaA);
-        
+
         xhat_traj = traj(1:2);
         xphat_traj = traj(2:3);
         xpphat_traj = traj(4:5);
         xppphat_traj = traj(6:7);
 
-        xhat_traj_.t = [xhat_traj_.t; t];
-        xhat_traj_.x = [xhat_traj_.x; xhat_traj'];            
+        t_trajs{end+1} = t_trajs_curr;
+        trajs{end+1} = trajs_curr;
 
-        xhat_trajs = [xhat_trajs; xhat_traj_];
-        assignin('base', 'xhat_trajs', xhat_trajs);
+        t_trajs_curr = [];
+        trajs_curr = [];
+
+        assignin('base', 't_trajs', t_trajs);
+        assignin('base', 'trajs', trajs);
+
+        is_T = false;
     end
     
     P0 = tail_traj;
     P1 = head_traj;
     thetaA = q_p(3);
     
-    t_i = t_curr - t_0;
-    
-    double(t_i)
-    double(t_curr)
-    double(t_0)
-    
+    t_i = t - t_0;
     traj = trajectory_info.gentraj_fun(t_i, P0, P1, thetaA);
-        
+    
     xhat_traj = traj(1:2);
-    xphat_traj = traj(2:3);
-    xpphat_traj = traj(4:5);
-    xppphat_traj = traj(6:7);
+    xphat_traj = traj(3:4);
+    xpphat_traj = traj(5:6);
+    xppphat_traj = traj(7:8);
     
     xppp = sym('xppp');
     yppp = sym('yppp');
@@ -119,19 +140,31 @@ function [u, dz] = run_control_law(t, q_p, xhat, sestimation_info, ...
     refs_symbs = [y_ref; yp_ref; ypp_ref; yppp_ref];
     refs = [xhat_traj; xphat_traj; xpphat_traj; xppphat_traj];
     
+    t0 = tic();
     [dz, u] = control_info.control_fun(t, q_p, refs, ...
                                        qp_symbs, refs_symbs);
-    
+    toc(t0)
+                                   
     counter = counter + 1;
-    if(counter == 1)        
+    if(counter == 1)
         u_s = [u_s; u'];
         tu_s = [tu_s; t];
+        t_trajs_curr = [t_trajs_curr; t];
+        trajs_curr = [trajs_curr; xhat_traj'];
         
         assignin('base', 'u_s', u_s);
         assignin('base', 'tu_s', tu_s);
     end
     
-    if(counter == 8)
+    if(counter == 4)
         counter = 0;
     end
+    
+    disp('-----');
+    disp(sprintf('Position   : [%.3f, %.3f]', q_p(1), q_p(2)));
+    disp(sprintf('Reference  : [%.3f, %.3f]', refs(1), refs(2)));
+    disp(sprintf('Errors     : [%.3f, %.3f]', q_p(1) - refs(1), ...
+                                              q_p(2) - refs(2)));
+    disp(sprintf('Estimation : [%.3f, %.3f]', xhat(1), xhat(2)));
+    disp('-----');
 end

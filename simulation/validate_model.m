@@ -7,7 +7,7 @@ function xout = validate_model(sys, tspan, x0, u_func, is_dyn_control)
     
     odefun = @(t_, q_p) df(t_, q_p, sys, u_func, is_dyn_control);
     
-    options.degree = 5;
+    options.degree = 4;
     [t, xout] = ode('rk', odefun, x0, tspan, options);
     
     xout = double(xout);
@@ -24,10 +24,8 @@ end
 function dq = df(t, q_p, sys, u_function, is_dyn_control)
     [n, m] = size(sys.kin.C);
     
-    t0 = tic;
-    
     persistent C_params H_params h_params Z_params;
-
+    
     symbs = sys.descrip.syms;
     m_params = sys.descrip.model_params;
 
@@ -53,11 +51,22 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
     symbs = [symbs.'; qp_s];
     m_params = [m_params.'; qp_n];
     
-    C_num = subs(C_params, symbs, m_params);
-    H_num = subs(H_params, symbs, m_params);
-    h_num = subs(h_params, symbs, m_params);
-    Z_num = subs(Z_params, symbs, m_params);
+    vars = {C_params, H_params, h_params, Z_params};
+    num_vars = {};
+    for var = vars
+        var = var{1};
+        if(isempty(symvar(var)))
+            num_vars{end+1} = vpa(var);
+        else
+            num_vars{end+1} = vpa(subs(var, symbs, m_params));
+        end
+    end
     
+    C_num = num_vars{1};
+    H_num = num_vars{2};
+    h_num = num_vars{3};
+    Z_num = num_vars{4};
+
     if(is_dyn_control)
         [u_num, dz_num] = u_function(t, q_p);
     else
@@ -78,7 +87,4 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
     else
         dq = vpa([speed; accel]);
     end
-    
-    % Time elapsed
-    dt = toc(t0);
 end

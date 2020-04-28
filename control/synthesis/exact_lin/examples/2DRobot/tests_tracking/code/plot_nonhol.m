@@ -57,13 +57,13 @@ plot(sol(:, 1), sol(:, 2), '-');
 hold on;
 plot(ref_vals(:, 1), ref_vals(:, 2), '--');
 hold off;
-axis([-1 1.5 -1 1   ]);
+axis([-3 3 -3 3]);
 legend({'$r(t)$', '$r^{\star}(t)$'}, 'interpreter', 'latex')
 xlabel('$x$ [m]', 'interpreter', 'latex');
 ylabel('$y$ [m]', 'interpreter', 'latex');
 
 axis equal;
-axis([-1 1.5 -1 1   ]);
+axis([-4 4 -4 4]);
 
 C = sys.kin.C;
 q = sys.kin.q;
@@ -71,89 +71,89 @@ p = sys.kin.p{end};
 v = sym('v', [2, 1]);
 z_1 = sym('z_1');
 
-% ----------- Errors plot --------------
-x_sym = sym('x_', [6, 1]);
-syms xppp yppp;
-
-y_ref = add_symsuffix(sys.kin.q(1:2), '_ref');
-yp_ref = add_symsuffix(sys.kin.qp(1:2), '_ref');
-ypp_ref = add_symsuffix(sys.kin.qpp(1:2), '_ref');
-yppp_ref = add_symsuffix([xppp; yppp], '_ref');
-
-e = x_sym(1:2) - y_ref;
-
-ref_sym = [y_ref; yp_ref; ypp_ref; yppp_ref];
-x_ref_sym = [x_sym(1:6); ref_sym];
-e_func = @(t, q_p) subs(e, x_ref_sym, [q_p; ref_func(t)]);
-
-errors_sim = [];
-for i = 1:length(t)
-    qp_i = sol(i, 1:end)';
-    errors_sim = [errors_sim; e_func(t(i), qp_i)'];
-end
-
-% Output equations
-y1 = sys.kin.q(1);
-y2 = sys.kin.q(2);
-
-symbs = sys.descrip.syms;
-model_params = sys.descrip.model_params;
-
-% First derivative for outputs
-dy1dt = simplify_(dvecdt(y1, [q; p], [C*p; v]));
-dy2dt = simplify_(dvecdt(y2, [q; p], [C*p; v]));
-
-% Second derivative for outputs
-d2y1dt2 = dvecdt(dy1dt, [q; p], [C*p; [z_1; v(2)]]);
-d2y2dt2 = dvecdt(dy2dt, [q; p], [C*p; [z_1; v(2)]]);
-
-% Third derivative for outputs
-d3y1dt3 = dvecdt(d2y1dt2, [q; p], [C*p; [z_1; v(2)]]);
-d3y2dt3 = dvecdt(d2y2dt2, [q; p], [C*p; [z_1; v(2)]]);
-
-dydt = [dy1dt; dy2dt];
-d2ydt2 = [d2y1dt2; d2y2dt2];
-
-pos = subs([x_sym(1:2); dydt; d2ydt2], [q; p; z_1], x_sym);
-ref_ = [y_ref; yp_ref; ypp_ref];
-
-pos_val = subs(pos, x_ref_sym, [sol(1, 1:end)'; ref_func(0)]);
-ref_val = subs(ref_, x_ref_sym, [sol(1, 1:end)'; ref_func(0)]);
-
-errors = pos_val - ref_val;
-e0 = subs(errors, ...
-          [x_ref_sym; symbs.'], ...
-          [sol(1, :)'; ref_func(0); model_params.']);
-e0 = [e0(1); e0(3); e0(5); e0(2); e0(4); e0(6)];
-
-A1 = ctrb_canon(poles_{1});
-A2 = ctrb_canon(poles_{2});
-
-e_n = canon_Rn(length(poles_{1}), 1)';
-C = blkdiag(e_n, e_n);
-
-R_syms = sys.descrip.syms(2);
-R_val = sys.descrip.model_params(2);
-syms t_;
-
-errors_t = [];
-for i = 1:length(t)
-    eAt = expm(blkdiag(A1, A2)*t_);
-    CAte0 = subs(C*eAt*e0, [t_, R_syms], [t(i), R_val]);
-    errors_t = [errors_t; CAte0'];
-end
-
-plot_config.titles = {'', ''};
-plot_config.xlabels = {'', 't [s]'};
-plot_config.ylabels = {'$e_x$', '$e_y$'};
-plot_config.grid_size = [2, 1];
-plot_config.legends = {{'Real', 'Expected'}, {'Real', 'Expected'}};
-plot_config.pos_multiplots = [1, 2];
-plot_config.markers = {{'-', '--'}, {'-', '--'}};
-
-hfig_errors = my_plot(t', {errors_sim, errors_t}, plot_config);
-
-% --------------------------------------
+% % ----------- Errors plot --------------
+% x_sym = sym('x_', [6, 1]);
+% syms xppp yppp;
+% 
+% y_ref = add_symsuffix(sys.kin.q(1:2), '_ref');
+% yp_ref = add_symsuffix(sys.kin.qp(1:2), '_ref');
+% ypp_ref = add_symsuffix(sys.kin.qpp(1:2), '_ref');
+% yppp_ref = add_symsuffix([xppp; yppp], '_ref');
+% 
+% e = x_sym(1:2) - y_ref;
+% 
+% ref_sym = [y_ref; yp_ref; ypp_ref; yppp_ref];
+% x_ref_sym = [x_sym(1:6); ref_sym];
+% e_func = @(t, q_p) subs(e, x_ref_sym, [q_p; ref_func(t)]);
+% 
+% errors_sim = [];
+% for i = 1:length(t)
+%     qp_i = sol(i, 1:end)';
+%     errors_sim = [errors_sim; e_func(t(i), qp_i)'];
+% end
+% 
+% % Output equations
+% y1 = sys.kin.q(1);
+% y2 = sys.kin.q(2);
+% 
+% symbs = sys.descrip.syms;
+% model_params = sys.descrip.model_params;
+% 
+% % First derivative for outputs
+% dy1dt = simplify_(dvecdt(y1, [q; p], [C*p; v]));
+% dy2dt = simplify_(dvecdt(y2, [q; p], [C*p; v]));
+% 
+% % Second derivative for outputs
+% d2y1dt2 = dvecdt(dy1dt, [q; p], [C*p; [z_1; v(2)]]);
+% d2y2dt2 = dvecdt(dy2dt, [q; p], [C*p; [z_1; v(2)]]);
+% 
+% % Third derivative for outputs
+% d3y1dt3 = dvecdt(d2y1dt2, [q; p], [C*p; [z_1; v(2)]]);
+% d3y2dt3 = dvecdt(d2y2dt2, [q; p], [C*p; [z_1; v(2)]]);
+% 
+% dydt = [dy1dt; dy2dt];
+% d2ydt2 = [d2y1dt2; d2y2dt2];
+% 
+% pos = subs([x_sym(1:2); dydt; d2ydt2], [q; p; z_1], x_sym);
+% ref_ = [y_ref; yp_ref; ypp_ref];
+% 
+% pos_val = subs(pos, x_ref_sym, [sol(1, 1:end)'; ref_func(0)]);
+% ref_val = subs(ref_, x_ref_sym, [sol(1, 1:end)'; ref_func(0)]);
+% 
+% errors = pos_val - ref_val;
+% e0 = subs(errors, ...
+%           [x_ref_sym; symbs.'], ...
+%           [sol(1, :)'; ref_func(0); model_params.']);
+% e0 = [e0(1); e0(3); e0(5); e0(2); e0(4); e0(6)];
+% 
+% A1 = ctrb_canon(poles_{1});
+% A2 = ctrb_canon(poles_{2});
+% 
+% e_n = canon_Rn(length(poles_{1}), 1)';
+% C = blkdiag(e_n, e_n);
+% 
+% R_syms = sys.descrip.syms(2);
+% R_val = sys.descrip.model_params(2);
+% syms t_;
+% 
+% errors_t = [];
+% for i = 1:length(t)
+%     eAt = expm(blkdiag(A1, A2)*t_);
+%     CAte0 = subs(C*eAt*e0, [t_, R_syms], [t(i), R_val]);
+%     errors_t = [errors_t; CAte0'];
+% end
+% 
+% plot_config.titles = {'', ''};
+% plot_config.xlabels = {'', 't [s]'};
+% plot_config.ylabels = {'$e_x$', '$e_y$'};
+% plot_config.grid_size = [2, 1];
+% plot_config.legends = {{'Real', 'Expected'}, {'Real', 'Expected'}};
+% plot_config.pos_multiplots = [1, 2];
+% plot_config.markers = {{'-', '--'}, {'-', '--'}};
+% 
+% hfig_errors = my_plot(t', {errors_sim, errors_t}, plot_config);
+% 
+% % --------------------------------------
 
 % ----------- Torque plot ---------------
 [n_t, n_u] = size(input_torque);
@@ -222,6 +222,8 @@ elseif(isfield(options, 'sigma_noise'))
     scenario_folder = 'noisy/';
 elseif(isfield(options, 'model_params'))
     scenario_folder = 'params_uncertainty/';
+elseif(isempty(options))
+    scenario_folder = '/';
 else
     error('Must be pwm or sigma_noise.');
 end

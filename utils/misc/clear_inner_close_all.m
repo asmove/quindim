@@ -1,6 +1,5 @@
 function [] = clear_inner_close_all(base_leaf)
     close all
-    delete(findall(0,'type','figure','tag','TMWWaitbar'));
     
     if(nargin == 0)
         base_leaf = '~';
@@ -26,4 +25,5 @@ function [] = clear_inner_close_all(base_leaf)
         end
         wb.update_waitbar(i, length(leaf_paths));
     end
+    delete(wb.wb);
 end

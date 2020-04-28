@@ -58,7 +58,7 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     % First derivative for outputs
     dy1dt = dvecdt(y1, [q; p], [C*p; v]);
     dy2dt = dvecdt(y2, [q; p], [C*p; v]);
-
+    
     L_G_L_f_h1 = equationsToMatrix(dy1dt, v);
     L_G_L_f_h2 = equationsToMatrix(dy2dt, v);
 
@@ -68,7 +68,7 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     % Second derivative for outputs
     d2y1dt2 = dvecdt(dy1dt, [q; p], [C*p; v]);
     d2y2dt2 = dvecdt(dy2dt, [q; p], [C*p; v]);
-
+    
     L_G_L_f_2_h1 = equationsToMatrix(d2y1dt2, v);
     L_G_L_f_2_h2 = equationsToMatrix(d2y2dt2, v);
     
@@ -149,10 +149,12 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     e = x_sym(1:2) - y_ref;
     ep = dydt - yp_ref;
     epp = d2ydt2 - ypp_ref;
-    
+
     coeffs_1 = poly(poles_{1});
+    coeffs_1 = coeffs_1(2:end);
     coeffs_2 = poly(poles_{2});
-    
+    coeffs_2 = coeffs_2(2:end);
+
     coeffs_K0 = [coeffs_1(3); coeffs_2(3)];
     coeffs_K1 = [coeffs_1(2); coeffs_2(2)];
     coeffs_K2 = [coeffs_1(1); coeffs_2(1)];
@@ -171,14 +173,14 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     invA2 = simplify_(inv(A2));
     
     w = simplify_(vpa(invA2*(-L_3_f_h-K2*epp-K1*ep-K0*e+yppp_ref)));
-    w = vpa(subs(w, symbs, model_params));
-
     v_ = V*[x_sym(n_q + n_p + 1); w(2)];
     
     x_sym = sym('x_', [n_q + n_p + 1, 1]);
     x_orig = [q; p; x_sym(n_q + n_p + 1)];
     
     u = subs(inv(Z)*(H*v_ + h), x_orig, x_sym);
-    
     dz = w(1);
+    
+    u = subs(u, symbs, model_params);
+    dz = subs(dz, symbs, model_params);
 end

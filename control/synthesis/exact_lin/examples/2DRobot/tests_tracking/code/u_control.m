@@ -5,13 +5,13 @@ function [u, dz] = u_control(t, qp,  ref_func, ...
                x_sym ref_syms;
     persistent model_params model_symbs symbs us counter;
     persistent num den nums dens u_curr t_1;
-    
+    double(qp)
     if(isempty(control_law))
         [dz_law, control_law] = calc_u_func();
     end
     
     if(isempty(t_1))
-        t_1 = t;
+        t_1 = t;                               
     end
         
     if(isempty(u_curr))
@@ -28,7 +28,6 @@ function [u, dz] = u_control(t, qp,  ref_func, ...
     
     if(isempty(x_sym))
         syms xppp yppp;
-    
         y_ref = add_symsuffix(sys.kin.q(1:2), '_ref');
         yp_ref = add_symsuffix(sys.kin.qp(1:2), '_ref');
         ypp_ref = add_symsuffix(sys.kin.qpp(1:2), '_ref');
@@ -72,6 +71,16 @@ function [u, dz] = u_control(t, qp,  ref_func, ...
         
         u = vpa(subs(control_law, symbs, vals));
         u = u + z;
+    
+    elseif(isfield(options, 'frequency') && ...
+           isfield(options, 'amplitude'))
+        w = options.frequency;
+        A = options.amplitude;
+        
+        u = vpa(subs(control_law, symbs, vals));
+        
+        u = u + A*sin(w*t)*ones(length(u), 1);
+        
     elseif(isfield(options, 'model_params'))
         model_params = options.model_params;
         vals = [qp; ref_func(t); model_params.'];
