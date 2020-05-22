@@ -1,5 +1,5 @@
 function xhat = source_estimation(t, q_p, sestimation_info, sys)
-    persistent xhat_ t_curr t_0 t_s t_xhat xhat_acc xhat_s xs_curr;
+    persistent xhat_ t_0 t_s t_xhat xhat_acc xhat_s xs_curr;
     persistent t_readings readings counter is_T;
     persistent t_estimations estimations;
     

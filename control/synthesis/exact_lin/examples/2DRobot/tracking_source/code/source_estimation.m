@@ -1,7 +1,12 @@
-function xhat = source_estimation(t, q_p, sestimation_info, sys)
-    persistent t_0 t_s t_xhat xhat_acc xhat_s;
+function [xhat, save_states] = source_estimation(t, q_p, sestimation_info, sys)
+    persistent t_0 t_s t_xhat xhat_acc xhat_s xhat_intervals;
     persistent t_readings readings counter is_T estimations;
-    persistent m_prev xhat_prev m_interval xhat_interval;
+    persistent xhat_prev m_interval xhat_interval;
+    
+    t0 =  tic();
+    
+    accel_fun = @(m_1, x_1, delta_xhat_1) ...
+                     non_accel(m_1, x_1, delta_xhat_1);
     
     xhat_0 = sestimation_info.xhat_0;
     nu = sestimation_info.nu;
@@ -10,8 +15,6 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     oracle = sestimation_info.oracle;
     T = sestimation_info.T_cur;
     source_reference = sestimation_info.source_reference;
-    
-    [n, m] = size(sys.kin.C);
     
     % Variables initialization
     if(isempty(counter))
@@ -27,7 +30,7 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     end
     
     if(isempty(m_interval))
-        m_interval = 0;
+        m_interval = exp(-nu*oracle(xhat_interval));
     end
     
     if(isempty(xhat_s))
@@ -60,6 +63,10 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
         assignin('base', 'readings', []);
     end
     
+    if(isempty(xhat_intervals))
+        xhat_intervals = [];
+    end
+    
     if(isempty(t_readings))
         t_readings = [];
         assignin('base', 't_readings', []);
@@ -67,20 +74,15 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     
     % First assignment of barycenter
     if(isempty(xhat_prev))
-        m0 = 0;
+        n = length(xhat_0);
+        z = zeros(n, 1);
+        for i = 1:n
+            z(i) = gaussianrnd(0, sigma); 
+        end
         
-       accel_fun = @(m_1, x_1, delta_xhat_1) ...
-                     non_accel(m_1, x_1, delta_xhat_1);
-        
-        iterations = 1;
-        [xhat, ~, ~, ms] = drecexpbary_custom(oracle, m0, xhat_0, nu, sigma, ...
-                                          lambda, iterations, accel_fun);
-        
-        m_prev = ms(end);
-                                      
-        % Barycenter at initial instant
+        xhat = xhat_0 + z;
         xhat_prev = xhat;
-        
+                                         
         xhat_acc = [xhat_acc; xhat'];
         estimations = [estimations; xhat_prev'];
         
@@ -88,42 +90,41 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
         assignin('base', 'estimations', estimations);
     end
     
-    xhat = xhat_prev;
+    toc(t0);
     
     % Current state
     counter = counter + 1;
     
     % Update source estimation window
-    if(t >= t_0 + T)
+    if(t - t_0 >= T)
         
         % Quick hack: Avoid multiple reads of runge-kutta algorithm
         is_T = true;
         if(is_T)
             t_0 = t;
             
-            disp('-----> AQUI <-----');
+            msg = 't = %.4f, xhat_prev = (%.4f, %.4f)\n';
+            fprintf(msg, t, xhat_interval(1), xhat_interval(2));
             
-            % Calculation of current barycenter under consideration of
-            % exploration
-            xhat_1_n = (m_interval*xhat_interval + m_prev*xhat_prev)/(m_interval + m_prev);
-            m_1_n = m_interval + m_prev;
+            n = length(xhat_0);
+            z = zeros(n, 1);
+            for i = 1:n
+                z(i) = gaussianrnd(0, sigma); 
+            end
             
-            accel_fun = @(m_1, x_1, delta_xhat_1) ...
-                     non_accel(m_1, x_1, delta_xhat_1);            
-            n_iterations = 1;
+            xhat = xhat_interval + z;
             
-            [xhat_n, ~, ~, ms] = drecexpbary_custom(oracle, m_1_n, xhat_1_n, nu, sigma, ...
-                                                    lambda, n_iterations, accel_fun);
-                                          
-            % Update previous and current values
-            m_prev = ms(end);
-            xhat_prev = xhat_n;
+            msg = 't = %.4f, xhat_prev = (%.4f, %.4f)\n';
+            fprintf(msg, t, xhat(1), xhat(2));
             
             % TAKE NOTE: zero xs_curr to reduce number of operations and storage
             xhat_curr = zeros(size(xhat_prev));
-            m_curr = 0;
+            x_curr = subs(source_reference, [sys.kin.q; sys.kin.p{end}], q_p(1:end-1));            
             
-            x_curr = subs(source_reference.', [sys.kin.q; sys.kin.p{end}], q_p(1:end-1));
+            e_i = exp(-nu*oracle(xhat_curr));
+            xhat_prev = (xhat_interval*m_interval + x_curr*e_i)/(e_i + m_interval);
+            
+            m_interval = exp(-nu*oracle(xhat_interval));
             
             % Source signal variables update
             t_xhat = [t_xhat; t];
@@ -132,11 +133,15 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
             assignin('base', 'xhat_s', xhat_s);
             assignin('base', 'estimations', estimations);
             
+            save_states = is_T;
             is_T = false;
-        else
-            xhat = xhat_prev;
         end
+    else
+        xhat = xhat_prev;
+        save_states = is_T;
     end
+    
+    t0 = tic();
     
     [n, m] = size(sys.kin.C);
     
@@ -145,11 +150,23 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     
     x_curr = subs(source_reference, q_p_s, q_p_t);
     
-    xhat_curr = (m_interval*xhat_interval + x_curr*oracle(x_curr))/(m_interval + oracle(x_curr));
-    m_curr = m_interval + oracle(x_curr);
+    m_1 = m_interval;
+    e_i = exp(-nu*oracle(x_curr));
     
-    xhat = vpa(xhat);
+    xhat_interval = (m_interval*xhat_interval + x_curr*e_i)/(m_interval + e_i);
+    m_interval = m_interval + e_i;
+    xhat_interval = vpa(xhat_interval);
     
+    toc(t0)
+    
+    t0 = tic();
+    disp('-----------------------------------');
+    msg = 't = %.4f, m_hat = %.5f; m_1 = %.5f; xhat = (%.4f, %.4f)\n';
+    fprintf(msg, t, m_interval, m_1, xhat_interval(1), xhat_interval(2));
+    
+    toc(t0)
+    
+    t0 = tic();
     % Update readings during excursion
     if(counter == 1)
         x = subs(source_reference, q_p_s, q_p_t);
@@ -162,9 +179,11 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
         % Sensor readings
         t_readings = [t_readings; t];
         readings = double([readings; reading]);        
+        xhat_intervals = [xhat_intervals; xhat_interval'];
         
         assignin('base', 't_s', t_s);
         assignin('base', 'xhat_s', xhat_s);
+        assignin('base', 'xhat_current', xhat_intervals);
         
         assignin('base', 't_readings', t_readings);
         assignin('base', 'readings', readings);
@@ -174,4 +193,5 @@ function xhat = source_estimation(t, q_p, sestimation_info, sys)
     if(counter == 4)
         counter = 0;
     end
+    toc(t0)
 end

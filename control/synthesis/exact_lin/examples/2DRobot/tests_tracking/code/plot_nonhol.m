@@ -55,7 +55,14 @@ plot_info_q.grid_size = [1, 1];
 hfig_statesxy = my_figure();
 plot(sol(:, 1), sol(:, 2), '-');
 hold on;
-plot(ref_vals(:, 1), ref_vals(:, 2), '--');
+traj1 = traj_params.trajectory{1};
+plot(traj1(:, 1), traj1(:, 2), '--');
+hold on;
+traj2 = traj_params.trajectory{2};
+plot(traj2(:, 1), traj2(:, 2), '--');
+hold on;
+traj3 = traj_params.trajectory{3};
+plot(traj3(:, 1), traj3(:, 2), '--');
 hold off;
 axis([-3 3 -3 3]);
 legend({'$r(t)$', '$r^{\star}(t)$'}, 'interpreter', 'latex')
@@ -70,9 +77,9 @@ q = sys.kin.q;
 p = sys.kin.p{end};
 v = sym('v', [2, 1]);
 z_1 = sym('z_1');
+x_sym = sym('x_', [6, 1]);
 
 % % ----------- Errors plot --------------
-% x_sym = sym('x_', [6, 1]);
 % syms xppp yppp;
 % 
 % y_ref = add_symsuffix(sys.kin.q(1:2), '_ref');
@@ -228,11 +235,11 @@ else
     error('Must be pwm or sigma_noise.');
 end
 
-saveas(hfig_references, ['../imgs/', scenario_folder, 'references', num2str(a), num2str(b)], 'epsc');
-saveas(hfig_states, ['../imgs/', scenario_folder, 'states', num2str(a), num2str(b)], 'epsc');
-saveas(hfig_statesxy, ['../imgs/', scenario_folder, 'statesxy', num2str(a), num2str(b)], 'epsc');
-saveas(hfig_errors, ['../imgs/', scenario_folder, 'errors', num2str(a), num2str(b)], 'epsc');
-saveas(hfig_speeds, ['../imgs/', scenario_folder, 'speeds', num2str(a), num2str(b)], 'epsc');
-saveas(hfig_qpt, ['../imgs/', scenario_folder, 'dstates', num2str(a), num2str(b)], 'epsc');
-saveas(hfigs_u, ['../imgs/', scenario_folder, 'input', num2str(a), num2str(b)], 'epsc');
+saveas(hfig_references, ['../imgs/', scenario_folder, 'references'], 'epsc');
+saveas(hfig_states, ['../imgs/', scenario_folder, 'states'], 'epsc');
+saveas(hfig_statesxy, ['../imgs/', scenario_folder, 'statesxy'], 'epsc');
+%saveas(hfig_errors, ['../imgs/', scenario_folder, 'errors'], 'epsc');
+saveas(hfig_speeds, ['../imgs/', scenario_folder, 'speeds'], 'epsc');
+saveas(hfig_qpt, ['../imgs/', scenario_folder, 'dstates'], 'epsc');
+saveas(hfigs_u, ['../imgs/', scenario_folder, 'input'], 'epsc');
 

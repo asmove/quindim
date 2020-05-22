@@ -15,7 +15,7 @@ oracle = @(x) x(1)^2 + x(2)^2;
 line2P = [];
 for i = 1:length(t)
     t_i = t(i);
-    Pt = point2point(t_i, tf, A, B);
+    Pt = A + (t_i/tf)*(B - A);
     line2P = [line2P; Pt'];
 end
 
@@ -25,6 +25,7 @@ T = 10;
 
 % [rad]
 theta0 = 0;
+AB = B - A;
 theta1 = cart2pol(AB(1), AB(2));
 
 % []

@@ -1,4 +1,4 @@
-function [dz, u] = calc_control_2DRobot(sys, poles_)
+function [dz, u, misc] = calc_control_2DRobot(sys, poles_)
     % Output and reference
     y = sys.kin.q(1:2);
     
@@ -183,4 +183,12 @@ function [dz, u] = calc_control_2DRobot(sys, poles_)
     
     u = subs(u, symbs, model_params);
     dz = subs(dz, symbs, model_params);
+    
+    misc.e = e;
+    misc.ep = ep;
+    misc.epp = epp;
+    misc.xy = [y1; y2];
+    misc.dxy = [dy1dt; dy2dt];
+    misc.d2xy = [d2y1dt2; d2y2dt2];
+    misc.symvars = [x_sym; ref_syms];
 end
