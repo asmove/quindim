@@ -2,6 +2,7 @@ clear all
 close all
 clc
 
+% Load system
 run('~/github/Robotics4fun/examples/2D_unicycle/code/main.m');
 
 clearvars -except sys
@@ -10,11 +11,12 @@ clear_inner_close_all(pwd);
 % Initial conditions
 x0 = [1; 1; 0; 1; 1; 1];
 
+% Load parameters
 T_cur = 0.1;
-T_traj = 0.5;
+T_traj = 0.1;
 lambda = 1;
 nu = 2;
-zeta = 1;
+zeta = 5;
 sigma = 0.5;
 xhat_0 = x0(1:2);
 
@@ -32,18 +34,18 @@ sestimation_info.T_cur = T_cur;
 trajectory_info.T_traj = T_traj;
 trajectory_info.dt = 0.001;
 
-mu = 25;
+% Load controller parameters
+mu = 35;
 poles_ = {-mu*ones(3, 1), ...
           -mu*ones(3, 1)};
 
+% Load 
 n_tf = 20;
 tf = n_tf*T_cur;
 dt = trajectory_info.dt;
 time = 0:dt:tf;
 
 traj_type = 'line';
-[t, simOut] = sim('control_law.slx');
-
 
 %     % Trajectory generation
 %     traj_type = traj_types{i};
