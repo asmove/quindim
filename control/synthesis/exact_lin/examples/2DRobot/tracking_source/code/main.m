@@ -9,15 +9,16 @@ clearvars -except sys
 clear_inner_close_all(pwd);
 
 % Initial conditions
-x0 = [1; 1; 0; 1; 1; 1];
+x0 = [2; 2; 0; 1; 1; 1];
 
 % Load parameters
-T_cur = 0.1;
-T_traj = 0.1;
+T_cur = 1;
+T_traj = 1;
+
 lambda = 1;
-nu = 2;
+nu = 10;
 zeta = 5;
-sigma = 0.5;
+sigma = 0.2;
 xhat_0 = x0(1:2);
 
 % Source estimation parameters
@@ -34,59 +35,24 @@ sestimation_info.T_cur = T_cur;
 trajectory_info.T_traj = T_traj;
 trajectory_info.dt = 0.001;
 
+SAT_CONTROL = 10;
+SEED_SPAN = 100;
+
+traj_type = 1;
+
 % Load controller parameters
-mu = 35;
+perc = 0.1;
+mu = -1/T_cur*log(perc);
 poles_ = {-mu*ones(3, 1), ...
           -mu*ones(3, 1)};
 
-% Load 
-n_tf = 20;
-tf = n_tf*T_cur;
+% Load
+tf = 20;
 dt = trajectory_info.dt;
 time = 0:dt:tf;
 
-traj_type = 'line';
+model_name = 'bary_source_seeking';
+simOut = sim(model_name);
 
-%     % Trajectory generation
-%     traj_type = traj_types{i};
-%     T = T_cur;
-% 
-%     n_diff = 3;
-%     alphaA = 0.5;
-%     alphaB = 0.5;
-%     trajectory_info.gentraj_fun = ...
-%         @(t, P0, P1, theta0) traj_t(t, T, P0, P1, theta0, traj_type, sys);
-% 
-%     % n_Ts = 5;
-%     % options.Ts = n_Ts*trajectory_info.dt;
-%     options.sigma_noise = 0.5;
-%     % 
-%     % n_f = 2;
-%     % frequency = 2*pi/(n_f*T_cur);
-%     % amplitude = 1;
-%     % 
-%     % options = struct('frequency', frequency, ...
-%     %                  'amplitude', amplitude);
-%     % 
-%     % options = struct('');
-% 
-%     % Control law arguments
-%     control_info.control_fun = ...
-%         @(t, q_p, refs, qp_symbs, refs_symbs) ...
-%         compute_control(t, q_p, refs, qp_symbs, refs_symbs, sys, poles_, options);
-% 
-%     % System modelling
-%     u_func = @(t, q_p) ...
-%         control_handler(t, q_p, sestimation_info, ...
-%                         trajectory_info, control_info, sys);
-%     
-%     n_tf = 20;
-%     tf = n_tf*T_cur;
-%     dt = trajectory_info.dt;
-%     time = 0:dt:tf;
-%     sol = validate_model(sys, time, x0, u_func, true);
-%     time = time';
-%     sol = sol';
-% 
-%     run('plot_simulation.m')
-%     wb_.update_waitbar(i, length(traj_types));
+run('plot_simulink_results.m');
+

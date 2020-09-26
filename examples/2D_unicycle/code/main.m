@@ -64,15 +64,16 @@ sys.descrip.g = g;
 sys.descrip.syms = [m, R, diag(I).', g, L];
 
 % Penny data
-m_num = 0.4;
-R_num = 0.05;
-L_num = 0.2;
+% https://www.neobotix-roboter.de/produkte/mobile-roboter/mobiler-roboter-mp-500
+m_num = 1;
+R_num = 33e-3;
+L_num = 138e-3;
+W_num = 178e-3;
+d_cg = 33e-3;
+
 sys.descrip.model_params = [m_num, R_num, ...
-                            m_num*R_num^2/2, ...
-                            m_num*R_num^2/4, ...
-                            m_num*R_num^2/2, ...
-                            9.8, ...
-                            L_num];
+                            0, 0, m_num*(L_num^2 + W_num^2)/3 + ...
+                            m_num*d_cg^2, 9.8, L_num];
 
 % External excitations
 R = sys.descrip.syms(2);

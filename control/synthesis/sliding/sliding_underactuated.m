@@ -3,18 +3,22 @@ function u = sliding_underactuated(sys, etas, poles, ...
                                    errors, is_int, is_dyn_bound, ...
                                    switch_type, options)
     
-    [U, S, V] = svd(sys.dyn.Z);
-    sys.dyn.H = inv(U)*sys.dyn.H;
-    sys.dyn.h = inv(U)*sys.dyn.h;
-    sys.dyn.Z = S;
-    q = sys.kin.q;
+    % Deprecated: substitute symbolics to double values
+%     [U, S, V] = svd(subs(sys.dyn.Z, params_lims));
+%     sys.dyn.H = inv(U)*sys.dyn.H;
+%     sys.dyn.h = inv(U)*sys.dyn.h;
+%     sys.dyn.Z = S;
+%     q = sys.kin.q;
+%     
+%     D = equationsToMatrix(rel_qqbar, q);
+% 
+%     if(isempty(symvar(D*S)) && ~any(any(D*S)))
+%         error('The system cannot control this subspace!');
+%     end
+
+    U = 1;
+    V = 1;
     
-    D = equationsToMatrix(rel_qqbar, q);
-    
-    if(isempty(symvar(D*S)) && ~any(any(D*S)))
-        error('The system cannot control this subspace!');
-    end
-        
     params_hat_n = sys.descrip.model_params';
     [n, m] = size(sys.dyn.Z);
     
@@ -75,12 +79,16 @@ function u = sliding_underactuated(sys, etas, poles, ...
                                     q_p, params_s, params_lims);
     
     if(is_int)
+        double(abs(cparams.alpha)*errors.error_qp)
+        double(abs(cparams.lambda)*errors.error_q)
+        double(abs(cparams.mu)*errors.error_w)
+        
         u.phi0 = abs(cparams.alpha)*errors.error_qp + ...
                  abs(cparams.lambda)*errors.error_q + ...
                  abs(cparams.mu)*errors.error_w;
     else
         u.phi0 = abs(cparams.alpha)*errors.error_qp + ...
-                 abs(cparams.lambda)*errors.error_w;
+                 abs(cparams.lambda)*errors.error_q;
     end
     
     if(strcmp(switch_type, 'sign'))

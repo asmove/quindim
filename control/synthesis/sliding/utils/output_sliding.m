@@ -28,28 +28,34 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
     
     % XXX: Deprecated for the moment
     if(is_int)
-        z = x(m+n+1, 1);
+        z = x(m+n+1:end);
     
         if(is_dyn_bound)
             phi = x(m+n+2:end);
-            w = phi;
-
+            
+            for i = 1:length(phi)
+                if(phi(i) < 0)
+                    phi(i) = 0;
+                end
+            end
+            
             if(isempty(phi0))
                 phi0 = phi;
             end
-
-            z = [z; w];
         end
     else
         if(is_dyn_bound)
             phi = x(m+n+1:end);
-            w = phi;
+            
+            for i = 1:length(phi)
+                if(phi(i) < 0)
+                    phi(i) = 0;
+                end
+            end
 
             if(isempty(phi0))
                 phi0 = phi;
             end
-
-            z = [z; w];
         end
     end
     
@@ -62,9 +68,12 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
             switch_func = @(s) sat_sign(s, u_struct.phi0);
         end
     elseif(strcmp(u_struct.switch_type, 'hyst'))
-        switch_func = @(s) hyst_sign(s, ...
-                                     u_struct.phi_min, ...
-                                     u_struct.phi_max);
+        if(is_dyn_bound)
+            switch_func = @(s) hyst_sign(s, -phi, phi);
+        else
+            switch_func = @(s) hyst_sign(s, u_struct.phi_min, ...
+                                         u_struct.phi_max);
+        end
     elseif(strcmp(u_struct.switch_type, 'sign'))
         switch_func = @(s) sign(s);
     elseif(strcmp(u_struct.switch_type, 'poly'))
@@ -107,14 +116,12 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
     
     % Nummerical
     symbs =  u_struct.cparams.symvars;
-    
     params = double([q_p; z; q_p_ref_fun(t)]);
 
     % ----------------------------------------------------------------- %
     
     % Gain
     K = u_struct.K(Fs_struct, Ms_struct);
-    
     K = subs(K, symbs, params);
     
     % Control law
@@ -140,13 +147,17 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
     if(is_dyn_bound)
         m = length(k);
 
-        perc_phi = 0.1;
+        phi = double(phi);
+        s_n = double(s_n);
+        
         if((s_n <= phi)&&(s_n >= -phi))
             one_vec = ones(m, 1);
             dz = zeros(m, 1);
-
+            
+            perc_phi = 1e-1;
             delta_0 = 1e-2;
             delta_phi = 1e-2;
+            delta_s = 1e-1;
 
             if(isempty(curr_s_sign))
                 curr_s_sign = sign(s_n);
@@ -157,29 +168,26 @@ function varargout = output_sliding(t, x, q_p_ref_fun, u_struct, ...
             end
 
             for i = 1:m
-                delta_s = 1e-1;
-                delta_0 = 1e-3;
-
                 step_i = switched_sn(i);
 
                 k_i = k(i);
+                s_i = s_n(i);
                 step_lim = switch_func(s_n(i));
-                kd_i = subs(k_i, symbs, params);
 
                 abs_eps = abs(step_i);
-                L_i = delta_s*abs_eps + (1 - delta_s);
+                L_i = (1 - abs_eps)/(1 + abs_eps) - delta_s/k_i;
                 scaler_i = (abs_eps + L_i)/(abs_eps + 1);
                 
-                if(phi(i) > perc_phi*phi0)
-                    if(phi(i) > 0)
-                        scaler_sign = -1;
-                    else
-                        scaler_sign = 1;
-                    end
-                    
-                    dz(i) = scaler_sign*scaler_i*k_i;
+                if(phi(i) > 0)
+                    scaler_sign = -1;
                 else
-                    dz = 0;
+                    scaler_sign = 1;
+                end
+
+                dz(i) = scaler_sign*scaler_i*k_i;
+                
+                if(phi(i) < perc_phi*phi0)
+                    dz = 0;                
                 end
             end
 

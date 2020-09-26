@@ -16,6 +16,6 @@ function F_k = spring_force(sys, helper)
     
     ks = unique(ks);
     
-    F_k = equationsToMatrix(helper.l_r, ks)*ks;
+    F_k = equationsToMatrix(helper.m_term, ks)*ks;
     F_k = simplify_(F_k);
 end

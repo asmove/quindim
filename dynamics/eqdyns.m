@@ -18,9 +18,6 @@ function sys = eqdyns(sys, method)
     switch method
         case 'lagrange'
             sys = lagrange_eqdyn(sys);
-       
-        case 'orsino'
-            sys = orsino_eqdyn(sys);
     
         otherwise
             % Add further methods futurely

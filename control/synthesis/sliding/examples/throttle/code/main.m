@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-run('~/github/Robotics4fun/examples/RLC/code/main.m');
+run('~/github/Robotics4fun/examples/Throtle/code/main.m');
 
 % Keep variables from clear to continue simulation
 except_names = {'sys', 'vars', 'perc', 'switch_type', ...
@@ -11,10 +11,10 @@ except_names = {'sys', 'vars', 'perc', 'switch_type', ...
                 'is_dyn_bounds', 'switch_types', 'percs'};
 
 % Simulation variations
-percs = [0.3];
-switch_types = {'sat'};
-is_ints = [true];
-is_dyn_bounds = [true];
+percs = [0 0.2];
+switch_types = {'sign'};
+is_ints = [false];
+is_dyn_bounds = [false];
 
 % Plot results on simulation
 is2sim = true;
@@ -47,8 +47,8 @@ for n_perc = 1:n_percs
                 if(strcmp(switch_type, 'sign') && is_dyn_bound)
                     continue;
                 end
-                
-                run('./RLC.m');
+
+                run('./throttle.m')
 
                 control_laws{end+1} = {{perc, switch_type, is_int}, u};
 

@@ -42,12 +42,9 @@ function sys = constrain_system(sys, A)
     sys.dyn.Hp = dmatdt(sys.dyn.H, sys.kin.q, C*p);
     invH = inv(sys.dyn.H);
     
-    sys.dyn.M = sys.dyn.H;
-    sys.dyn.nu = subs(C1'*sys.dyn.nu, sys.kin.p{end}, C1*p);
-    sys.dyn.U = C1'*sys.dyn.U;
-    
     sys.dyn.states = [sys.kin.q; p];
     sys.dyn.W = simplify_(chol(sys.dyn.H, 'lower', 'nocheck'));
+    sys.dyn.Z
     Z = C1.'*sys.dyn.Z;
     sys.dyn.Z = Z;
     

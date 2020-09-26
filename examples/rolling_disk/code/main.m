@@ -1,6 +1,8 @@
 % Author: Bruno Peixoto
 % Date: 08/01/19
-if(exist('CLEAR_ALL'))
+if(~exist('CLEAR_ALL'))
+    clear all;
+else
     if(CLEAR_ALL)
         clear all
     end
@@ -78,10 +80,10 @@ sys.descrip.latex_text = {'\ddot{x}', '\dot{x}', 'x', ...
 sys.descrip.syms = [m, R, Is.', g];
 
 % Penny data
-% m_num = 2.5e-3;
-% R_num = 9.75e-3;
-m_num = 0.4;
-R_num = 0.05;
+m_num = 7;
+R_num = 0.65;
+% m_num = 0.4;
+% R_num = 0.05;
 sys.descrip.model_params = [m_num, R_num, ...
                             m_num*R_num^2/2, ...
                             m_num*R_num^2/4, ...
@@ -126,40 +128,47 @@ sys = constrain_system(sys, A);
 % Time [s]
 dt = 0.1;
 tf = 10;
-t = 0:dt:tf; 
+t = 0:dt:tf;
 
 % Initial conditions
 x0 = [1, 1, 0, 0, 1, 1]';
 
-% System modelling
-u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func, false);
+if(~exist('SIM_SYS'))
+else
+    if(SIM_SYS)
+        % System modelling
+        u_func = @(t, x) zeros(length(sys.descrip.u), 1);
+        sol = validate_model(sys, t, x0, u_func, false);
 
-x = t';
-y = sol';
+        x = t';
+        y = sol';
 
-% Generalized coordinates
-plot_info_q.titles = repeat_str('', 4);
-plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
-plot_info_q.grid_size = [2, 2];
+        % Generalized coordinates
+        plot_info_q.titles = repeat_str('', 4);
+        plot_info_q.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
+        plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
+        plot_info_q.grid_size = [2, 2];
 
-hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
+        hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
 
-plot_info_p.titles = repeat_str('', 3);
-plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info_p.ylabels = {'$p_1$', '$p_2$', '$p_3$'};
-plot_info_p.grid_size = [3, 1];
+        plot_info_p.titles = repeat_str('', 2);
+        plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
+        plot_info_p.ylabels = {'$p_1$', '$p_2$'};
+        plot_info_p.grid_size = [2, 1];
 
-% States plot
-hfigs_speeds = my_plot(x, y(:, 5:end), plot_info_p);
+        % States plot
+        hfigs_speeds = my_plot(x, y(:, 5:end), plot_info_p);
 
-% Energies plot
-hfig_energies = plot_energies(sys, x, y);
-hfig_consts = plot_constraints(sys, x, y);
+        % Energies plot
+        hfig_energies = plot_energies(sys, x, y);
+        hfig_consts = plot_constraints(sys, x, y);
 
-% Images
-saveas(hfig_energies, '../images/energies', 'epsc');
-saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
-saveas(hfigs_speeds(1), ['../images/speeds', num2str(1)], 'epsc'); 
-saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 
+        % Images
+        saveas(hfig_energies, '../images/energies', 'epsc');
+        saveas(hfigs_states(1), ['../images/states', num2str(1)], 'epsc'); 
+        saveas(hfigs_speeds(1), ['../images/speeds', num2str(1)], 'epsc'); 
+        saveas(hfig_consts(1), ['../images/consts', num2str(1)], 'epsc'); 
+
+
+    end
+end

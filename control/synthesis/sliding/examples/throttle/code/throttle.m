@@ -12,34 +12,26 @@ rel_qqbar = sys.kin.q;
 n = length(sys.kin.q);
 
 % --- Tracking values ---
-
-% Amplitude [A]
-A = 0.1;
-
-% angular speed [rad/s]
-omega_ = 100;
-w = 2*pi*omega_;
+T = 2.5;
+scaler = 0.5;
+t_r = scaler*T;
 
 if(is_int)
     % [w(t), q(t), i(t)]
-    x_d = @(t) [-A*cos(w*t)/w^2; A*sin(w*t)/w; A*cos(w*t)];
-    x_xp_d = @(t) [x_d(t); -A*w*sin(w*t)];
+    x_d = @(t) [pi/6; 0];
+    x_xp_d = @(t) [x_d(t); 0];
 else
     % [q(t), i(t)]
-    x_d = @(t) [A*sin(w*t)/w; A*cos(w*t)];
-    x_xp_d = @(t) [x_d(t); -A*w*sin(w*t)];
+    x_d = @(t) [pi/6; 0];
+    x_xp_d = @(t) [x_d(t); 0];
 end
 
 x_d0 = x_d(0);
 
 % --- Project design parameters ---
-% [s]
-perc_T = 0.5;
-T = 2*pi/w;
-t_r = perc_T*T;
 
-% [q(t); i(t)]
-x0 = [0; -0.5];
+% [th(t); thp(t)]
+x0 = [0; 0];
 
 % Sliding function initial value and dynamic parameters
 if(is_int)
@@ -70,10 +62,10 @@ if(is_int)
          mu_*wtilde_0;
 
 else
-    qtilde_0 = x0(1) - x_d0(1);
-    itilde_0 = x0(2) - x_d0(2);
+    thtilde_0 = x0(1) - x_d0(1);
+    thptilde_0 = x0(2) - x_d0(2);
     
-    n = 0.1;
+    n = 0.4;
     poles = -1/(n*t_r);
     coeffs = poly(poles);
 
@@ -83,8 +75,8 @@ else
     e0 = x0(1) - x_d0(1);
     ep0 = x0(2) - x_d0(2);
 
-    s0 = alpha_*itilde_0 + ...
-         lambda_*qtilde_0;
+    s0 = alpha_*thptilde_0 + ...
+         lambda_*thtilde_0;
 end
 
 eta = double(abs(s0)/t_r);
@@ -92,12 +84,12 @@ etas = eta*ones(1, 1);
 
 % Tracking precision
 if(is_int)
-    errors.error_w = 1e-7;
-    errors.error_q = 1e-6;
-    errors.error_qp = 1e-6;
+    errors.error_w = 1e-3;
+    errors.error_q = 1e-3;
+    errors.error_qp = 1e-3;
 else
-    errors.error_q = 5e-6;
-    errors.error_qp = 1e-6;
+    errors.error_q = 5e-3;
+    errors.error_qp = 1e-3;
 end
 
 u = sliding_underactuated(sys, etas, poles, ...
@@ -109,7 +101,7 @@ u = sliding_underactuated(sys, etas, poles, ...
 if(is_dyn_bound)
     x0 = [x0; u.phi0];
 end
-                      
+
 % XXX: Provide systematic to calculate C and D
 % Controller gain 
 L_min = params_lims(1, 1);
@@ -131,7 +123,8 @@ L_hat = symbs_hat(1);
 R_hat = symbs_hat(2);
 k_hat = symbs_hat(3);
 
-u.Ms_struct.D = u.Ms_struct.F/u.Ms_struct.den_D;
+u.Ms_struct.D = max(abs(u.Ms_struct.Omega_1 - 1), ...
+                    abs(u.Ms_struct.Omega - 1));
 n = length(u.Ms_struct.D);
 u.Ms_struct.C = inv(eye(n)- u.Ms_struct.D);
 u.Fs_struct.Fs_num = subs(u.Fs_struct.Fs_num, ...
@@ -142,10 +135,10 @@ u.Fs_struct.Fs = u.Fs_struct.Fs_num/u.Fs_struct.Fs_den;
 x0 = double(x0);
 
 if(is2sim)
-    n_diff = 100;
-    n_T = 1;
+    n_diff = 200;
+    n_T = 1.5;
     tf = n_T*T;
-    dt = perc_T*T/(n_diff+1);
+    dt = scaler*T/(n_diff+1);
 
     tspan = (0:dt:tf)';
     df_h = @(t, x) df_sys(t, x, x_xp_d, u, sys, tf);

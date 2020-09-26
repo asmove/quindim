@@ -91,13 +91,13 @@ function sys = lagrange_eqdyn(sys)
     
     % Quick hack - Avoid non-substitution
     leqdyns = subs(leqdyns, [qp; qpp], [qp_; qpp_]);
-    leqdyns = subs(leqdyns, [qp; qpp], [qp_; qpp_]);
     
     % Dynamic equation respective to generalized coordinate qi
     helper.l_r = simplify_(leqdyns - reqdyns);
     
     helper.leqdyns = simplify_(leqdyns);
     helper.reqdyns = simplify_(reqdyns);
+    helper.m_term = m_term;
     helper.dLdq = dL_dq;
     helper.dKdq = dK_dq;
     helper.Cp = Cp;

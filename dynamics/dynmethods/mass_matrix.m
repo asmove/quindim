@@ -1,3 +1,3 @@
 function M = mass_matrix(sys, helper)
-    M = equationsToMatrix(helper.l_r, sys.kin.pp);
+    M = equationsToMatrix(helper.m_term, sys.kin.qpp);
 end

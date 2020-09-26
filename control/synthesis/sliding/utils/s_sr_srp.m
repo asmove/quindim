@@ -85,11 +85,7 @@ function s_struct = s_sr_srp(sys, refdyn_str, ...
             symvars = [q_qp; r; r_d; qd_qpd];
         end
     else
-        if(is_dyn_bound)
-            symvars = [q_qp; w; qd_qpd];
-        else
-            symvars = [q_qp; qd_qpd];
-        end
+        symvars = [q_qp; qd_qpd];
     end
     
     if(length(sys.kin.C) ~= 1) && (iscell(sys.kin.C))

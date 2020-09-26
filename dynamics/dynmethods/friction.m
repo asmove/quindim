@@ -12,10 +12,10 @@ function friction = friction(sys, helper)
         end
     end
     
-    friction_component = equationsToMatrix(helper.l_r, fric_coeffs);
+    friction_component = equationsToMatrix(helper.m_term, fric_coeffs);
     friction = friction_component*fric_coeffs;
 
     if(isempty(friction))
-         friction = zeros(length(helper.l_r), 1);
+         friction = zeros(length(helper.m_term), 1);
     end
 end

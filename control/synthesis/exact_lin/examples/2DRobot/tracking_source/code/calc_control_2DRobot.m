@@ -92,7 +92,7 @@ function [dz, u, misc] = calc_control_2DRobot(sys, poles_)
 
     G_x = equationsToMatrix(plant, [w_1; w_2]);
     f_x = simplify_(plant - G_x*[w_1; w_2]);
-
+    
     % Old input
     w_s = [z_1; w_2];
     
@@ -126,15 +126,16 @@ function [dz, u, misc] = calc_control_2DRobot(sys, poles_)
     % Second derivative
     L_G_L_f_h1 = equationsToMatrix(d2y1dt2, w_syms);
     L_G_L_f_h2 = equationsToMatrix(d2y2dt2, w_syms);
-
+    
     L_2_f_h1 = simplify_(d2y1dt2 - L_G_L_f_h1*w_syms);
     L_2_f_h2 = simplify_(d2y2dt2 - L_G_L_f_h2*w_syms);
-
+    
     % ---------------------------------------------------------
     % Third derivative
+    
     L_G_L_2_f_h1 = equationsToMatrix(d3y1dt3, w_syms);
     L_G_L_2_f_h2 = equationsToMatrix(d3y2dt3, w_syms);
-
+    
     L_3_f_h1 = simplify_(d3y1dt3 - L_G_L_2_f_h1*w_syms);
     L_3_f_h2 = simplify_(d3y2dt3 - L_G_L_2_f_h2*w_syms);
     
@@ -154,34 +155,56 @@ function [dz, u, misc] = calc_control_2DRobot(sys, poles_)
     coeffs_1 = coeffs_1(2:end);
     coeffs_2 = poly(poles_{2});
     coeffs_2 = coeffs_2(2:end);
-
+    
+    coeffs_1
+    coeffs_2
+    
+    coeffs_sym1 = sym('a_1', [3, 1]);
+    coeffs_sym2 = sym('a_2', [3, 1]);
+    
+    coeffs_K0_sym = [coeffs_sym1(3); coeffs_sym2(3)];
+    coeffs_K1_sym = [coeffs_sym1(2); coeffs_sym2(2)];
+    coeffs_K2_sym = [coeffs_sym1(1); coeffs_sym2(1)];
+    
+    coeffs_sym = [coeffs_K0_sym; coeffs_K1_sym; coeffs_K2_sym];
+    
     coeffs_K0 = [coeffs_1(3); coeffs_2(3)];
     coeffs_K1 = [coeffs_1(2); coeffs_2(2)];
     coeffs_K2 = [coeffs_1(1); coeffs_2(1)];
-
-    K0 = diag(coeffs_K0);
-    K1 = diag(coeffs_K1);
-    K2 = diag(coeffs_K2);
-
+    
+    coeffs_ = [coeffs_K0; coeffs_K1; coeffs_K2];
+    
+    K0 = diag(coeffs_K0_sym);
+    K1 = diag(coeffs_K1_sym);
+    K2 = diag(coeffs_K2_sym);
+    
     L_3_f_h = simplify_([L_3_f_h1; L_3_f_h2]);
-
+    
     m = length(A2);
     
-    symbs = sys.descrip.syms;
-    model_params = sys.descrip.model_params;
+    symbs = sys.descrip.syms.';
+    model_params = sys.descrip.model_params.';
+    
+    symbs = [symbs; coeffs_sym];
+    model_params = double([model_params; coeffs_]);
+    
+    symbs
+    model_params
     
     invA2 = simplify_(inv(A2));
     
-    w = simplify_(vpa(invA2*(-L_3_f_h-K2*epp-K1*ep-K0*e+yppp_ref)));
+    w = simplify_(vpa(invA2*(-L_3_f_h-K2*epp-K1*ep-K0*e+yppp_ref)));    
     v_ = V*[x_sym(n_q + n_p + 1); w(2)];
     
     x_sym = sym('x_', [n_q + n_p + 1, 1]);
     x_orig = [q; p; x_sym(n_q + n_p + 1)];
     
     u = subs(inv(Z)*(H*v_ + h), x_orig, x_sym);
+    misc.u_sym = expand(u);
+    u = vpa(expand(subs(u, symbs, model_params)));
+    
     dz = w(1);
     
-    u = subs(u, symbs, model_params);
     dz = subs(dz, symbs, model_params);
     
     misc.e = e;
@@ -191,4 +214,5 @@ function [dz, u, misc] = calc_control_2DRobot(sys, poles_)
     misc.dxy = [dy1dt; dy2dt];
     misc.d2xy = [d2y1dt2; d2y2dt2];
     misc.symvars = [x_sym; ref_syms];
+    misc.childrens = children(u);
 end

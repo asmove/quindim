@@ -66,7 +66,7 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
     H_num = num_vars{2};
     h_num = num_vars{3};
     Z_num = num_vars{4};
-
+    
     if(is_dyn_control)
         [u_num, dz_num] = u_function(t, q_p);
     else
