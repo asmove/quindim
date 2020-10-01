@@ -16,11 +16,17 @@ function [A, C] = constraint_matrices(sys)
             
             A = jacobian(constraints, sys.kin.q);
             C = simplify_(null(A));
-
+            
         else
-            msg = 'When constrained, the fields hol_constraints' +...
-                   'and unhol_constraints cannot be presented';
-            error(msg);
+            hol_constraints = sys.descrip.hol_constraints;
+            unhol_constraints = sys.descrip.unhol_constraints;
+            
+            A_hol = jacobian(hol_constraints, sys.kin.q);
+            A_unhol = equationsToMatrix(unhol_constraints, sys.kin.qp);
+            
+            A = [A_hol; A_unhol];
+            
+            C = simplify_(null(A));
         end
     else
         A = [];
@@ -29,13 +35,34 @@ function [A, C] = constraint_matrices(sys)
         
         sys.kin.p = sym('p', size(sys.kin.qp));
         sys.kin.pp = sym('pp', size(sys.kin.qp));
-        
-        if(is_holonomic || is_nonholonomic)
-            msg = ['When unconstrained, the fields hol_constraints and unhol_constraints cannot be presented.'];
-            error(msg);
-        end
     end
     
-    x = [sys.kin.q; ];
-    C = dedenominatorify(C, x);
+    C = sym(dedenominatorify(C, sys.kin.q));
+    
+    [num_C, den_C] = numden(C);
+    
+    [m, n] = size(C);
+    
+    COUNT_THRES = 10;
+    count_simplify = 0;
+    
+    cond_exit = ((~isempty(symvar(den_C)) && count_simplify < COUNT_THRES));
+    
+    while(cond_exit)
+        C = dedenominatorify(C, sys.kin.q);
+        [num_C, den_C] = numden(C);
+        
+        count_simplify = count_simplify + 1;
+        
+        if(count_simplify == COUNT_THRES)
+            warning('The denominator may not be reduced further.');
+        end
+        
+        cond_exit = ((~isempty(symvar(den_C)) && (count_simplify < COUNT_THRES)));
+    end
+    
+    C = num_C./den_C;
+    
+    TIME_OUT = 5;
+    C = simplify_(C, TIME_OUT);
 end

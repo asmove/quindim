@@ -24,18 +24,23 @@ end
 function dq = df(t, q_p, sys, u_function, is_dyn_control)
     [n, m] = size(sys.kin.C);
     
+    double(q_p)
+    
     persistent C_params H_params h_params Z_params;
     
     symbs = sys.descrip.syms;
     m_params = sys.descrip.model_params;
-
+    
+    length(symbs)
+    length(m_params)
+    
     if(isempty(C_params))
         C_params = subs(sys.kin.C, symbs, m_params);
         H_params = subs(sys.dyn.H, symbs, m_params);
         h_params = subs(sys.dyn.h, symbs, m_params);
         Z_params = subs(sys.dyn.Z, symbs, m_params);
     end
-
+    
     if(iscell(sys.kin.p))
         p = sys.kin.p{end};
     else
@@ -47,9 +52,11 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
     
     qp_s = [sys.kin.q; p];
     qp_n = [q_num; p_num];
-
+    
+    symvar(m_params)
+    
     symbs = [symbs.'; qp_s];
-    m_params = [m_params.'; qp_n];
+    m_params = double([m_params.'; qp_n]);
     
     vars = {C_params, H_params, h_params, Z_params};
     num_vars = {};

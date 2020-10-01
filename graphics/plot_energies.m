@@ -13,6 +13,9 @@ function [hfig, K, P, F, T] = plot_energies(sys, time, states)
     for i = 1:n
         num_states_params = [states(i, :), sys.descrip.model_params];
         
+        vpa(sym_states_params)
+        vpa(num_states_params)
+        
         K(i) = vpa(subs(sys.dyn.K, sym_states_params, num_states_params));
         P(i) = vpa(subs(sys.dyn.P, sym_states_params, num_states_params));
         F(i) = vpa(subs(sys.dyn.F, sym_states_params, num_states_params));
