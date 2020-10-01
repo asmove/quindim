@@ -56,3 +56,6 @@ It is still small, but take a look at wiki: https://github.com/brunolnetto/Robot
 - Bloch, A. M. (2003). Nonholonomic mechanics. In Nonholonomic mechanics and control (pp. 207-276). Springer, New York, NY.
 - Slotine, J. J.; LI, W.; "Applied nonlinear control", Prentice Hall, 1st Ed., 1991.
 - Alberto Isidori. 1995. Nonlinear Control Systems (3rd ed.). M. Thoma, E. D. Sontag, B. W. Dickinson, A. Fettweis, J. L. Massey, and J. W. Modestino (Eds.). Springer-Verlag, Berlin, Heidelberg.
+- A Jazar, Reza N; T Vehicle dynamics: theory and application; D 2017; I Springer;
+
+
