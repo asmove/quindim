@@ -21,16 +21,17 @@ qppl = [xpp, ypp, thetapp, phipp_l].';
 % Previous body
 previous = struct('');
 
-chassi = build_body(mc, I_c, Tcs, [0; Lc; 0], {}, {}, ...
-                    qc, qpc, qppc, previous, []);
-inner_front_wheel = build_body(mi, I_i, Tis, [0; Lc; 0], {}, {}, ...
-                               qi, qpi, qppi, chassi, []);
-outer_front_wheel = build_body(mo, I_o, Tos, [0; Lc; 0], {}, {}, ...
-                               qi, qpi, qppi, chassi, []);
-inner_back_wheel = build_body(ml, I_l, Tls, [0; Lc; 0], {}, {}, ...
-                               ql, qpl, qppl, chassi, []);
-outer_back_wheel = build_body(mr, I_r, Trs, [0; Lc; 0], {}, {}, ...
-                               qr, qpr, qppr, chassi, []);
+Lg_c = [0; Lc; 0];
+Lg_i = [0; 0; 0];
+Lg_o = [0; 0; 0];
+Lg_l = [0; 0; 0];
+Lg_r = [0; 0; 0];
+
+chassi = build_body(mc, I_c, Tcs, Lg_c, {}, {}, qc, qpc, qppc, previous, []);
+inner_front_wheel = build_body(mi, I_i, Tis, Lg_i, {}, {}, qi, qpi, qppi, chassi, []);
+outer_front_wheel = build_body(mo, I_o, Tos, Lg_o, {}, {}, qi, qpi, qppi, chassi, []);
+inner_back_wheel = build_body(ml, I_l, Tls, Lg_r, {}, {}, ql, qpl, qppl, chassi, []);
+outer_back_wheel = build_body(mr, I_r, Trs, Lg_l, {}, {}, qr, qpr, qppr, chassi, []);
 
 sys.descrip.bodies = {chassi, ...
                       inner_front_wheel, outer_front_wheel, ...

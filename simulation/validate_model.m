@@ -47,6 +47,8 @@ function dq = df(t, q_p, sys, u_function, is_dyn_control)
         p = sys.kin.p;
     end
     
+    q_p(n+1:n+m)
+    
     q_num = q_p(1:n);
     p_num = q_p(n+1:n+m);
     

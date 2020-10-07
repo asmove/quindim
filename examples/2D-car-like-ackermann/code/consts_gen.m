@@ -1,65 +1,81 @@
 % Unholonomic constraints
 
 % Transformation and rotation matrices
-Tci = Tc*Ti;
-Rci = Tci(1:3, 1:3);
+Rc = simplify(Tc(1:3, 1:3));
 
-Tco = Tc*To;
-Rco = Tco(1:3, 1:3);
+Tci = Tc*Ti1;
+Rci = simplify_(Tci(1:3, 1:3));
 
-Tcr = Tc*Tr;
-Rcr = Tcr(1:3, 1:3);
+Tco = Tc*To1;
+Rco = simplify_(Tco(1:3, 1:3));
 
-Tcl = Tc*Tl;
-Rcl = Tcl(1:3, 1:3);
+Tcr = Tc*Tr1;
+Rcr = simplify_(Tcr(1:3, 1:3));
+
+Tcl = Tc*Tl1;
+Rcl = simplify_(Tcl(1:3, 1:3));
 
 % Wheel aliases
+chassi = sys.descrip.bodies{1};
 wheel_i = sys.descrip.bodies{2};
 wheel_o = sys.descrip.bodies{3};
 wheel_r = sys.descrip.bodies{4};
 wheel_l = sys.descrip.bodies{5};
 
 % Inner front wheel
-v_cg_i = simplify_(wheel_i.v_cg);
+omega_c = omega(Rc, sys.kin.q, sys.kin.qp);
 [~, omega_i] = omega(Rci, qi, qpi);
+v_cg_i = [xp; yp; 0] + cross(omega_c, Rc*[w/2; L; 0]);
 
 v_contact_i = v_cg_i + cross(omega_i, Rci*[0; 0; -R]);
-w_i = Rci*[0; 1; 0];
 u_i = Rci*[1; 0; 0];
+w_i = Rci*[0; 1; 0];
 
-constraints_i = simplify_(dot(v_contact_i, u_i) - phip_i*R);
+v_i = simplify(dot(v_contact_i, u_i));
+v_i_perp = simplify(dot(v_contact_i, w_i));
+constraints_i = [simplify_(v_i - phip_i*R); simplify(v_i_perp)];
 
 % Outer front wheel
-v_cg_o = simplify_(wheel_o.v_cg);
 [~, omega_o] = omega(Rco, qo, qpo);
+v_cg_o = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; L; 0]);
 
 v_contact_o = v_cg_o + cross(omega_o, Rco*[0; 0; -R]);
-w_o = Rco*[0; 1; 0];
 u_o = Rco*[1; 0; 0];
+w_o = Rco*[0; 1; 0];
 
-constraints_o = simplify_(dot(v_contact_o, u_o) - phip_o*R);
+v_o = simplify(dot(v_contact_o, u_o));
+v_o_perp = simplify(dot(v_contact_o, w_o));
+constraints_o = [simplify_(v_o - phip_o*R); v_o_perp];
 
-% Inner back wheel
-v_cg_l = simplify_(wheel_l.v_cg);
-[~, omega_l] = omega(Rcl, ql, qpl);
+% % Inner back wheel
+% [~, omega_l] = omega(Rcl, ql, qpl);
+% v_cg_l = [xp; yp; 0] + cross(omega_c, Rc*[w/2; 0; 0]);
+% 
+% v_contact_l = v_cg_l + cross(omega_l, Rcl*[0; 0; -R]);
+% 
+% u_l = Rcl*[1; 0; 0];
+% w_l = Rcl*[0; 1; 0];
+% 
+% v_l = simplify(dot(v_contact_l, u_l));
+% v_l_perp = simplify(dot(v_contact_l, w_l));
+% constraints_l = [simplify_(v_l - phip_l*R);
+%                  v_l_perp];
 
-v_contact_l = v_cg_l + cross(omega_l, Rcl*[0; 0; -R]);
-w_l = Rcl*[0; 1; 0];
-u_l = Rcl*[1; 0; 0];
+% % Outer back wheel
+% v_cg_r = simplify_(wheel_r.v_cg);
+% [~, omega_r] = omega(Rcr, qr, qpr);
+% 
+% v_contact_r = v_cg_r + cross(omega_r, Rcr*[0; 0; -R]);
+% w_r = Rcr*[0; 1; 0];
+% u_r = Rcr*[1; 0; 0];
+% 
+% v_r = dot(v_contact_r, u_r);
+% constraints_r = simplify_(v_r - phip_r*R);
 
-constraints_l = simplify_(dot(v_contact_l, u_l) - phip_l*R);
-
-% Outer back wheel
-v_cg_r = simplify_(wheel_r.v_cg);
-[~, omega_r] = omega(Rcr, qr, qpr);
-
-v_contact_r = v_cg_r + cross(omega_r, Rcr*[0; 0; -R]);
-w_r = Rcr*[0; 1; 0];
-u_r = Rcr*[1; 0; 0];
-
-constraints_r = simplify_(dot(v_contact_r, u_r) - phip_r*R);
-
-sys.descrip.unhol_constraints = {[constraints_i; constraints_o; constraints_r; constraints_l]};
+back_right_wheel = phip_l - phip_r*(1 + (w/L)*tan(delta_i));
+sys.descrip.unhol_constraints = {[back_right_wheel; ...
+                                  constraints_i; ...
+                                  constraints_o]};
 
 % Holonomic constraints
 sys.descrip.hol_constraints = {tan(delta_i) - tan(delta_o) - (w/L)*tan(delta_i)*tan(delta_o)};

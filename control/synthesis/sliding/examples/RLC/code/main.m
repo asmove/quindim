@@ -11,10 +11,10 @@ except_names = {'sys', 'vars', 'perc', 'switch_type', ...
                 'is_dyn_bounds', 'switch_types', 'percs'};
 
 % Simulation variations
-percs = [0.3];
+percs = [0.1];
 switch_types = {'sat'};
-is_ints = [true];
-is_dyn_bounds = [true];
+is_ints = [false];
+is_dyn_bounds = [false];
 
 % Plot results on simulation
 is2sim = true;

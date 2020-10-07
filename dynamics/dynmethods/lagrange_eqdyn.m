@@ -41,7 +41,6 @@ function sys = lagrange_eqdyn(sys)
     K = sys.dyn.K;
     P = sys.dyn.P;
     F = sys.dyn.F;
-
     Fq = sys.descrip.Fq;
     
     % Derivative of L respective to q
@@ -57,14 +56,14 @@ function sys = lagrange_eqdyn(sys)
     % Nummerical energies 
     C = collapse_C(sys.kin.Cs, qp);
     sys.kin.C = C;
+    
     p = sys.kin.p{1};
     pp = sys.kin.pp{1};
     
     sys.dyn.P = subs(sys.dyn.P, sys.kin.qp, C*p);
     sys.dyn.K = subs(sys.dyn.K, sys.kin.qp, C*p);
     sys.dyn.F = subs(sys.dyn.F, sys.kin.qp, C*p);
-    sys.dyn.total_energy = subs(sys.dyn.total_energy, ...
-                                          sys.kin.qp, C*p);
+    sys.dyn.total_energy = subs(sys.dyn.total_energy, sys.kin.qp, C*p);
     
     % qp and qpp in terms of quasi-velocities
     Cp = dmatdt(C, sys.kin.q, qp);
@@ -83,8 +82,8 @@ function sys = lagrange_eqdyn(sys)
     ddt_dL_dqp = dvecdt(dL_dqp, [q; qp], [qp; qpp]);
         
     % Left hand side of dynamic equation
-    m_term = simplify_(ddt_dL_dqp - dL_dq + dF_dqp);
-    leqdyns = simplify_(C.'*m_term);
+    m_term = ddt_dL_dqp - dL_dq + dF_dqp;
+    leqdyns = C.'*m_term;
     
     % Right hand side of dynamic equation
     reqdyns = simplify_(C.'*Fq);

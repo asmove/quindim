@@ -126,7 +126,7 @@ function hfig = plot_constraints(sys, time, states)
             if(isfield(sys.descrip, 'latex_origs'))
                 latex_origs = sys.descrip.latex_origs;
                 latex_convert = sys.descrip.latex_text;
-
+                
                 constraint = str2latex(constraint, latex_origs, latex_convert);                           
             end
             
@@ -134,8 +134,8 @@ function hfig = plot_constraints(sys, time, states)
                constraint = constraint{1}; 
             end
             
-            consts_label{end+1} = sprintf('Constraint %d - $%s$', ...
-                                    idx, constraint);
+            consts_label{end+1} = sprintf('Constraint %d - $%s$', idx, constraint);
+            
             xlabels{end+1} = '$t$ [s]';
         end
     end

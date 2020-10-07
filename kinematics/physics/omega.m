@@ -7,5 +7,5 @@ end
 
 function S = skew_matrix(R, q, qp)
     Rp = dmatdt(R, q, qp);
-    S = Rp.'*R;
+    S = R.'*Rp;
 end
