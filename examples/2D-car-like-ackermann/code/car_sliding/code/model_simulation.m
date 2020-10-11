@@ -20,7 +20,7 @@ syms kappa_4 alpha_4
 syms dkappa_4 dalpha_4
 
 dt = 1e-2;
-tf = dt;
+tf = 100;
 tspan = 0:dt:tf;
 
 % Holonomic expression

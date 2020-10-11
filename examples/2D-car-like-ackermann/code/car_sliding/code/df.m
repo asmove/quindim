@@ -1,5 +1,8 @@
 function dq  = df(t, x, aux_syms, aux_vals, sys, ...
-                  v_i, v_o, v_r, v_l, model_symbs, model_params)
+                  v_i, v_o, v_r, v_l, ...
+                  model_symbs, model_params)
+    
+    double(x)
     
     persistent is_persis_defined M_num Q_num A_delta_num A_num C_num;
     persistent C_delta_num dC_num dC_delta_num dC_1delta_num;
@@ -29,7 +32,7 @@ function dq  = df(t, x, aux_syms, aux_vals, sys, ...
     tf = tic;
     
     t0 = tic;
-    sys.kin.q
+    
     n_q = length(sys.kin.q);
     n_p = length(sys.kin.p{end});
     
@@ -296,9 +299,10 @@ function dq  = df(t, x, aux_syms, aux_vals, sys, ...
     
     plant = [double(C_1delta*p_num); inv(H)*(f + f_i + f_ni)];
     plant = subs(plant, sys.descrip.syms, sys.descrip.model_params);
-    dq = vpa(subs(plant, ...
+    dq = double(subs(plant, ...
                   [symbs; sys.kin.q; sys.kin.p{end}; model_symbs], ...
                   [params; x; model_params]));
+    vpa(dq, 5)
     disp('Aqui 7');
     toc(t0)
     disp('Final ');
