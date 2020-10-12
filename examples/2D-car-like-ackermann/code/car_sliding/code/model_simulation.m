@@ -20,7 +20,7 @@ syms kappa_4 alpha_4
 syms dkappa_4 dalpha_4
 
 dt = 1e-2;
-tf = 100;
+tf = 100*dt;
 tspan = 0:dt:tf;
 
 % Holonomic expression
@@ -97,19 +97,19 @@ xout_ideal = double(xout_ideal');
 % Non-ideal modelling
 params_nonideal_ = sys.descrip.model_params;
 params_nonideal_(end+1) = 0;
-params_nonideal_(end+1) = 1e-4;
-params_nonideal_(end+1) = 1e-4;
+params_nonideal_(end+1) = 1e-3;
+params_nonideal_(end+1) = 1e-3;
 params_nonideal_(end+1) = 0;
-params_nonideal_(end+1) = 1e-4;
-params_nonideal_(end+1) = 1e-4;
+params_nonideal_(end+1) = 1e-3;
+params_nonideal_(end+1) = 1e-3;
 params_nonideal_(end+1) = 0;
-params_nonideal_(end+1) = 1e-4;
-params_nonideal_(end+1) = 1e-4;
+params_nonideal_(end+1) = 1e-3;
+params_nonideal_(end+1) = 1e-3;
 params_nonideal_(end+1) = 0.05;
 params_nonideal_(end+1) = 0.05;
-model_params = params_nonideal_';
+model.model_params = params_nonideal_;
 
-phi_ = 45;
+phi_ = 25;
 A_delta = phi_*pi/180;
 slip_perc = -0.5;
 
@@ -118,11 +118,11 @@ w_ = 2*pi/T;
 
 % kappa: slippage percentage
 % alpha: Angle displacement
-aux_vals_nonideal = {@(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); ...
-                     @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t); ...
-                     @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t); ...
-                     @(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); ...
-                     @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t)};
+aux_vals = {@(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t); ...
+            @(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t); ...
+            @(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t); ...
+            @(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t); ...
+            @(t) 0; @(t) 0; @(t) 0; @(t) 0};
 
 odefun = @(t, x) df(t, x, aux_syms, aux_vals, sys, ...
                     v_i, v_o, v_cg_r, v_cg_l, model_symbs, model_params);

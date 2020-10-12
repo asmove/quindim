@@ -1,9 +1,6 @@
 function dq  = df(t, x, aux_syms, aux_vals, sys, ...
                   v_i, v_o, v_r, v_l, ...
                   model_symbs, model_params)
-    
-    double(x)
-    
     persistent is_persis_defined M_num Q_num A_delta_num A_num C_num;
     persistent C_delta_num dC_num dC_delta_num dC_1delta_num;
     persistent Ap_1_num Ap_delta_num;
@@ -117,33 +114,26 @@ function dq  = df(t, x, aux_syms, aux_vals, sys, ...
     
     t0 = tic();
     
-    theta = sys.kin.q(3);
-    delta_i = sys.kin.q(4);
-    delta_o = sys.kin.q(5);
-    
     qps = sys.kin.qp;
     ps = sys.kin.p{end};
     
-    A_1 = subs(A_num, kqps_vals, kqps_symbs);
-    A_delta = subs(A_delta_num, kqps_vals, kqps_symbs);
+    A_1 = double(subs(A_num, kqps_vals, kqps_symbs));
+    A_delta = double(subs(A_delta_num, kqps_vals, kqps_symbs));
     A_1delta = A_1 + A_delta;
-
-    C_1 = subs(C_num, kqps_vals, kqps_symbs);
-    C_delta = subs(C_delta_num, kqps_vals, kqps_symbs);
+    
+    C_1 = double(null(A_num));
+    C_delta = double(subs(C_delta_num, kqps_vals, kqps_symbs));
     C_1delta = C_1 + C_delta;
     
-    dC_1 = dC_num;
-    dC_delta = dC_delta_num;
+    dC_1 = double(dC_num);
+    dC_delta = double(dC_delta_num);
     dC_1delta = dC_1 + dC_delta;
 
     % Constraints derivatives
-    Ap_1 = Ap_1_num;
-    Ap_delta = Ap_delta_num;
-    Ap_1delta = Ap_1 + Ap_delta;
+    Ap_1 = double(Ap_1_num);
+    Ap_delta = double(Ap_delta_num);
     
-    b_1 = -Ap_1*C_1*p_num;
-    b_delta = -Ap_1*C_delta*p_num + Ap_delta*C_1delta*p_num;
-    b_1delta = b_1 + b_delta;
+    b_1delta = -Ap_1*C_1delta*p_num + Ap_delta*C_1delta*p_num;
     
     disp('Aqui 3');
     toc(t0);
