@@ -20,7 +20,8 @@ syms kappa_4 alpha_4
 syms dkappa_4 dalpha_4
 
 dt = 1e-2;
-tf = 100*dt;
+n_t = 100;
+tf = n_t*dt;
 tspan = 0:dt:tf;
 
 % Holonomic expression
@@ -85,7 +86,7 @@ aux_vals = {@(t) 0; @(t) 0; @(t) 0; @(t) 0;
             @(t) 0; @(t) 0; @(t) 0; @(t) 0;
             @(t) 0; @(t) 0; @(t) 0; @(t) 0};
 
-options.degree = 4;
+options.degree = 2;
 
 odefun = @(t, x) df(t, x, aux_syms, aux_vals, ...
                     sys, v_i, v_o, v_cg_r, v_cg_l,...
@@ -124,8 +125,8 @@ aux_vals = {@(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); @(t) w_*slip_perc*
             @(t) slip_perc*sin(w_*t); @(t) A_delta*sin(w_*t); @(t) w_*slip_perc*cos(w_*t); @(t) w_*A_delta*cos(w_*t); ...
             @(t) 0; @(t) 0; @(t) 0; @(t) 0};
 
-odefun = @(t, x) df(t, x, aux_syms, aux_vals, sys, ...
+odefun_ = @(t, x) df(t, x, aux_syms, aux_vals, sys, ...
                     v_i, v_o, v_cg_r, v_cg_l, model_symbs, model_params);
 
-[~, xout_nonideal] = ode('rk', odefun, x0, tspan, options);
+[~, xout_nonideal] = ode('rk', odefun_, x0, tspan, options);
 xout_nonideal = double(xout_nonideal');

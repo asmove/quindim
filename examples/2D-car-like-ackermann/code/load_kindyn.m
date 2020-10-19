@@ -35,7 +35,7 @@ sys = calculate_jacobians(sys);
 sys = update_jacobians(sys, sys.kin.C);
 
 % Holonomic expression
-delta_o_expr = atan(L*tan(tan(delta_i)/(L + w*tan(delta_i))));
+delta_o_expr = atan(L*tan(delta_i)/(L + w*tan(delta_i)));
 sys.kin.A = subs(sys.kin.A, delta_o, delta_o_expr);
 sys.kin.C = subs(sys.kin.C, delta_o, delta_o_expr);
 sys.kin.Cs = {sys.kin.C};
