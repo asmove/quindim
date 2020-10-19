@@ -5,12 +5,12 @@ for i = 1:length(sys.descrip.syms)
     assignin('caller', var_name, var_val);
 end
 
-% % Friction parameters
-% Cp_1 = 60000;
+% % % Friction parameters
+% Cp_1 = 1000;
 % mu_1 = 1e-3;
 % Fz_1 = g*(mc/4 + mi);
 % 
-% Cp_2 = 60000;
+% Cp_2 = 1000;
 % mu_2 = 1e-3;
 % Fz_2 = g*(mc/4 + mi);
 
@@ -23,7 +23,7 @@ Cp_2 = 0;
 mu_2 = 1e-3;
 Fz_2 = g*(mc/4 + mi);
 
-D = sys.descrip.model_params(end-4);
+D = 2*sys.descrip.model_params(end-4);
 perc = 0.3;
 a = double(perc*D);
 

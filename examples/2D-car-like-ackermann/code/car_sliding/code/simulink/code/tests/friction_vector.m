@@ -40,9 +40,9 @@ function C_fric = friction_vector(q, p, kappa_1, kappa_2, alpha_1, alpha_2, C_1d
     sigma_y_2 = tan(alpha_2)/(kappa_2 + 1);
     
     sigma_1 = terop((sigma_x_1 == 0)||(sigma_y_1 == 0), ...
-                    sqrt(sigma_x_1^2 + sigma_y_1^2), 1);
+                    1, sqrt(sigma_x_1^2 + sigma_y_1^2));
     sigma_2 = terop((sigma_x_2 == 0)||(sigma_y_2 == 0), ...
-                     sqrt(sigma_x_2^2 + sigma_y_2^2), 1);
+                     1, sqrt(sigma_x_2^2 + sigma_y_2^2));
                  
     theta_1 = double((2/3)*(Cp_1*a^2/(mu_1*Fz_1)));
     theta_2 = double((2/3)*(Cp_2*a^2/(mu_2*Fz_2)));
@@ -78,7 +78,7 @@ function C_fric = friction_vector(q, p, kappa_1, kappa_2, alpha_1, alpha_2, C_1d
         else
             F_2 = mu_2*Fz_2;
         end
-
+        sigma_2
         F2_vec = F_2*[sigma_x_2; sigma_y_2]/sigma_2;
         t_lambda_2 = (lambda_2^3/(1 + lambda_2 + lambda_2^2))*a;
         Mz_2 = -t_lambda_2*F2_vec(2);
