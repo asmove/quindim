@@ -30,7 +30,6 @@ function sys = dyn_matrices(sys, helper)
     sys.dyn.nu = simplify_(helper.ddt_dL_dqp - helper.dKdq - sys.dyn.M*sys.kin.qpp);
     
     % Control dynamic matrices
-    [num, den] = numden(C.'*M*C)
     sys.dyn.H = C.'*M*C;
     sys.dyn.Hp = dmatdt(sys.dyn.H, q, C*p);
     
