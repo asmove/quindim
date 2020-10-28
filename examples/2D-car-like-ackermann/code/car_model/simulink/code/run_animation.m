@@ -1,16 +1,19 @@
+sol = [q, p];
 
-% wb = my_waitbar('');
-% 
-% n = length(t);
-% 
-% sims = {};
-% for i = 1:n
-%     sims{i} = gen_sim(sys, sol(i, :)', ...
-%                       [0; 0; 0; 0], ...
-%                       length(sys.kin.q)); 
-%     
-%     wb.update_waitbar(i, n);
-% end
+wb = my_waitbar('');
+
+time = simOut.tout;
+n = length(time);
+
+sims = {};
+for i = 1:n
+    q = simOut.coordinates.signals.values;
+    t_i = time(i);
+    
+    sims{i} = struct('t', t_i, 'q', q(i, :));
+    
+    wb.update_waitbar(i, n);
+end
 
 hfig = my_figure();
 
@@ -20,13 +23,14 @@ x_max = 10;
 y_min = -10;
 y_max = 10;
 
+axs_vals = [x_min x_max y_min y_max];
 
 for i = 1:length(t)
-    sim = sims{i};
-    draw_2Dcar(hfig, sys, sim);
+    sim_ = sims{i};
+    draw_2Dcar(hfig, sys, sim_);
     
     axis equal;
-    axis([x_min x_max y_min y_max]);
+    axis(axs_vals);
     
     pause(dt);
     clf(hfig, 'reset');
