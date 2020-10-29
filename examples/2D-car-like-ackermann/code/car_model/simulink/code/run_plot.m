@@ -40,8 +40,8 @@ axs{1}{4}.FontSize = FontSize;
 
 plot_config.titles = repeat_str('', 4);
 plot_config.xlabels = {'', '', '', 't [s]'};
-plot_config.ylabels = {'$\omega_{\theta}(t)$', '$\omega_o(t)$', ...
-                       '$\omega_r(t)$', '$\omega_l(t)$'};
+plot_config.ylabels = {'$\omega_{\theta}(t)$', '$\omega_{\delta_o}(t)$', ...
+                       '$\omega_{\phi_o}(t)$', '$\omega_{\phi_l}(t)$'};
 plot_config.grid_size = [2, 2];
 
 [h_omegas, axs] = my_plot(tspan, p, plot_config);
@@ -50,7 +50,6 @@ axs{1}{1}.FontSize = FontSize;
 axs{1}{2}.FontSize = FontSize;
 axs{1}{3}.FontSize = FontSize;
 axs{1}{4}.FontSize = FontSize;
-
 
 % ------------------------------------------------------
 

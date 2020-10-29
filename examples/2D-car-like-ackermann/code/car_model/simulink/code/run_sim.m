@@ -1,5 +1,5 @@
 % Final time
-tf = 3;
+tf = 5;
 dt = 0.01;
 
 % Holonomic expression
@@ -25,7 +25,7 @@ delta_i_num = 0;
 
 m = length(sys.kin.p{end});
 p_val = 5;
-qs = [0; 0; pi/4; delta_i_num; delta_o_expr; 0; 0; 0; 0];
+qs = [0; 0; 0; delta_i_num; delta_o_expr; 0; 0; 0; 0];
 ps = [0; 0; 1; 1];
 
 symbs = [sys.descrip.syms.'; delta_i];

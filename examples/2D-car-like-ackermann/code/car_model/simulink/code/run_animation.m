@@ -2,13 +2,10 @@ sol = [q, p];
 
 wb = my_waitbar('');
 
-time = simOut.tout;
-n = length(time);
-
 sims = {};
-for i = 1:n
+for i = 1:length(simOut.tout)
     q = simOut.coordinates.signals.values;
-    t_i = time(i);
+    t_i = simOut.tout(i);
     
     sims{i} = struct('t', t_i, 'q', q(i, :));
     
@@ -25,7 +22,7 @@ y_max = 10;
 
 axs_vals = [x_min x_max y_min y_max];
 
-for i = 1:length(t)
+for i = 1:length(simOut.tout)
     sim_ = sims{i};
     draw_2Dcar(hfig, sys, sim_);
     
