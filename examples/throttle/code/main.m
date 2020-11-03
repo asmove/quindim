@@ -11,15 +11,16 @@ clc
 
 % The 'real' statement on end is important
 % for inner simplifications
-syms u Q I Ip real;
-syms L R k g real;
+syms Ra Rs La k_b k_m ks Tpl Tf Beq Jeq sigma g L real;
+syms x xp xpp u real;
 
 % Paramater symbolics of the system
-sys.descrip.syms = [L, R, k, g];
+sys.descrip.syms = [Ra Rs La k_b k_m ks Tpl Tf Beq Jeq sigma];
 
 % Paramater symbolics of the system
-sys.descrip.model_params = [0.5, 19e-3, 1/25e-6, 9.8];
-% sys.descrip.model_params = [1000, 1, 1/25e-6, 9.8];
+sys.descrip.model_params = [1.15, 1.5, 0.0015, 0.383, 0.383, ...
+                            0.087, 0.396, 0.284, 0.0088, 0.0021 19];
+
 model_params = sys.descrip.model_params;
 
 % Gravity utilities
@@ -27,75 +28,51 @@ sys.descrip.gravity = [0; 0; 0];
 sys.descrip.g = g;
 
 % Body inertia
-Inertia = zeros(3, 3);
+Inertia = diag(sym([Jeq, Jeq, Jeq]));
 
 % Position relative to body coordinate system
 Lg = zeros(3, 1);
 
 % Bodies definition
-T = {T3d(0, [0, 0, 1].', [Q; 0; 0])};
+T = {T3d(x, [0; 0; 1], [0; 0; 0])};
 
-resistor = build_damper(R, [0; 0; 0], [I; 0; 0]);
-capacitor = build_spring(k, [0; 0; 0], [Q; 0; 0]);
-block = build_body(L, Inertia, T, Lg, {resistor}, {capacitor}, ...
-                   Q, I, Ip, struct(''), []);
+damper = build_damper(Beq, [0; 0; 0], [1; 0; 0]);
+spring = build_spring(ks, [0; 0; 0], [1; 0; 0]);
+block = build_body(0, Inertia, T, [0; 0; 0], {damper}, {spring}, ...
+                   x, xp, xpp, struct(''), []);
 
 sys.descrip.bodies = {block};
 
 % Generalized coordinates
-sys.kin.q = Q;
-sys.kin.qp = I;
-sys.kin.qpp = Ip;
+sys.kin.q = x;
+sys.kin.qp = xp;
+sys.kin.qpp = xpp;
 
 % External excitations
-sys.descrip.Fq = u;
-sys.descrip.u = u;
-
-% External excitations
-sys.descrip.Fq = u;
+s_f = 2/(1+exp(-sigma*xp)) - 1;
+sys.descrip.Fq = (k_m/Ra)*(-k_b*xp + u) + Tf*s_f - Tpl;
 sys.descrip.u = u;
 
 % Constraint condition
 sys.descrip.is_constrained = false;
 
 % Sensors
-sys.descrip.y = I;
+sys.descrip.y = x;
 
 % State space representation
-sys.descrip.states = [Q; I];
+sys.descrip.states = [x; xp];
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
 sys = dynamic_model(sys);
 
-% Decay time
-L_num = sys.descrip.model_params(1);
-R_num = sys.descrip.model_params(2);
-C_num = 1/sys.descrip.model_params(3);
-
-% Time [s]
-% omega = 1/sqrt(L_num*C_num);
-% tf = 2*pi/omega;
-R = model_params(2);
-L = model_params(1);
-C = 1/model_params(3);
-
-alpha = R/(2*L);
-w_d = sqrt(1/(L*C) - R^2/(4*L^2));
-xi = w_d/alpha;
-zeta = sqrt(1/(1 + xi^2));
-w_n = alpha/zeta;
-
-tf = 2*pi/w_n;
-
 scaler = 100;
+tf = 10;
 dt = tf/scaler;
 t = 0:dt:tf;
 
 % Initia conditions [m; m/s]
 x0 = [0; 1];
-
-u_func = @(t, x) 0;
 
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
@@ -132,7 +109,7 @@ tspan = simOut.tout;
 
 titles = {'', ''};
 xlabels = {'$t$ [s]', '$t$ [s]'};
-ylabels = {'$Q$ [C]', '$i$ [A]'};
+ylabels = {'$\theta$ [rad]', '$\dot{\theta}$ [rad/s]'};
 grid_size = [2, 1];
 
 % Plot properties
