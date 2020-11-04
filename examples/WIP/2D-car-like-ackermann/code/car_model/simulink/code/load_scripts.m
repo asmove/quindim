@@ -100,6 +100,7 @@ for i = 1:length(paths)
     delete(fname);
 end
 
+save_system(model);
 close_system(model);
 
     
