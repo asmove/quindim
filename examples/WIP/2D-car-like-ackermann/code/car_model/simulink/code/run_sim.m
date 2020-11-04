@@ -1,7 +1,4 @@
 % Final time
-<<<<<<< HEAD:examples/WIP/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
-<<<<<<< HEAD:examples/WIP/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
-
 tf = 3;
 dt = 0.01;
 
@@ -42,12 +39,8 @@ vals = [sys.descrip.model_params.'; delta_i_num];
 qs0 = double(subs(qs, symbs, vals));
 ps0 = double(subs(ps, symbs, vals));
 x0 = double(subs([qs0; ps0], symbs, vals));
-=======
+
 tf = 5;
->>>>>>> parent of c111475... Saturated car model:examples/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
-=======
-tf = 5;
->>>>>>> parent of c111475... Saturated car model:examples/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
 
 % Model loading
 model = 'car_model';
@@ -59,18 +52,9 @@ set_param(model, 'SimulationMode', 'normal');
 
 cs = getActiveConfigSet(model);
 mdl_cs = cs.copy;
-<<<<<<< HEAD:examples/WIP/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
-<<<<<<< HEAD:examples/WIP/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
-set_param(mdl_cs, 'SolverType','Variable-step', ...
-                  'SaveState','on','StateSaveName','xoutNew', ...
-                  'SaveOutput','on','OutputSaveName','youtNew');
-=======
-=======
->>>>>>> parent of c111475... Saturated car model:examples/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
 set_param(mdl_cs,'AbsTol','1e-6',...
                  'SaveState','on','StateSaveName','xoutNew',...
                  'SaveOutput','on','OutputSaveName','youtNew');
->>>>>>> parent of c111475... Saturated car model:examples/2D-car-like-ackermann/code/car_model/simulink/code/run_sim.m
 
 save_system();
               

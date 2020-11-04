@@ -1,8 +1,5 @@
-<<<<<<< HEAD:examples/WIP/2D-car-like-ackermann/code/car_model/simulink/code/run_animation.m
 
 sol = [q, p];
-=======
->>>>>>> parent of c111475... Saturated car model:examples/2D-car-like-ackermann/code/car_model/simulink/code/run_animation.m
 
 % wb = my_waitbar('');
 % 
