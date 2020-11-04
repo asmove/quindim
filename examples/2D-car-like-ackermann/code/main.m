@@ -18,5 +18,4 @@ run('./load_transformations.m');
 run('./load_bodies.m');
 run('./load_params.m');
 run('./load_kindyn.m');
-run('./run_sim.m');
-run('./run_animation.m');
+% run('./sim_system.m');
