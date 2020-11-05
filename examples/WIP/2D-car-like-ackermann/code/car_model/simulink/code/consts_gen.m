@@ -49,15 +49,15 @@ v_i_perp = simplify(dot(v_contact_i, w_i));
 constraints_i = [simplify_(v_i - phip_i*R); simplify(v_i_perp)];
 
 % % Outer front wheel
-% [~, omega_o] = omega(Rco, qo, qpo);
-% v_cg_o = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; L; 0]);
-% 
-% v_contact_o = v_cg_o + cross(omega_o, Rco*[0; 0; -R]);
-% u_o = Rco*[1; 0; 0];
-% w_o = Rco*[0; 1; 0];
-% 
-% v_o = simplify(dot(v_contact_o, u_o));
-% v_o_perp = simplify(dot(v_contact_o, w_o));
+[~, omega_o] = omega(Rco, qo, qpo);
+v_cg_o = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; L; 0]);
+
+v_contact_o = v_cg_o + cross(omega_o, Rco*[0; 0; -R]);
+u_o = Rco*[1; 0; 0];
+w_o = Rco*[0; 1; 0];
+
+v_o = simplify(dot(v_contact_o, u_o));
+v_o_perp = simplify(dot(v_contact_o, w_o));
 % constraints_o = [simplify_(v_o - phip_o*R); v_o_perp];
 
 % Inner back wheel
@@ -70,7 +70,7 @@ u_l = Rcl*[1; 0; 0];
 w_l = Rcl*[0; 1; 0];
 
 v_l = simplify(dot(v_contact_l, u_l));
-% v_l_perp = simplify(dot(v_contact_l, w_l));
+v_l_perp = simplify(dot(v_contact_l, w_l));
 % constraints_l = [simplify_(v_l - phip_l*R);
 %                  v_l_perp];
 
