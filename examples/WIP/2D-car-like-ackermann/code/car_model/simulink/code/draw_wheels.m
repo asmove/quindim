@@ -14,9 +14,7 @@ function [] = draw_wheel(hfig, wheel)
     A = wheel.A;
     B = wheel.B;
     
-    plot([A(1); B(1)], ...
-         [A(2); B(2)], ...
-         'k', 'LineWidth', 10);
+    plot([A(1); B(1)], [A(2); B(2)], 'k', 'LineWidth', 10);
     
     hold on;
     plot(center(1), center(2), 'ro');

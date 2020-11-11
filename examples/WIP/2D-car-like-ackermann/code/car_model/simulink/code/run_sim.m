@@ -1,10 +1,13 @@
 % Final time
-tf = 3;
+tf = 10;
 dt = 0.01;
 
+L = sys.descrip.model_params(end-2);
+w = sys.descrip.model_params(end-3);
+
 % Holonomic expression
-delta_i = sys.kin.q(3);
-delta_o = sys.kin.q(4);
+delta_i = sys.kin.q(4);
+delta_o = sys.kin.q(5);
 delta_o_expr = atan(L*tan(delta_i)/(L + w*tan(delta_i)));
 
 % Main matrices
@@ -15,6 +18,8 @@ sys.dyn.M = subs(sys.dyn.M, delta_o, delta_o_expr);
 
 % States saturation
 EPS_ = 1e-5;
+
+% Degrees [deg]
 MAX_DELTA = 15;
 MAX_DELTA = deg2rad(MAX_DELTA);
 
@@ -25,7 +30,7 @@ p_val = 5;
 delta_i_num = 0;
 
 qs = [0; 0; 0; delta_i_num; delta_o_expr; 0; 0; 0; 0];
-ps = [0; 0.1; 2; 2];
+ps = [0.5; 0.1; 2; 2];
 
 symbs = [sys.descrip.syms.'; delta_i];
 vals = [sys.descrip.model_params.'; delta_i_num];

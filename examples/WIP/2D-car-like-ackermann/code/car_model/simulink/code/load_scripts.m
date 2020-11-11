@@ -1,4 +1,3 @@
-
 paths = {'car_model/Vehicle/Steering_model/Auxiliary_matrices/C_p', ...
          'car_model/Vehicle/Steering_model/Auxiliary_matrices/Q', ...
          'car_model/Vehicle/Steering_model/Auxiliary_matrices/A_matrix', ...
@@ -8,6 +7,22 @@ paths = {'car_model/Vehicle/Steering_model/Auxiliary_matrices/C_p', ...
          'car_model/Vehicle/Steering_model/Efforts/Constrained_efforts'};
 
 syms M Q inv_M sqrt_M M_12 A_matrix Ap_matrix C_matrix Cp_matrix;
+
+% Holonomic expression
+delta_i = sys.kin.q(3);
+delta_o = sys.kin.q(4);
+delta_o_expr = atan(L*tan(delta_i)/(L + w*tan(delta_i)));
+
+% Main matrices
+sys.kin.C = subs(sys.kin.C, delta_o, delta_o_expr);
+sys.kin.A = subs(sys.kin.A, delta_o, delta_o_expr);
+sys.dyn.h = subs(sys.dyn.h, delta_o, delta_o_expr);
+sys.dyn.M = subs(sys.dyn.M, delta_o, delta_o_expr);
+
+q = sys.kin.q;
+qp = sys.kin.qp;
+p = sys.kin.p;
+u = sys.descrip.u;
 
 vars = {{[q; p]}, {[q; p], qp, u}, {[q; p]}, ...
         {[q; p]}, {[q; p]}, {[q; p]}, ...
@@ -43,7 +58,12 @@ fun_names = {'KinematicVector', ...
              'ConstrainedEffort'};
 
 symbs = sys.descrip.syms;
-vals = sys.descrip.model_params;
+model_params = sys.descrip.model_params;
+
+delta_o_expr = subs(delta_o_expr, symbs, model_params);
+
+symbs = [sys.descrip.syms, delta_o];
+vals = [sys.descrip.model_params, delta_o_expr];
 
 % Read buffer
 nchar = 100000;
