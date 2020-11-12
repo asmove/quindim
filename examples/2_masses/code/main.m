@@ -111,8 +111,35 @@ t = 0:dt:tf;
 
 u_func = @(t, x) zeros(m, 1);
 
-% System modelling
-sol = validate_model(sys, t, x0, u_func, false);
+% Initial conditions [m; m/s]
+
+% Model loading
+model_name = 'simple_model';
+
+gen_scripts(sys, model_name);
+
+load_system(model_name);
+
+simMode = get_param(model_name, 'SimulationMode');
+set_param(model_name, 'SimulationMode', 'normal');
+
+cs = getActiveConfigSet(model_name);
+mdl_cs = cs.copy;
+set_param(mdl_cs, 'SolverType','Variable-step', ...
+                  'SaveState','on','StateSaveName','xoutNew', ...
+                  'SaveOutput','on','OutputSaveName','youtNew');
+
+save_system();
+              
+t0 = tic();
+simOut = sim(model_name, mdl_cs);
+toc(t0);
+
+q = simOut.coordinates.signals.values;
+p = simOut.p_speeds.signals.values;
+t = simOut.tout;
+
+x = [q, p];
 
 plot_info.titles = {'$x_1$', '$\dot x_1$', '$x_2$', '$\dot x_2$'};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
@@ -121,8 +148,8 @@ plot_info.ylabels = {'$x_1$ $[m]$', '$\dot x_1$ $[m/s]$', ...
 plot_info.grid_size = [2, 2];
 
 % States and energies plot
-hfigs_states = my_plot(t, sol', plot_info);
-hfig_energies = plot_energies(sys, t, sol');
+hfigs_states = my_plot(t, x, plot_info);
+hfig_energies = plot_energies(sys, t, x);
 
 % Energies
 saveas(hfig_energies, '../imgs/energies', 'epsc');

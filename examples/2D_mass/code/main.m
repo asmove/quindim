@@ -1,6 +1,6 @@
 % Author: Bruno Peixoto
 % Date: 08/01/19
-clear all
+
 if(exist('CLEAR_ALL'))
     if(CLEAR_ALL)
         clear all
@@ -89,10 +89,34 @@ x0 = [0, 0, 1, 1]';
 
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func, false);
 
-x = t';
-y = sol';
+% Model loading
+model_name = 'simple_model';
+
+gen_scripts(sys, model_name);
+
+load_system(model_name);
+
+simMode = get_param(model_name, 'SimulationMode');
+set_param(model_name, 'SimulationMode', 'normal');
+
+cs = getActiveConfigSet(model_name);
+mdl_cs = cs.copy;
+set_param(mdl_cs, 'SolverType','Variable-step', ...
+                  'SaveState','on','StateSaveName','xoutNew', ...
+                  'SaveOutput','on','OutputSaveName','youtNew');
+
+save_system();
+              
+t0 = tic();
+simOut = sim(model_name, mdl_cs);
+toc(t0);
+
+q = simOut.coordinates.signals.values;
+p = simOut.p_speeds.signals.values;
+x = [q, p];
+
+t = simOut.tout;
 
 % Generalized coordinates
 plot_info_q.titles = repeat_str('', 2);
@@ -100,7 +124,7 @@ plot_info_q.xlabels = {'', '', '$t$ [s]'};
 plot_info_q.ylabels = {'$x$', '$y$'};
 plot_info_q.grid_size = [2, 1];
 
-hfigs_states = my_plot(x, y(:, 1:2), plot_info_q);
+hfigs_states = my_plot(t, x(:, 1:2), plot_info_q);
 
 plot_info_p.titles = repeat_str('', 2);
 plot_info_p.xlabels = {'', '$t$ [s]'};
@@ -113,13 +137,13 @@ plot_info_xy.xlabels = {'$x$'};
 plot_info_xy.ylabels = {'$y$'};
 plot_info_xy.grid_size = [1, 1];
 
-hfigs_xy = my_plot(y(:, 1), y(:, 2), plot_info_q);
+hfigs_xy = my_plot(x(:, 1), x(:, 2), plot_info_xy);
 
 % States plot
-hfigs_speeds = my_plot(x, y(:, 3:4), plot_info_p);
+hfigs_speeds = my_plot(t, x(:, 3:4), plot_info_p);
 
 % Energies plot
-hfig_energies = plot_energies(sys, x, y);
+hfig_energies = plot_energies(sys, t, x);
 
 % Images
 saveas(hfig_energies, '../imgs/energies', 'epsc');

@@ -1,3 +1,6 @@
 *.pdf
 *.eps
 *.m~
+*.mat
+slprj/*
+*.l

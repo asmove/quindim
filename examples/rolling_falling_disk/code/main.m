@@ -122,10 +122,36 @@ x0 = [0, 0, 0, 0, pi/4, 1, 0, 0]';
 
 % System modelling
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
-sol = validate_model(sys, t, x0, u_func, false);
 
-x = t';
-y = sol';
+% Model loading
+model_name = 'simple_model';
+
+gen_scripts(sys, model_name);
+
+load_system(model_name);
+
+simMode = get_param(model_name, 'SimulationMode');
+set_param(model_name, 'SimulationMode', 'normal');
+
+cs = getActiveConfigSet(model_name);
+mdl_cs = cs.copy;
+set_param(mdl_cs, 'SolverType','Variable-step', ...
+                  'SaveState','on','StateSaveName','xoutNew', ...
+                  'SaveOutput','on','OutputSaveName','youtNew');
+
+save_system();
+              
+t0 = tic();
+simOut = sim(model_name, mdl_cs);
+toc(t0);
+
+q = simOut.coordinates.signals.values;
+p = simOut.p_speeds.signals.values;
+x = [q, p];
+
+states = simOut.states.signals.values;
+q_speeds = simOut.q_speeds.signals.values;
+t = simOut.tout;
 
 % Generalized coordinates
 plot_info_q.titles = {'$x$', '$y$', '$\theta$', '$\phi$', '$\psi$'};
@@ -144,11 +170,11 @@ plot_info_p.ylabels = {'$\omega_{\theta}$', '$\omega_{\phi}$', ...
 plot_info_p.grid_size = [3, 1];
 
 % States plot
-hfigs_speeds = my_plot(x, y(:, 5:7), plot_info_p);
+hfigs_speeds = my_plot(t, x(:, 5:7), plot_info_p);
 
 % Energies plot
-hfig_energies = plot_energies(sys, x, y);
-hfig_consts = plot_constraints(sys, x, y);
+hfig_energies = plot_energies(sys, t, x);
+hfig_consts = plot_constraints(sys, t, x);
 
 % Images
 saveas(hfig_energies, '../images/energies', 'epsc');
