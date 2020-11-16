@@ -50,5 +50,4 @@ function sys = calculate_jacobians(sys)
     % System jacobian
     sys.dyn.Jv = simplify_(Jv);
     sys.dyn.Jw = simplify_(Jw);
-    
 end

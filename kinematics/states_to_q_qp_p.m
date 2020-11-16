@@ -16,20 +16,37 @@ function [q, qp, p] = states_to_q_qp_p(sys, states)
     qp = zeros(n_t, n_q);
     
     C = sys.kin.C;
+    C_q = subs(C, syms, model_params);
+        
+    symvars_C = symvar(C_q);
     
+    idxs = [];
+    for i = 1:length(symvars_C)
+        svar = symvars_C(i);
+
+        idx = find(q_s == svar);
+        if(~isempty(idx))
+            idxs = [idxs; idx];
+        end
+    end
+    
+    wb = my_waitbar('(q, p) -> qp');    
     for i = 1:n_t
         q_i = q_n(i, :);
         p_i = p_n(i, :);
         
-        C_qp = C*p_s;
+        C_qp = C_q*p_i';
         
-        symbs = [q_s, p_s.', syms];
-        nums = [q_i, p_i, model_params];
+        q_s_ = q_s(idxs);
+        q_i = q_i(idxs);
         
-        C_qp_n = subs(C_qp, symbs, nums);
-        
+        C_qp_n = subs(C_qp, q_s_, q_i);
         qp(i, :) = vpa(C_qp_n');
+    
+        wb.update_waitbar(i, n_t);
     end
+    
+    % wb.close_window();
         
     q = q_n;
     p = p_n;

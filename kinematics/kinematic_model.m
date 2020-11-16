@@ -17,6 +17,7 @@ function sys = kinematic_model(sys)
 %    - [struct]: Multibody characteristics (Same as input) plus
 %       bodies: p_cg0 v_cg omega
     
+    % Speed jacobians
     sys = calculate_jacobians(sys);
     
     % Constrain the system by provided constraints
