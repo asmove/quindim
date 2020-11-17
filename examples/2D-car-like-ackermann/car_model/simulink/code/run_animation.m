@@ -34,7 +34,7 @@ for i = 1:n
     hold on
     plot(sol(:, 1), sol(:, 2), '--')
     
-    axis square;
+    axis equal;
     axis([x_min x_max y_min y_max]);
     
     handles = [handles; getframe(gcf)];

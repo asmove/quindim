@@ -22,7 +22,7 @@ p_val = 5;
 delta_i_num = 0;
 
 qs = [0; 0; pi/4; delta_i_num; delta_o_expr; 0; 0; 0; 0];
-ps = [0; 5];
+ps = [0.1; 5];
 
 symbs = [sys.descrip.syms.'; delta_i];
 vals = [sys.descrip.model_params.'; delta_i_num];

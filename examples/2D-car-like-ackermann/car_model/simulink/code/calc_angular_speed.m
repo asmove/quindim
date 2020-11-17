@@ -24,7 +24,7 @@ C = subs(C, sym_vars, model_params);
 q_p = [sys.kin.q; sys.kin.p{end}];
 symbs = [q_p; delta];
 
-n_f = 20;
+n_f = length(tspan);
 
 wb = my_waitbar('');
 
@@ -38,38 +38,50 @@ for i = 1:n_f
     
     C_p = my_subs(C*sys.kin.p{end}, symbs, vals);
     
-    radius_g_val = my_subs(radius_g, symbs, vals);
-    radius_i_val = my_subs(radius_i, symbs, vals);
-    radius_o_val = my_subs(radius_o, symbs, vals);
-    radius_r_val = my_subs(radius_r, symbs, vals);
-    radius_l_val = my_subs(radius_l, symbs, vals);
+    if(sol(i, 4) == 0)
+        angular_g = 0;
+        angular_i = 0;
+        angular_o = 0;
+        angular_r = 0;
+        angular_l = 0;
+    else
+        radius_g_val = my_subs(radius_g, symbs, vals);
+        radius_i_val = my_subs(radius_i, symbs, vals);
+        radius_o_val = my_subs(radius_o, symbs, vals);
+        radius_r_val = my_subs(radius_r, symbs, vals);
+        radius_l_val = my_subs(radius_l, symbs, vals);
 
-    u_g_val = my_subs(u_g, symbs, vals);
-    v_cg_val = my_subs(v_cg, sys.kin.qp, C_p);
+        u_g_val = my_subs(u_g, symbs, vals);
+        v_cg_val = my_subs(v_cg, sys.kin.qp, C_p);
 
-    v_g = dot(v_cg_val, u_g_val);
-    radius_g_val = my_subs(radius_g, symbs, vals); 
-    
-    phip_i = C_p(end);
-    phip_o = C_p(end);
-    phip_r = C_p(end);
-    phip_l = C_p(end);
-    
-    
-    angular_g = v_g/radius_g_val;
-    angular_i = phip_i*R/radius_i_val;
-    angular_o = phip_o*R/radius_o_val;
-    angular_r = phip_r*R/radius_r_val;
-    angular_l = phip_l*R/radius_l_val;
-    
-    unhol_const_i = my_subs(unhol_const, ...
-                            [sys.kin.qp; symbs], ...
-                            [C_p; vals]);
+        v_g = dot(v_cg_val, u_g_val);
+        radius_g_val = my_subs(radius_g, symbs, vals); 
+
+        phip_i = C_p(end);
+        phip_o = C_p(end);
+        phip_r = C_p(end);
+        phip_l = C_p(end);
+
+        angular_g = v_g/radius_g_val;
+        angular_i = phip_i*R/radius_i_val;
+        angular_o = phip_o*R/radius_o_val;
+        angular_r = phip_r*R/radius_r_val;
+        angular_l = phip_l*R/radius_l_val;
+    end
     
     w_vals = [w_vals; angular_g, angular_i, angular_o, angular_r, angular_l];
-    unhol_consts = [unhol_consts; unhol_const_i.'];
     
     wb.update_waitbar(i, n_f);
 end
 
+wb = my_waitbar('');
+
+for i = 1:n_t
+    delta_val = my_subs(delta_sym, q_p, sol(i, :)');
+    vals = [sol(i, :)'; delta_val];
+    
+    w_vals(i, :) = my_subs(w_vals(i, :), [q_p; delta], vals);
+
+    wb.update_waitbar(i, n_t);
+end
 
