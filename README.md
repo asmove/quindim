@@ -24,7 +24,7 @@ Most likely, the reader may use Windows. For such, the author recommends either 
 
 If you wish to use it, follow the instructions:
 
-1) Open Matlab up to the version 2015x, x = a, b;
+1) Open Matlab up to the version 2017x, x = a, b;
 2) Before calling the functions, type on MATLAB shell 
 
 ```
