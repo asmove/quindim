@@ -20,6 +20,7 @@ axs{1}{1}.FontSize = FontSize;
 axs{1}{2}.FontSize = FontSize;
 axs{1}{3}.FontSize = FontSize;
 
+% %%%%%%%%%%%%%%%%%% delta_i delta_o time lapse %%%%%%%%%%%%%%%%%%
 w_sym = sys.descrip.syms(end-2);
 L_sym = sys.descrip.syms(end-3);
 
@@ -42,14 +43,13 @@ for i = 1:n_t
     wb.update_waitbar(i, n_t);
 end
 
-% %%%%%%%%%%%%%%%%%% delta_i delta_o time lapse %%%%%%%%%%%%%%%%%%
 base_legend_delta = {'$\delta$', '$\delta^{min}$', '$\delta^{max}$', ...
                      '$\delta_i$', '$\delta_o$'};
 base_marker_delta = {'r-', 'b--', 'm--', 'b-', 'g-'};
 
 plot_config.titles = repeat_str('', 1);
 plot_config.xlabels = {'t [s]'};
-plot_config.ylabels = {'$\delta_i(t)$, $\delta_i(t)$'};
+plot_config.ylabels = {'$\delta_i(t)$, $\delta_o(t)$'};
 plot_config.grid_size = [1 1];
 plot_config.legends = {base_legend_delta};
 plot_config.pos_multiplots = [1, 1, 1, 1];
@@ -58,7 +58,7 @@ plot_config.markers = {base_marker_delta};
 n_deltas = length(q(:, 4:5));
 
 deltas_max = MAX_DELTA*ones([n_deltas, 1]);
-deltas_vec = [-deltas_max, deltas_max, delta_i_o_, q(:, 4:5)];
+deltas_vec = [-deltas_max, deltas_max, q(:, 4:5)];
 plot_data = {deltas, deltas_vec};
 
 [h_deltas, axs] = my_plot(tspan, plot_data, plot_config);
@@ -84,7 +84,7 @@ axs{1}{4}.FontSize = FontSize;
 
 plot_config.titles = repeat_str('', 2);
 plot_config.xlabels = {'', 't [s]'};
-plot_config.ylabels = {'$\omega_{\delta_i}(t)$', '$\omega_l(t)$'};
+plot_config.ylabels = {'$\omega_{\delta_o}(t)$', '$\omega__{\phi_l}(t)$'};
 plot_config.grid_size = [2, 1];
 
 [h_omegas, axs] = my_plot(tspan, p, plot_config);
@@ -225,27 +225,26 @@ n_t = length(tspan);
 % saveas(h_ddeltas, ['../imgs/ddeltas', '.eps'], 'epsc');
 % saveas(h_dphis, ['../imgs/dphis', '.eps'], 'epsc');
 % saveas(h_domegas, ['../imgs/domegas', '.eps'], 'epsc');
-
+% saveas(h_angvals, ['../imgs/car_rotation', '.eps'], 'epsc');
 % %%%%%%%%%%%%%%%%%% Car angular speed timelapse %%%%%%%%%%%%%%%%%%
-
-run('./calc_angular_speed.m');
-
-plot_config.titles = repeat_str('', 1);
-plot_config.xlabels = repeat_str('', 1);
-plot_config.ylabels = {'$r$ $[rad/s]$'};
-plot_config.grid_size = [1, 1];
-plot_config.legends = {'$r_i$', '$r_o$', '$r_r$', '$r_l$', '$r_g$'};
-plot_config.pos_multiplots = [1, 1, 1, 1];
-plot_config.markers = {'-', 'b--', 'r--', 'k--', 'g--'};
-
-angular_data = {w_vals(:, 1), w_vals(:, 2:end)};
-
-[h_angvals, axs] = my_plot(tspan(1:n_f), angular_data, plot_config);
+% run('./calc_angular_speed.m');
+% 
+% plot_config.titles = repeat_str('', 1);
+% plot_config.xlabels = repeat_str('', 1);
+% plot_config.ylabels = {'$r$ $[rad/s]$'};
+% plot_config.grid_size = [1, 1];
+% plot_config.legends = {'$r_i$', '$r_o$', '$r_r$', '$r_l$', '$r_g$'};
+% plot_config.pos_multiplots = [1, 1, 1, 1];
+% plot_config.markers = {'-', 'b--', 'r--', 'k--', 'g--'};
+% 
+% angular_data = {w_vals(:, 1), w_vals(:, 2:end)};
+% 
+% [h_angvals, axs] = my_plot(tspan(1:n_f), angular_data, plot_config);
 
 saveas(h_xyth, ['../imgs/xy_theta_plot', '.eps'], 'epsc');
 saveas(h_deltas, ['../imgs/deltas', '.eps'], 'epsc');
 saveas(h_omegas, ['../imgs/omegas', '.eps'], 'epsc');
 saveas(h_phis, ['../imgs/phis', '.eps'], 'epsc');
 saveas(h_xy, ['../imgs/xy_cartesian', '.eps'], 'epsc');
-saveas(h_angvals, ['../imgs/car_rotation', '.eps'], 'epsc');
+
 
