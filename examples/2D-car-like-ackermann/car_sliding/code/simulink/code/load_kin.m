@@ -10,7 +10,9 @@ sys.descrip.u = [f_phi_i; f_phi_o; f_phi_r; f_phi_l];
 % State space representation
 sys.descrip.states = [x_pos; y_pos; theta; delta_i; delta_o; phi_i; phi_o; phi_r; phi_l];
 
-% Quick hack: Obtain unconstrained velocity of each wheel 
-sys.descrip.is_constrained = false;
-sys = kinematic_model(sys);
+run('./load_consts.m');
 
+% Quick hack: Obtain unconstrained velocity of each wheel 
+sys.descrip.is_constrained = true;
+sys = kinematic_model(sys);
+sys.kin.A = simplify_(sys.kin.A);

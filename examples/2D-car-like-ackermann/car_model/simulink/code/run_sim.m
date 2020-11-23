@@ -12,7 +12,7 @@ sys.dyn.M = subs(sys.dyn.M, delta_o, delta_o_expr);
 EPS_ = 1e-5;
 
 % Degrees [deg]
-MAX_DELTA = 15;
+MAX_DELTA = 45;
 MAX_DELTA = deg2rad(MAX_DELTA);
 
 m = length(sys.kin.p{end});
@@ -21,8 +21,8 @@ p_val = 5;
 % Initial conditions
 delta_i_num = 0;
 
-qs = [0; 0; pi/4; delta_i_num; delta_o_expr; 0; 0; 0; 0];
-ps = [0.1; 5];
+qs = [0; 0.5; 0; delta_i_num; delta_o_expr; 0; 0; 0; 0];
+ps = [-0.1; 25];
 
 symbs = [sys.descrip.syms.'; delta_i];
 vals = [sys.descrip.model_params.'; delta_i_num];
@@ -37,7 +37,7 @@ IS_OUT = 1;
 x0_on_boundary = (x0(4) >= MAX_DELTA - EPS_)||(x0(4) <= -MAX_DELTA + EPS_);
 curr_state0 = terop(x0_on_boundary, IS_IN, IS_OUT);
 
-tf = 5;
+tf = 20;
 dt = 0.01;
 
 % Model loading

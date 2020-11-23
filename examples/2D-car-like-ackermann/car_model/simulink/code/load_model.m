@@ -21,7 +21,9 @@ run('./load_params.m');
 % Build
 run('./load_consts.m');
 run('./load_kin.m');
+
 run('./load_dyn.m');
+%run('./load_obsv.m');
 
 % Simulink model
 run('./load_scripts.m');

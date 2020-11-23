@@ -18,11 +18,11 @@ end
 fig_handlers = findall(0,'type','figure','tag','TMWWaitbar');
 delete(fig_handlers);
 
-x_min = -10;
-x_max = 10;
+x_min = min(sol(:, 1));
+x_max = max(sol(:, 1));
 
-y_min = -5;
-y_max = 20;
+y_min = min(sol(:, 2));
+y_max = max(sol(:, 2));
 
 hfig = my_figure();
 wb = my_waitbar('');

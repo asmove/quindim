@@ -1,10 +1,10 @@
-L = sys.descrip.syms(end-2);
+    L = sys.descrip.syms(end-2);
 w = sys.descrip.syms(end-3);
 R = sys.descrip.syms(end-4);
 
 varepsilon = w/L;
 
-syms delta;
+syms delta
 
 % Holonomic constraints - Inner and outer angles
 sys.descrip.hol_constraints = {tan(delta_i) - tan(delta_o) - varepsilon*tan(delta_i)*tan(delta_o)};
@@ -33,10 +33,10 @@ wheel_l = sys.descrip.bodies{5};
 
 % Inner front wheel
 omega_c = omega(Rc, sys.kin.q, sys.kin.qp);
-omega_i = [-phip_i*sin(theta + delta_i); ...
-            phip_i*cos(theta + delta_i); ...
-            thetap + deltap_i];
-
+[omega_i, ~] = omega(Ri, sys.kin.q, sys.kin.qp);
+omega_i(2) = phip_i;
+omega_i = Ri*omega_i;        
+        
 v_cg_i = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; L; 0]);
 v_contact_i = v_cg_i + cross(omega_i, Ri*[0; 0; -R]);
 
@@ -49,7 +49,10 @@ v_i_perp = simplify(dot(v_contact_i, w_i));
 constraints_i = [simplify_(v_i); simplify(v_i_perp)];
 
 % % Outer front wheel
-omega_o = [-phip_o*sin(theta); phip_o*cos(theta); thetap + deltap_o];
+[omega_o, ~] = omega(Ro, sys.kin.q, sys.kin.qp);
+omega_o(2) = phip_o;
+omega_o = Ro*omega_o;
+
 v_cg_o = [xp; yp; 0] + cross(omega_c, Rc*[w/2; L; 0]);
 v_contact_o = v_cg_o + cross(omega_o, Ro*[0; 0; -R]);
 
@@ -60,7 +63,10 @@ v_o = simplify(dot(v_contact_o, u_o));
 v_o_perp = simplify(dot(v_contact_o, w_o));
 
 % Inner back wheel
-omega_l = [-phip_l*sin(theta); phip_l*cos(theta); thetap];
+[omega_l, ~] = omega(Rl, sys.kin.q, sys.kin.qp);
+omega_l(2) = phip_l;
+omega_l = Rl*omega_l;
+
 v_cg_l = [xp; yp; 0] + cross(omega_c, Rc*[w/2; 0; 0]);
 
 v_contact_l = v_cg_l + cross(omega_l, Rl*[0; 0; -R]);
@@ -72,8 +78,11 @@ v_l = simplify(dot(v_contact_l, u_l));
 v_l_perp = simplify(dot(v_contact_l, w_l));
 
 % Outer back wheel
+[omega_r, ~] = omega(Rr, sys.kin.q, sys.kin.qp);
+omega_r(2) = phip_r;
+omega_r = Rl*omega_r;
+
 v_cg_r = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; 0; 0]);
-omega_r = [-phip_r*sin(theta); phip_r*cos(theta); thetap];
 v_contact_r = v_cg_r + cross(omega_r, Rr*[0; 0; -R]);
 
 w_r = Rr*[0; 1; 0];
@@ -84,8 +93,9 @@ v_r = dot(v_contact_r, u_r);
 vec_c = [Lc; 0; 0];
 v_cg = [xp; yp; 0] + cross(omega_c, Rc*vec_c);
 
-u_g = [cos(delta + theta); sin(delta + theta); 0];
+syms delta;
 
+u_g = [cos(delta + theta); sin(delta + theta); 0];
 proj_vu = dot(v_cg, u_g);
 
 [num_g, den_g] = numden(radius_g);
@@ -98,11 +108,6 @@ outer_wheel = simplify_((phip_l*R*num_g*den_l - proj_vu*num_l*den_g)/tan(delta_i
 inner_outer_wheel = simplify_((phip_i*num_o*den_i - phip_o*num_i*den_o)/tan(delta_i));
 left_right_wheel = simplify_((phip_l*num_r*den_l - phip_r*num_l*den_r)/tan(delta_i));
 left_inner_wheel = simplify_((phip_i*num_r*den_i - phip_r*num_i*den_r)/tan(delta_i));
-
-% outer_wheel = simplify_(phip_o*R*radius_g - proj_vu*radius_o);
-% inner_outer_wheel = simplify_(phip_i*radius_o - phip_o*radius_i);
-% left_right_wheel = simplify_(phip_l*radius_r - phip_r*radius_l);
-% left_inner_wheel = simplify_(phip_i*radius_r - phip_r*radius_i);
 
 sys.descrip.unhol_constraints = {[outer_wheel; inner_outer_wheel; ...
                                   left_right_wheel; left_inner_wheel; ...

@@ -25,6 +25,14 @@ dA = dmatdt(A, q, C*p);
 dC = dmatdt(C, q, C*p);
 M = sys.dyn.M;
 
+if(isempty(A))
+    A = 0;
+end
+
+if(isempty(dA))
+    dA = 0;
+end
+
 Q = sys.dyn.U*sys.descrip.u - sys.dyn.nu - sys.dyn.g - sys.dyn.f_b - sys.dyn.f_k;
 
 % Symbolic variables convenientlu grouped

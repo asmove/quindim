@@ -1,43 +1,28 @@
-syms kappa_i kappa_o kappa_r kappa_l real;
-syms dkappa_i dkappa_o dkappa_r dkappa_l real;
-
-syms alpha_i alpha_o alpha_r alpha_l real;
-syms dalpha_i dalpha_o dalpha_r dalpha_l real;
-
-theta = sys.kin.q(3);
-delta_i = sys.kin.q(4);
-delta_o = sys.kin.q(5);
-
-% Holonomic constraints - Inner and outer angles
-sys.descrip.hol_constraints = {tan(delta_i) - tan(delta_o) - (w/L)*tan(delta_i)*tan(delta_o)};
-
 L = sys.descrip.syms(end-2);
 w = sys.descrip.syms(end-3);
+R = sys.descrip.syms(end-4);
+
+varepsilon = w/L;
+
+syms delta
+
+% Holonomic constraints - Inner and outer angles
+sys.descrip.hol_constraints = {tan(delta_i) - tan(delta_o) - varepsilon*tan(delta_i)*tan(delta_o)};
 
 % Unholonomic constraints
-cot_delta = (1/tan(delta_o) + 1/tan(delta_i))/2;
-delta = acot(cot_delta);
-
-radius_1 = L*cot_delta;
-R_ = sqrt(R_1^2 + Lc^2);
-
-radius_i = (cos(alpha_l)/sin(delta_i - alpha_i + alpha_l))*L;
-
-h = radius_i*cos(delta_i - alpha_l);
-ell_1 = R_i*sin(delta_i - alpha_l);
-ell_2 = L - ell_1;
-
-radius_l = (cos(delta_i - alpha_i)/sin(delta_i - alpha_i + alpha_l))*L;
-radius_r = ell_1*csc(alpha_r);
-radius_o = ell_2*sec(delta_o + alpha_l);
-
+% Transformation and rotation matrices
 Rc = rot3d(theta, [0; 0; 1]);
 Ri = rot3d(theta + delta_i, [0; 0; 1]);
 Ro = rot3d(theta + delta_o, [0; 0; 1]);
 Rr = rot3d(theta, [0; 0; 1]);
 Rl = rot3d(theta, [0; 0; 1]);
 
-omega_c = [0; 0; thetap];
+radius_1 = w/2 + L/tan(delta_i);
+radius_g = radius_1/cos(delta);
+radius_l = radius_1 - w/2;
+radius_r = radius_1 + w/2;
+radius_i = radius_l/cos(delta_i);
+radius_o = radius_r/cos(delta_o);
 
 % Wheel aliases
 chassi = sys.descrip.bodies{1};
@@ -47,90 +32,91 @@ wheel_r = sys.descrip.bodies{4};
 wheel_l = sys.descrip.bodies{5};
 
 % Inner front wheel
-omega_i = [-phip_i*sin(theta); phip_i*cos(theta); thetap + deltap_i];
-
-v_cg_i = [xp; yp; 0] + cross(omega_c, Ri*[-w/2; L; 0]);
-v_i = v_cg_i + cross(omega_i, Ri*[0; 0; -R]);
+omega_c = omega(Rc, sys.kin.q, sys.kin.qp);
+[omega_i, ~] = omega(Ri, sys.kin.q, sys.kin.qp);
+omega_i(2) = phip_i;
+omega_i = Ri*omega_i;        
+        
+v_cg_i = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; L; 0]);
+v_contact_i = v_cg_i + cross(omega_i, Ri*[0; 0; -R]);
 
 u_i = Ri*[1; 0; 0];
 w_i = Ri*[0; 1; 0];
 
-proj_vi_ui = dot(v_i, u_i);
-v_s_i = -[kappa_i; kappa_i*tan(alpha_i); 0]*proj_vi_ui;
-v_center_i = v_s_i + cross(omega_i, Ri*[0; 0; R]);
-
-v_proj_ui = dot(v_i, u_i);
-v_proj_wi = dot(v_i, w_i);
-
 v_i = simplify(dot(v_contact_i, u_i));
 v_i_perp = simplify(dot(v_contact_i, w_i));
+
 constraints_i = [simplify_(v_i); simplify(v_i_perp)];
 
-Rsi = rot3d(theta + delta_i - alpha_i, [0; 0; 1]);
-u_s_i = Rsi*[1; 0; 0];
-w_s_i = Rsi*[0; 1; 0];
+% % Outer front wheel
+[omega_o, ~] = omega(Ro, sys.kin.q, sys.kin.qp);
+omega_o(2) = phip_o;
+omega_o = Ro*omega_o;
 
-v_piv_i = dot(v_center_i, u_s_i);
-
-% Outer front wheel
-omega_o = [-phip_o*sin(theta); phip_o*cos(theta); thetap + deltap_o];
 v_cg_o = [xp; yp; 0] + cross(omega_c, Rc*[w/2; L; 0]);
-v_o = v_cg_o + cross(omega_o, Ro*[0; 0; -R]);
+v_contact_o = v_cg_o + cross(omega_o, Ro*[0; 0; -R]);
 
 u_o = Ro*[1; 0; 0];
 w_o = Ro*[0; 1; 0];
 
-proj_vo_uo = dot(v_o, u_o);
-v_s_o = -[kappa_o; kappa_o*tan(alpha_o); 0]*proj_vo_uo;
-v_center_o = v_s_o + cross(omega_o, Ro*[0; 0; R]);
-
-Rso = rot3d(theta + delta_o - alpha_o, [0; 0; 1]);
-u_s_o = Rso*[1; 0; 0];
-w_s_o = Rso*[0; 1; 0];
-
-v_piv_o = dot(v_center_o, u_s_o);
+v_o = simplify(dot(v_contact_o, u_o));
+v_o_perp = simplify(dot(v_contact_o, w_o));
 
 % Inner back wheel
-omega_l = [-phip_l*sin(theta); phip_l*cos(theta); thetap];
+[omega_l, ~] = omega(Rl, sys.kin.q, sys.kin.qp);
+omega_l(2) = phip_l;
+omega_l = Rl*omega_l;
+
 v_cg_l = [xp; yp; 0] + cross(omega_c, Rc*[w/2; 0; 0]);
-v_l = v_cg_l + cross(omega_l, Rl*[0; 0; -R]);
+
+v_contact_l = v_cg_l + cross(omega_l, Rl*[0; 0; -R]);
 
 u_l = Rl*[1; 0; 0];
 w_l = Rl*[0; 1; 0];
 
-proj_vl_ul = dot(v_l, u_l);
-v_s_l = -[kappa_l; kappa_l*tan(alpha_l); 0]*proj_vl_ul;
-v_center_l = v_s_l + cross(omega_l, Rl*[0; 0; R]);
-
-Rsl = rot3d(theta + alpha_l, [0; 0; 1]);
-u_s_l = Rsl*[1; 0; 0];
-w_s_l = Rsl*[0; 1; 0];
-
-v_piv_l = dot(v_center_o, u_s_o);
+v_l = simplify(dot(v_contact_l, u_l));
+v_l_perp = simplify(dot(v_contact_l, w_l));
 
 % Outer back wheel
-omega_r = [-phip_r*sin(theta); phip_r*cos(theta); thetap];
+[omega_r, ~] = omega(Rr, sys.kin.q, sys.kin.qp);
+omega_r(2) = phip_r;
+omega_r = Rl*omega_r;
+
 v_cg_r = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; 0; 0]);
-v_r = v_cg_r + cross(omega_r, Rr*[0; 0; -R]);
+v_contact_r = v_cg_r + cross(omega_r, Rr*[0; 0; -R]);
 
-v_contact_r = [xp; yp; 0] + cross(omega_r, Rr*[0; 0; -R]);
-v_r = v_cg_r + cross(omega_r, Ro*[0; 0; -R]);
-
-u_r = Rr*[1; 0; 0];
 w_r = Rr*[0; 1; 0];
+u_r = Rr*[1; 0; 0];
 
-proj_vr_ur = dot(v_r, u_r);
-v_s_r = -[kappa_r; kappa_r*tan(alpha_r); 0]*proj_vr_ur;
-v_center_r = v_s_r + cross(omega_r, Rr*[0; 0; R]);
+v_r = dot(v_contact_r, u_r);
 
-Rsr = rot3d(theta + alpha_r, [0; 0; 1]);
-u_s_r = Rsr*[1; 0; 0];
-w_s_r = Rsr*[0; 1; 0];
+vec_c = [Lc; 0; 0];
+v_cg = [xp; yp; 0] + cross(omega_c, Rc*vec_c);
 
-v_piv_r = dot(v_center_o, u_s_o);
+syms delta;
 
-back_right_wheel = v_piv_i*radius_o - v_piv_o*radius_i;
-inner_outer_wheel = v_piv_l*radius_r - v_piv_r*radius_l;
+u_g = [cos(delta + theta); sin(delta + theta); 0];
+proj_vu = dot(v_cg, u_g);
 
-sys.descrip.unhol_constraints = {[back_right_wheel; inner_outer_wheel; constraints_i]};
+[num_g, den_g] = numden(radius_g);
+[num_i, den_i] = numden(radius_i);
+[num_o, den_o] = numden(radius_o);
+[num_r, den_r] = numden(radius_r);
+[num_l, den_l] = numden(radius_l);
+
+outer_wheel = simplify_((phip_l*R*num_g*den_l - proj_vu*num_l*den_g)/tan(delta_i));
+inner_outer_wheel = simplify_((phip_i*num_o*den_i - phip_o*num_i*den_o)/tan(delta_i));
+left_right_wheel = simplify_((phip_l*num_r*den_l - phip_r*num_l*den_r)/tan(delta_i));
+left_inner_wheel = simplify_((phip_i*num_r*den_i - phip_r*num_i*den_r)/tan(delta_i));
+
+sys.descrip.unhol_constraints = {[outer_wheel; inner_outer_wheel; ...
+                                  left_right_wheel; left_inner_wheel; ...
+                                  constraints_i]};
+
+A_hol = jacobian(sys.descrip.hol_constraints, sys.kin.q);
+A_unhol = equationsToMatrix(sys.descrip.unhol_constraints, sys.kin.qp);
+
+A = [A_hol; A_unhol];
+C = simplify_(null(A));
+
 

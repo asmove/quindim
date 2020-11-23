@@ -1,5 +1,6 @@
 % External excitations
-sys.descrip.Fq = [0; 0; 0; 0; 0; f_phi_i; f_phi_o; f_phi_r; f_phi_l];
+sys.descrip.Fq = [0; 0; 0; 0; ...
+                  f_delta_o; f_phi_i; f_phi_o; f_phi_r; f_phi_l];
 sys.descrip.u = [f_phi_i; f_phi_o; f_phi_r; f_phi_l];
 
 % State space representation
