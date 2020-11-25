@@ -4,7 +4,7 @@ R = sys.descrip.syms(end-4);
 
 varepsilon = w/L;
 
-syms delta
+syms upsilon eta
 
 % Holonomic constraints - Inner and outer angles
 sys.descrip.hol_constraints = {tan(delta_i) - tan(delta_o) - varepsilon*tan(delta_i)*tan(delta_o)};
@@ -93,9 +93,11 @@ v_r = dot(v_contact_r, u_r);
 vec_c = [Lc; 0; 0];
 v_cg = [xp; yp; 0] + cross(omega_c, Rc*vec_c);
 
-syms delta;
+syms delta sigma_i sigma_o sigma_r sigma_l;
 
-u_g = [cos(delta + theta); sin(delta + theta); 0];
+u_g = [cos(theta - pi + eta + upsilon + alpha_r); ...
+       sin(theta - pi + eta + upsilon + alpha_r); ...
+       0];
 proj_vu = dot(v_cg, u_g);
 
 [num_g, den_g] = numden(radius_g);

@@ -4,7 +4,8 @@ syms dkappa_i dkappa_o dkappa_r dkappa_l real;
 syms alpha_i alpha_o alpha_r alpha_l real;
 syms dalpha_i dalpha_o dalpha_r dalpha_l real;
 
-syms sigma delta delta_L ell real;
+syms upsilon eta delta delta_L real;
+syms sigma_i sigma_o sigma_r sigma_l real;
 
 L = sys.descrip.syms(end-2);
 w = sys.descrip.syms(end-3);
@@ -32,8 +33,6 @@ ell_2 = L - ell_1;
 radius_l = h*sec(alpha_l);
 radius_r = (w + h)*sec(alpha_r);
 radius_o = (w + h)*sec(delta_o + alpha_o);
-
-radius_1 = sqrt(ell^2 + (h + w/2)^2);
 
 % Wheel aliases
 chassi = sys.descrip.bodies{1};
@@ -66,7 +65,7 @@ Rsi = rot3d(theta + delta_i - alpha_i, [0; 0; 1]);
 u_s_i = Rsi*[1; 0; 0];
 w_s_i = Rsi*[0; 1; 0];
 
-v_piv_i = dot(v_center_i, u_s_i);
+v_piv_i = simplify_(dot(v_center_i, u_s_i));
 
 constraints_i = [simplify_(proj_vi_ui - (-kappa_i*proj_vg_ui)); ...
                  simplify_(proj_vi_wi - (-kappa_i*tan(alpha_i))*proj_vg_ui)];
@@ -85,14 +84,15 @@ w_o = Ro*[0; 1; 0];
 proj_vg_uo = dot(v_cg_o, u_o);
 proj_vo_uo = dot(v_o, u_o);
 
-v_s_o = -kappa_o*[1; tan(alpha_o); 0]*proj_vg_uo;
+s_o = kappa_o*[1; tan(alpha_o); 0];
+v_s_o = -s_o*proj_vg_uo;
 v_center_o = v_s_o + cross(omega_o, Ro*[0; 0; R]);
 
 Rso = rot3d(theta + delta_o - alpha_o, [0; 0; 1]);
 u_s_o = Rso*[1; 0; 0];
 w_s_o = Rso*[0; 1; 0];
 
-v_piv_o = dot(v_center_o, u_s_o);
+v_piv_o = simplify_(dot(v_center_o, u_s_o));
 
 % Inner back wheel
 [omega_l, ~] = omega(Rl, sys.kin.q, sys.kin.qp);
@@ -108,14 +108,15 @@ w_l = Rl*[0; 1; 0];
 proj_vg_ul = dot(v_cg_l, u_l);
 proj_vl_ul = dot(v_l, u_l);
 
-v_s_l = -kappa_l*[1; tan(alpha_l); 0]*proj_vg_ul;
+s_l = kappa_l*[1; tan(alpha_l); 0];
+v_s_l = -s_l*proj_vg_ul;
 v_center_l = v_s_l + cross(omega_l, Rl*[0; 0; R]);
 
 Rsl = rot3d(theta + alpha_l, [0; 0; 1]);
 u_s_l = Rsl*[1; 0; 0];
 w_s_l = Rsl*[0; 1; 0];
 
-v_piv_l = dot(v_center_l, u_s_l);
+v_piv_l = simplify_(dot(v_center_l, u_s_l));
 
 % Outer back wheel
 [omega_r, ~] = omega(Rr, sys.kin.q, sys.kin.qp);
@@ -134,46 +135,41 @@ w_r = Rr*[0; 1; 0];
 proj_vg_ur = dot(v_cg_r, u_r);
 proj_vr_ur = dot(v_r, u_r);
 
-v_s_r = -kappa_r*[1; tan(alpha_r); 0]*proj_vg_ur;
+s_r = kappa_r*[1; tan(alpha_r); 0];
+v_s_r = -s_r*proj_vg_ur;
 v_center_r = v_s_r + cross(omega_r, Rr*[0; 0; R]);
 
 Rsr = rot3d(theta + alpha_r, [0; 0; 1]);
 u_s_r = Rsr*[1; 0; 0];
 w_s_r = Rsr*[0; 1; 0];
 
-v_piv_r = dot(v_center_r, u_s_r);
+v_piv_r = simplify_(dot(v_center_r, u_s_r));
 
 v_cg = [xp; yp; 0] + cross(omega_c, Rc*[0; Lc; 0]);
-u_delta = [cos(theta + sigma); sin(theta + sigma); 0];
+u_g = [cos(theta + pi/2 - upsilon - eta - alpha_r); ...
+       sin(theta + pi/2 - upsilon - eta - alpha_r); ...
+       0];
 
-sigma_subs = acos(radius_1/(h+w/2));
+radius_g = (sin(upsilon)/sin(eta))*radius_r;
+proj_v_cg = simplify_(dot(v_cg, u_g));
 
-proj_v_cg = dot(v_cg, u_delta);
+tan_iil = sin(delta_i - alpha_i + alpha_l)/cos(delta_i - alpha_l);
 
-sin_iil = sin(delta_i - alpha_i + alpha_l);
-tan_iil = sin(-delta_i + alpha_i + alpha_l)/(cos(alpha_r)*cos(delta_i - alpha_i));
+% outer_wheel = simplify_((v_piv_l*radius_g - proj_v_cg*radius_l));
+% inner_outer_wheel = simplify_(v_piv_i*radius_o - v_piv_o*radius_i);
+% left_right_wheel = simplify_(v_piv_l*radius_r - v_piv_r*radius_l);
+% left_inner_wheel = simplify_(v_piv_r*radius_i - v_piv_i*radius_r);
 
-[num_g, den_g] = numden(radius_g);
-[num_i, den_i] = numden(radius_i);
-[num_o, den_o] = numden(radius_o);
-[num_r, den_r] = numden(radius_r);
-[num_l, den_l] = numden(radius_l);
+v_piv_i_sym = simplify_(-sigma_i*proj_vg_ui + simplify_(dot(cross(omega_i, Ri*[0; 0; -R]), u_s_i)));
+v_piv_o_sym = simplify_(-sigma_o*proj_vg_uo + simplify_(dot(cross(omega_o, Ro*[0; 0; -R]), u_s_o)));
+v_piv_r_sym = simplify_(-sigma_r*proj_vg_ur + simplify_(dot(cross(omega_r, Rr*[0; 0; -R]), u_s_r)));
+v_piv_l_sym = simplify_(-sigma_l*proj_vg_ul + simplify_(dot(cross(omega_l, Rl*[0; 0; -R]), u_s_l)));
 
-outer_wheel = simplify_(v_piv_l*radius_g - proj_v_cg*radius_l);
-inner_outer_wheel = simplify_(v_piv_r*radius_o - v_piv_o*radius_r);
-left_right_wheel = simplify_(v_piv_l*radius_r - v_piv_r*radius_l);
-left_inner_wheel = simplify_(v_piv_r*radius_o - v_piv_o*radius_r);
+outer_wheel_sym = simplify_(v_piv_l_sym*radius_g - proj_v_cg*radius_l);
+inner_outer_wheel_sym = simplify_(v_piv_i_sym*radius_o - v_piv_o_sym*radius_i);
+left_right_wheel_sym = simplify_(v_piv_l_sym*radius_r - v_piv_r_sym*radius_l);
+left_inner_wheel_sym = simplify_(v_piv_r_sym*radius_i - v_piv_i_sym*radius_r);
 
-[~, den_ow] = numden(outer_wheel);
-[num_iow, den_iow] = numden(inner_outer_wheel);
-[~, den_lrw] = numden(left_right_wheel);
-[~, den_liw] = numden(left_inner_wheel);
-
-outer_wheel = outer_wheel*den_ow/R;
-inner_outer_wheel = inner_outer_wheel*den_iow*R/(32*num_o);
-left_right_wheel = left_right_wheel*den_lrw/(R*cos(alpha_l - delta_i));
-left_inner_wheel = left_inner_wheel*den_liw/(32*R);
-
-sys.descrip.unhol_constraints = {[outer_wheel; inner_outer_wheel; ...
-                                  left_right_wheel; left_inner_wheel; constraints_i]};
-
+sys.descrip.unhol_constraints = simplify_([outer_wheel_sym; inner_outer_wheel_sym; ...
+                                           left_right_wheel_sym; left_inner_wheel_sym; ...
+                                           constraints_i]);

@@ -1,4 +1,4 @@
-    L = sys.descrip.syms(end-2);
+L = sys.descrip.syms(end-2);
 w = sys.descrip.syms(end-3);
 R = sys.descrip.syms(end-4);
 
