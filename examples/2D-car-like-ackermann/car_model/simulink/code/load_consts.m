@@ -35,8 +35,8 @@ wheel_l = sys.descrip.bodies{5};
 omega_c = omega(Rc, sys.kin.q, sys.kin.qp);
 [omega_i, ~] = omega(Ri, sys.kin.q, sys.kin.qp);
 omega_i(2) = phip_i;
-omega_i = Ri*omega_i;        
-        
+omega_i = Ri*omega_i;    
+    
 v_cg_i = [xp; yp; 0] + cross(omega_c, Rc*[-w/2; L; 0]);
 v_contact_i = v_cg_i + cross(omega_i, Ri*[0; 0; -R]);
 
@@ -96,7 +96,7 @@ v_cg = [xp; yp; 0] + cross(omega_c, Rc*vec_c);
 syms delta;
 
 u_g = [cos(delta + theta); sin(delta + theta); 0];
-proj_vu = dot(v_cg, u_g);
+proj_v_cg = dot(v_cg, u_g);
 
 [num_g, den_g] = numden(radius_g);
 [num_i, den_i] = numden(radius_i);
@@ -104,14 +104,41 @@ proj_vu = dot(v_cg, u_g);
 [num_r, den_r] = numden(radius_r);
 [num_l, den_l] = numden(radius_l);
 
-outer_wheel = simplify_((phip_l*R*num_g*den_l - proj_vu*num_l*den_g)/tan(delta_i));
+A_hol = jacobian(sys.descrip.hol_constraints{1}, sys.kin.q);
+
+v_piv_g_sym_vec = simplify(equationsToMatrix(proj_v_cg, sys.kin.qp));
+v_piv_i_sym_vec = simplify(equationsToMatrix(phip_i*R, sys.kin.qp));
+v_piv_o_sym_vec = simplify(equationsToMatrix(phip_o*R, sys.kin.qp));
+v_piv_r_sym_vec = simplify(equationsToMatrix(phip_r*R, sys.kin.qp));
+v_piv_l_sym_vec = simplify(equationsToMatrix(phip_l*R, sys.kin.qp));
+v_i_vec = simplify(equationsToMatrix(v_i, sys.kin.qp));
+v_i_perp_vec = simplify(equationsToMatrix(v_i_perp, sys.kin.qp));
+
+v_proj_vec = [A_hol; v_piv_g_sym_vec; v_piv_i_sym_vec; v_piv_o_sym_vec; ...
+              v_piv_r_sym_vec; v_piv_l_sym_vec; v_i_vec; v_i_perp_vec];
+
+B = [-radius_l, 0, 0, 0, radius_g, 0, 0;
+             0, -radius_o, radius_i, 0, 0, 0, 0;
+             0, 0, 0, -radius_l, radius_r, 0, 0;
+             0, -radius_r, 0, radius_i, 0, 0, 0
+             0, 0, 0, 0, 0, 1, 0 ;
+             0, 0, 0, 0, 0, 0, 1];
+
+B(1, :) = B(1, :)*tan(delta_i)*cos(delta_i);
+B(2, :) = B(2, :)*tan(delta_i)*cos(delta_i);
+B(3, :) = B(3, :)*tan(delta_i)*cos(delta_i);
+B(4, :) = B(4, :)*tan(delta_i)*cos(delta_i);
+
+B = simplify_(B);
+
+outer_wheel = simplify_((phip_l*R*num_g*den_l - proj_v_cg*num_l*den_g)/tan(delta_i));
 inner_outer_wheel = simplify_((phip_i*num_o*den_i - phip_o*num_i*den_o)/tan(delta_i));
 left_right_wheel = simplify_((phip_l*num_r*den_l - phip_r*num_l*den_r)/tan(delta_i));
 left_inner_wheel = simplify_((phip_i*num_r*den_i - phip_r*num_i*den_r)/tan(delta_i));
 
 sys.descrip.unhol_constraints = {[outer_wheel; inner_outer_wheel; ...
-                                  left_right_wheel; left_inner_wheel; ...
-                                  constraints_i]};
+                 left_right_wheel; left_inner_wheel; ...
+                 constraints_i]};
 
 A_hol = jacobian(sys.descrip.hol_constraints, sys.kin.q);
 A_unhol = equationsToMatrix(sys.descrip.unhol_constraints, sys.kin.qp);

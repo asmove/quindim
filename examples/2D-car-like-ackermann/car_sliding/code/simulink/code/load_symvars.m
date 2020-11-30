@@ -1,5 +1,5 @@
 syms g;
-syms f_phi_i f_phi_o f_phi_r f_phi_l;
+syms f_phi_i f_phi_o f_phi_r f_phi_l f_delta_i real;
 
 % Body 1
 syms mc mi mo mr ml R real;

@@ -5,8 +5,8 @@ function sys = constraints_props(sys)
     sys.kin.As = {A};
     sys.kin.Cs = {C};
     
-    sys.kin.A = A;
-    sys.kin.C = C;
+    sys.kin.A = simplify_(A);
+    sys.kin.C = simplify_(C);
     
     [~, m] = size(C);
     
