@@ -11,7 +11,7 @@ function sys = eqdyns(sys, method)
     % Default method: Lagrange
     switch nargin
         case 1
-            error('Choose either lagrange or orsino methods for dynamic methods.');    
+            error('Choose lagrange for dynamic methods. Future methods might exist.');    
     end
     
     % Dynamic equations by chosen method

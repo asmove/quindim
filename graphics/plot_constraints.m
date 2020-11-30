@@ -52,6 +52,11 @@ function hfig = plot_constraints(sys, time, states)
         C = sys.kin.Cs(i);
         C = C{1};
         
+        C_num = vpa(subs(C, syms, model_params));
+        
+        % Find symbolic variables
+        idxs = find_elems(symvar(C_num), q_s);
+        
         % Previous velocity
         if(i == 1)
             p_s_1 = sys.kin.qp;
@@ -78,25 +83,26 @@ function hfig = plot_constraints(sys, time, states)
                 q_i = q_n(:, k);
                 p_i = p_n(:, k);
                 
-                syms_params = [q_s.', p_s.',  syms];
-                num_params = [q_i', p_i', model_params];
+                syms_params = q_s.';
+                num_params = q_i';
                 
-                p_n_1(:, k) = double(subs(C*p_s, ...
-                                          syms_params, num_params))';
+                p_n_1(:, k) = double(subs(C_num*p_i, ...
+                                          syms_params(idxs), ...
+                                          num_params((idxs))))';
                 
                 i_acc = i_acc + 1;
                 wb.update_waitbar(i_acc, bar_len);
             end
-
+            
+            A_num = subs(A, syms, model_params);
+            idxs = find_elems(symvar(A_num), q_s);
+            
             % Each time instant
             for k = 1:n_t
                 p_n_1_i = p_n_1(:, i);
                 q_n_1_i = q_n(:, i);
                 
-                qp_pars_s = [q_s; p_s_1; syms.'];
-                qp_pars_n = [q_n_1_i; p_n_1_i; model_params'];
-                
-                consts = vpa(subs(A_s*p_s_1, qp_pars_s, qp_pars_n));
+                consts = vpa(subs(A_num*p_n_1_i, q_s(idxs), q_n_1_i(idxs)));
 
                 unhol(i, acc + j) = double(consts(j));
             

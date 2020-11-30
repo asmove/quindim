@@ -1,4 +1,4 @@
-function [omega_b, omega_n] = omega(R, q, qp)
+function [omega_n, omega_b] = omega(R, q, qp)
     Somega = skew_matrix(R, q, qp);
     omega = simplify_(unskew(Somega));
     omega_n = simplify(omega);

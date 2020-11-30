@@ -1,4 +1,5 @@
 function [A, C] = constraint_matrices(sys)
+    % System contraints
     is_contrained = sys.descrip.is_constrained;
     is_holonomic = isfield(sys.descrip, {'hol_constraints'});
     is_nonholonomic = isfield(sys.descrip, {'unhol_constraints'});
@@ -15,7 +16,7 @@ function [A, C] = constraint_matrices(sys)
             constraints = sys.descrip.hol_constraints;
             
             A = jacobian(constraints, sys.kin.q);
-            C = simplify_(null(A));
+            C = null(A);
             
         else
             hol_constraints = sys.descrip.hol_constraints;
@@ -25,7 +26,7 @@ function [A, C] = constraint_matrices(sys)
             A_unhol = equationsToMatrix(unhol_constraints, sys.kin.qp);
             
             A = [A_hol; A_unhol];
-            C = simplify_(null(A));
+            C = null(A);
         end
     else
         A = [];
@@ -36,6 +37,8 @@ function [A, C] = constraint_matrices(sys)
         sys.kin.pp = sym('pp', size(sys.kin.qp));
     end
     
+% % Kinematic matrix without denominator     
+%     
 %     C = sym(dedenominatorify(C, sys.kin.q));
 %     
 %     [num_C, den_C] = numden(C);

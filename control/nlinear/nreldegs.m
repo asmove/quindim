@@ -42,15 +42,12 @@ function reldeg_struct = nreldegs(f, G, y, x)
                 j = j + 1;
                 transfs = [transfs; lie_i_f_hi];
                 
-                % Lie of (i-th Lie derivative of hi ...
-                % respective f) respective to G
+                % Lie of (i-th Lie derivative of hi  respective f) respective to G
                 lie_G = sym([]);
+                
                 for k = 1:m
                     gk = G_tilde(:, k);
-                    
-                    lie_gk = simplify_(lie_diff(gk, ...
-                                                lie_i_f_hi, ...
-                                                states_tilde));
+                    lie_gk = simplify_(lie_diff(gk, lie_i_f_hi, states_tilde));
                     lie_G(end+1) = lie_gk;
                 end
                 
@@ -63,10 +60,10 @@ function reldeg_struct = nreldegs(f, G, y, x)
                     deltas(end+1) = j;
                     break;
                 end
-
-                lie_i_f_hi = simplify_(lie_diff(f_tilde, ...
-                                                lie_i_f_hi, ...
-                                                states_tilde));
+                
+                Delta
+                
+                lie_i_f_hi = simplify_(lie_diff(f_tilde, lie_i_f_hi, states_tilde));
             end
 
             % Vector with Lie derivative
@@ -97,10 +94,8 @@ function reldeg_struct = nreldegs(f, G, y, x)
             beta_1 = beta(:, 1:rank_Delta);
             beta_2 = beta(:, rank_Delta+1:end);
 
-            z_tilde = sym(sprintf('z_%s', ...
-                                  num2str(pos_z)), ...
-                                  [rank_Delta, 1]);
-
+            z_tilde = sym(sprintf('z_%s', num2str(pos_z)), [rank_Delta, 1]);
+            
             f_tilde = [f_tilde + G_tilde*beta_1*z_tilde; ...
                        zeros([rank_Delta, 1])];
 
