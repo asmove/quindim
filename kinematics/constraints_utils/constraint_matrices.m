@@ -4,6 +4,9 @@ function [A, C] = constraint_matrices(sys)
     is_holonomic = isfield(sys.descrip, {'hol_constraints'});
     is_nonholonomic = isfield(sys.descrip, {'unhol_constraints'});
     
+    is_holonomic
+    is_nonholonomic
+    
     % Unholonomic constraitns
     if(is_contrained)
         if(is_nonholonomic && ~is_holonomic)

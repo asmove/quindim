@@ -1,13 +1,12 @@
 % Author: Bruno Peixoto
 % Date: 08/01/19
 
-% if(exist('CLEAR_ALL'))
-%     if(CLEAR_ALL)
-%         clear all
-%     end
-% end
+if(exist('CLEAR_ALL'))
+    if(CLEAR_ALL)
+        clear all
+    end
+end
 
-clear all
 close all
 clc
 

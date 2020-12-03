@@ -42,6 +42,7 @@ function sys = lagrange_eqdyn(sys)
     P = sys.dyn.P;
     F = sys.dyn.F;
     Fq = sys.descrip.Fq;
+    u = sys.descrip.u;
     
     % Derivative of L respective to q
     dL_dq = jacobian(L, q).';
@@ -94,7 +95,14 @@ function sys = lagrange_eqdyn(sys)
     % Dynamic equation respective to generalized coordinate qi
     helper.l_r = leqdyns - reqdyns;
     
-    sys.dyn.U = equationsToMatrix(Fq, sys.descrip.u);
+    if(~any(Fq))
+        sys.dyn.U = zeros(length(q), length(u));
+    else
+        sys.dyn.U = equationsToMatrix(Fq, u);
+    end
+    
+    
+    
     helper.leqdyns = leqdyns;
     helper.reqdyns = reqdyns;
     helper.m_term = m_term;

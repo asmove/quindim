@@ -37,7 +37,7 @@ wb = my_waitbar(title);
 
 n = length(filenames_code);
 
-for i = (length(filenames_code) - 1):length(filenames_code)
+for i = 1:n
     t0 = tic;
     fname = filenames_code{i};
     saved_progress = findstr(fname, 'slprj');
