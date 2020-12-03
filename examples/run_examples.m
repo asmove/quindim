@@ -3,7 +3,32 @@ close all
 clc
 
 filepath = '~/github/Robotics4fun/examples';
-filenames_code = genpath_code(filepath);
+filenames_code_ = genpath_code(filepath);
+
+% Clear slprj projects
+for i = 1:length(filenames_code_)
+    fname = filenames_code_{i};
+    
+    kwds = {'slprj', 'WIP'};
+    
+    is_kwd = false;
+    for j = 1:length(kwds)
+        is_kwd = is_kwd|contains(fname, kwds{j});
+    end
+    
+    if(is_kwd)
+        filenames_code_{i} = [];
+    end
+end
+
+filenames_code = {};
+for i = 1:length(filenames_code_)
+    fname = filenames_code_{i};
+    
+    if(~isempty(fname))
+        filenames_code{end+1} = fname;
+    end
+end
 
 CLEAR_ALL = false;
 
@@ -12,20 +37,23 @@ wb = my_waitbar(title);
 
 n = length(filenames_code);
 
-for i = 1:n
-    disp(filenames_code{i});
+for i = (length(filenames_code) - 1):length(filenames_code)
+    t0 = tic;
+    fname = filenames_code{i};
+    saved_progress = findstr(fname, 'slprj');
     
-    saved_progress = findstr(filenames_code{i}, 'slprj');
+    split_fname = strsplit(filenames_code{i}, '/');
+    
+    example_fname = split_fname{5};
+    
+    wb.change_title(example_fname);
     
     if(isempty(saved_progress))
-        run([filenames_code{i}, '/main.m']); 
-        
-        preload_file = [filenames_code{i}, '/slprj'];
-        has_preload = exist(preload_file);
         
         try
-            rmdir(has_preload);
+            run([fname, '/main.m']);
         catch error
+            disp([fname, ': ERROR']);
             disp(error.message);
         end
     end
@@ -33,4 +61,6 @@ for i = 1:n
     close all;
     
     wb.update_waitbar(i, n);
+
+    toc(t0)
 end

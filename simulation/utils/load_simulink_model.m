@@ -1,18 +1,29 @@
-function [] = load_simulink_model(model, paths, fun_names, Outputs, expr_syms, vars)
+function [] = load_simulink_model(model_name, paths, fun_names, Outputs, expr_syms, vars)
+% Description: 
+% Inputs:
+%   model_name:
+%   paths: 
+%   fun_names:  
+%   Outputs:  
+%   expr_syms:  
+%   vars:
+% 
+% Outputs:
+% 
 
     for expr_sym = expr_syms
         if(isempty(expr_sym))
-            expr_sym = 0;
+            expr_sym = sym(0);
         end
     end
 
     n = length(paths);
 
-    open_system(model);
+    open_system(model_name);
     sf = Simulink.Root;
 
     for i = 1:n
-        path = [model, '/', paths{i}];
+        path = [model_name, '/', paths{i}];
         block = sf.find('Path', path, '-isa','Stateflow.EMChart');
 
         % Properties of the file
@@ -58,6 +69,6 @@ function [] = load_simulink_model(model, paths, fun_names, Outputs, expr_syms, v
         delete(fname);
     end
 
-    save_system(model);
-    close_system(model);
+    save_system(model_name);
+    close_system(model_name);
 end

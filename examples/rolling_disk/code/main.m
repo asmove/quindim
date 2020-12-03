@@ -25,8 +25,8 @@ I = diag(Is);
 % Rotations to body
 T1 = T3d(0, [0; 0; 1], [x; y; R]);
 T2 = T3d(theta, [0; 0; 1], [0; 0; 0]);
-T3 = T3d(phi, [0; -1; 0], [0; 0; 0]);
-Ts = {T1, T2, T3};
+
+Ts = {T1, T2};
 
 % CG position relative to body coordinate system
 L = [0; 0; 0];
@@ -42,6 +42,9 @@ previous = struct('');
 wheel = build_body(m, I, Ts, L, {}, {}, ...
                    sys.kin.q, sys.kin.qp, sys.kin.qpp, ...
                    previous, []);
+
+wheel = update_omega(wheel, wheel.R, [0; phip; 0]);
+
 sys.descrip.bodies = {wheel};
 
 % Gravity utilities
@@ -104,26 +107,27 @@ sys.descrip.is_constrained = false;
 sys = kinematic_model(sys);
 
 T12 = T1*T2;
-T = T12*T3;
 R12 = T12(1:3, 1:3);
-R_ = T(1:3, 1:3);
 
 v_cg = simplify_(sys.descrip.bodies{1}.v_cg);
-[~, omega_] = omega(R_, sys.kin.q, sys.kin.qp);
 
-v_contact = v_cg + cross(omega_, R12*[0; 0; -R]);
+v_contact = v_cg + cross(wheel.omega, R12*[0; 0; -R]);
+
+u = R12*[1; 0; 0];
 w = R12*[0; 1; 0];
-constraints = simplify_(dot(v_contact, w));
+constraints = {simplify_(dot(v_contact, w)), ...
+               simplify_(dot(v_contact, u))};
 
 sys.descrip.is_constrained = true;
 sys.descrip.unhol_constraints = constraints;
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);
-sys = dynamic_model(sys);
+[~, cos_psi] = numden(sys.kin.C(1, 1));
+sys.kin.C(:, 1) = sys.kin.C(:, 1)*cos_psi;
+sys.kin.C(:, 2) = sys.kin.C(:, 2)*cos_psi;
 
-A = [1, 0, -R];
-sys = constrain_system(sys, A);
+sys = dynamic_model(sys);
 
 % Time [s]
 dt = 0.1;
@@ -175,7 +179,7 @@ else
         plot_info_q.ylabels = {'$x$', '$y$', '$\theta$', '$\phi$'};
         plot_info_q.grid_size = [2, 2];
 
-        hfigs_states = my_plot(x, y(:, 1:4), plot_info_q);
+        hfigs_states = my_plot(tspan, x(:, 1:4), plot_info_q);
 
         plot_info_p.titles = repeat_str('', 2);
         plot_info_p.xlabels = {'$t$ [s]', '$t$ [s]'};
@@ -183,11 +187,11 @@ else
         plot_info_p.grid_size = [2, 1];
 
         % States plot
-        hfigs_speeds = my_plot(x, y(:, 5:end), plot_info_p);
-
+        hfigs_speeds = my_plot(tspan, x(:, 5:end), plot_info_p);
+        
         % Energies plot
-        hfig_energies = plot_energies(sys, t, x);
-        hfig_consts = plot_constraints(sys, t, x);
+        hfig_energies = plot_energies(sys, tspan, x);
+        hfig_consts = plot_constraints(sys, tspan, x);
 
         % Images
         saveas(hfig_energies, '../images/energies', 'epsc');

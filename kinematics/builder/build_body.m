@@ -29,6 +29,15 @@ function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
     % Body position transformations
     body.T = collapse_transformations(Ts);
     
+    body.R = body.T(1:3, 1:3);
+    body.R
+    q
+    qp
+    
+    body.d = body.T(1:3, 1);
+    
+    body.omega = omega(body.R, q, qp);
+    
     body.dampers = dampers;
     body.springs = springs;
     

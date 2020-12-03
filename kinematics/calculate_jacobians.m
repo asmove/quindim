@@ -26,8 +26,7 @@ function sys = calculate_jacobians(sys)
         v_cg = sys.descrip.bodies{i}.v_cg;
         
         % Body angular velocity
-        R = body_curr.T(1:3, 1:3);
-        omega_ = omega(R, x, xp);
+        omega_ = body_curr.omega;
         
         sys.descrip.bodies{i}.omega = simplify_(omega_);
         
