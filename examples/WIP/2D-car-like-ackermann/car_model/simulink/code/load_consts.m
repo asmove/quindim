@@ -18,7 +18,7 @@ Rr = rot3d(theta, [0; 0; 1]);
 Rl = rot3d(theta, [0; 0; 1]);
 
 radius_1 = w/2 + L/tan(delta_i);
-radius_g = radius_1/cos(delta);
+radius_g = sqrt(Lc^2 + radius_1^2);
 radius_l = radius_1 - w/2;
 radius_r = radius_1 + w/2;
 radius_i = radius_l/cos(delta_i);

@@ -1,6 +1,6 @@
-qc = [x_pos, y_pos, theta];
-qpc = [xp, yp, thetap];
-qppc = [xpp, ypp, thetapp];
+qc = [x_pos, y_pos, theta].';
+qpc = [xp, yp, thetap].';
+qppc = [xpp, ypp, thetapp].';
 
 qi = [x_pos, y_pos, theta, phi_i, delta_i].';
 qpi = [xp, yp, thetap, phip_i, deltap_i].';
