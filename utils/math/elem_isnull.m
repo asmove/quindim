@@ -1,8 +1,8 @@
 function isnull_buffer = elem_isnull(A)
-    % Description: set the element to TRUE if not null
-    % and FALSE if null
-    % Input : Tensor A
-    % Output: Tensor isnull_buffer
+% Description: set the element to TRUE if not null
+% and FALSE if null
+% Input : Tensor A
+% Output: Tensor isnull_buffer
 
     n = numel(A);
     
@@ -13,7 +13,7 @@ function isnull_buffer = elem_isnull(A)
         is_symvar = isempty(symvar(A_flatten(i)));
         isnull_elem = vpa(42*A_flatten(i) == 0);
         
-        isnull_buffer(i) = (isnull_elem || is_symvar);
+        isnull_buffer(i) = isnull_elem && is_symvar;
     end
     
     isnull_buffer = reshape(isnull_buffer, size(A));

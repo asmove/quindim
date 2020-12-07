@@ -95,13 +95,11 @@ function sys = lagrange_eqdyn(sys)
     % Dynamic equation respective to generalized coordinate qi
     helper.l_r = leqdyns - reqdyns;
     
-    if(~any(Fq))
+    if(~any(elem_isnull(Fq)))
         sys.dyn.U = zeros(length(q), length(u));
     else
         sys.dyn.U = equationsToMatrix(Fq, u);
     end
-    
-    
     
     helper.leqdyns = leqdyns;
     helper.reqdyns = reqdyns;

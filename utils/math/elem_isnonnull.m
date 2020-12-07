@@ -15,10 +15,11 @@ function isnonnull_buffer = elem_isnonnull(A)
         if(is_symvar)
             isnonnull_elem = true;
         else
-            isnonnull_elem = ~boolean(eval(42*A_flatten(k) == 0));
+            expr_null= 42*A_flatten(k) == 0;
+            isnonnull_elem = ~boolean(expr_null);
         end
         
-        isnonnull_buffer(k) = (isnonnull_elem|| is_symvar);
+        isnonnull_buffer(k) = (isnonnull_elem || is_symvar);
     end
     
     isnonnull_buffer = reshape(isnonnull_buffer, size(A));
