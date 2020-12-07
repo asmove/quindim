@@ -2,5 +2,6 @@
 *.eps
 *.m~
 *.mat
-slprj/*
+slprj/
 *.l
+
