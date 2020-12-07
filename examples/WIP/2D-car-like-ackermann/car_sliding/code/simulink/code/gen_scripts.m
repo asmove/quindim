@@ -58,6 +58,9 @@ function [] = gen_scripts(sys, model_name)
         fun_name = fun_names{i};
         
         expr_sym = subs(expr_sym, symbs, vals);
+        
+        expr_sym
+        
         matlabFunction(expr_sym, 'File', fun_name, 'Vars', vars_i, 'Outputs', output);
 
         fname = [fun_name, '.m'];
