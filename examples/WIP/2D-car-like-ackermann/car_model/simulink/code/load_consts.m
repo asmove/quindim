@@ -118,11 +118,11 @@ v_proj_vec = [A_hol; v_piv_g_sym_vec; v_piv_i_sym_vec; v_piv_o_sym_vec; ...
               v_piv_r_sym_vec; v_piv_l_sym_vec; v_i_vec; v_i_perp_vec];
 
 B = [-radius_l, 0, 0, 0, radius_g, 0, 0;
-             0, -radius_o, radius_i, 0, 0, 0, 0;
-             0, 0, 0, -radius_l, radius_r, 0, 0;
-             0, -radius_r, 0, radius_i, 0, 0, 0
-             0, 0, 0, 0, 0, 1, 0 ;
-             0, 0, 0, 0, 0, 0, 1];
+     0, -radius_o, radius_i, 0, 0, 0, 0;
+     0, 0, 0, -radius_l, radius_r, 0, 0;
+     0, -radius_r, 0, radius_i, 0, 0, 0
+     0, 0, 0, 0, 0, 1, 0 ;
+     0, 0, 0, 0, 0, 0, 1];
 
 B(1, :) = B(1, :)*tan(delta_i)*cos(delta_i);
 B(2, :) = B(2, :)*tan(delta_i)*cos(delta_i);
