@@ -1,9 +1,9 @@
 % Initial conditions [m; m/s]
-x0 = [0; 0; 0; 0; 0; 0; 0; 0.1; 1];
+x0 = [0; 0; 0; 0; 0; 0; 0; 0.1; 5];
 
 % Time [s]
 dt = 0.01;
-tf = 5;
+tf = 10;
 
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
 

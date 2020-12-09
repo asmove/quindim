@@ -4,7 +4,7 @@ function [c_points, centers] = chassi_points(sys, sim)
     R_s = sys.descrip.model_params(7);
     L_c = sys.descrip.model_params(9);
     w = sys.descrip.model_params(10);
-    L_f = sys.descrip.model_params(11);
+    L_f = sys.descrip.model_params(12);
     L = sys.descrip.model_params(14);
 
     % Required states

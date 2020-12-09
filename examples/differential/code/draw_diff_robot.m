@@ -25,10 +25,10 @@ function [] = draw_diff_robot(hfig, sys, sim)
     % Car wheels
     draw_wheels(hfig, sys, sim);
     
-    hold on;
-    
-    % Car radii
-    draw_radii(hfig, sys, sim)
+%     hold on;
+%     
+%     % Car radii
+%     draw_radii(hfig, sys, sim)
     
     hold on;    
     plot(P(1), P(2), 'ro');
