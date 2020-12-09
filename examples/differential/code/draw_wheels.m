@@ -25,15 +25,16 @@ function [] = draw_wheels(hfig, sys, sim)
     beta_ = sim.q(4);
     
     % Wheels separately
-    wheels = [build_wheel(center_s, th + beta_, R_s, 1);
-              build_wheel(center_br, th, R, 1);
-              build_wheel(center_bl, th, R, 1)];
+    wheels = [build_wheel(center_s, th + beta_, R_s, 10);
+              build_wheel(center_br, th, R, 10);
+              build_wheel(center_bl, th, R, 10)];
     
     t0 = tic();
     
     n_wheel = length(wheels);
     
     for i = 1:n_wheel
+        hold on;
         draw_wheel(hfig, wheels(i));
     end
 end

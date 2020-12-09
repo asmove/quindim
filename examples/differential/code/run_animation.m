@@ -7,7 +7,7 @@ tf = tspan(end);
 t = (0:dt:tf)';
 dt = scaler*(tspan(2) - tspan(1));
 
-n = length(t);
+n = length(tspan);
 n_q = length(sys.kin.q);
 n_u = length(sys.descrip.u);
 
