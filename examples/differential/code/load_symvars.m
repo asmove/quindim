@@ -12,3 +12,4 @@ syms beta betap betapp real;
 syms x_pos xp xpp real;
 syms y_pos yp ypp real;
 syms th thp thpp real;
+syms beta_ betap betapp real;

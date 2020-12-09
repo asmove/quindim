@@ -4,7 +4,6 @@ x0 = [0; 0; 0; 0; 0; 0; 0; 0.1; 1];
 % Time [s]
 dt = 0.01;
 tf = 5;
-t = 0:dt:tf; 
 
 u_func = @(t, x) zeros(length(sys.descrip.u), 1);
 
@@ -20,12 +19,20 @@ set_param(model_name, 'SimulationMode', 'normal');
 
 cs = getActiveConfigSet(model_name);
 mdl_cs = cs.copy;
-set_param(mdl_cs, 'SolverType','Variable-step', ...
-                  'SaveState','on','StateSaveName','xoutNew', ...
-                  'SaveOutput','on','OutputSaveName','youtNew');
+set_param(mdl_cs, 'AbsTol','1e-5', ...
+          'SaveState','on','StateSaveName','xoutNew', ...
+          'SaveOutput','on','OutputSaveName','youtNew');
 
 save_system();
               
 t0 = tic();
 simOut = sim(model_name, mdl_cs);
 toc(t0);
+
+q = simOut.coordinates.signals.values;
+p = simOut.p_speeds.signals.values;
+x = [q, p];
+
+states = simOut.states.signals.values;
+q_speeds = simOut.q_speeds.signals.values;
+t = simOut.tout;

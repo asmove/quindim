@@ -7,12 +7,13 @@ end
 close all
 clc
 
-run('load_symvar.m');
-run('load_components.m');
+run('load_symvars.m');
+run('load_transformations.m');
 run('load_bodies.m');
 run('load_params.m');
 
-% Load car model
-run('./load_kin.m');
+% Load kinematic model
+run('./run_kin.m');
 
-sys = dynamic_model(sys);
+% Load dynamic model
+run('./run_dyn.m');
