@@ -1,5 +1,7 @@
+vel = 1;
+
 % Initial conditions [m; m/s]
-x0 = [0; 0; 0; 0; 0; 0; 0; 0.1; 5];
+x0 = [0; 0; 0; 0; 0; 0; 0; 0.01; vel/R_n];
 
 % Time [s]
 dt = 0.01;
@@ -35,4 +37,5 @@ x = [q, p];
 
 states = simOut.states.signals.values;
 q_speeds = simOut.q_speeds.signals.values;
-t = simOut.tout;
+tspan = simOut.tout;
+

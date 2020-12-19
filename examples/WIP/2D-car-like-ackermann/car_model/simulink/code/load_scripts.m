@@ -33,7 +33,8 @@ if(isempty(dA))
     dA = 0;
 end
 
-Q = sys.dyn.U*sys.descrip.u - sys.dyn.nu - sys.dyn.g - sys.dyn.f_b - sys.dyn.f_k;
+Q = sys.dyn.U*sys.descrip.u ...
+    - sys.dyn.nu - sys.dyn.g - sys.dyn.f_b - sys.dyn.f_k;
 
 % Symbolic variables convenientlu grouped
 vars = {{[q; p]}, {[q; p], qp, u}, {[q; p]}, ...

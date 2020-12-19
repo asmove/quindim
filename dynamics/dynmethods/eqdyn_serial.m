@@ -2,7 +2,7 @@ function eqdyn = eqdyn_serial(serial)
     n_bodies = length(serial.bodies);
         
     % Dimensionality
-    cardinality = length(serial.bodies{1}.params.cg);
+    n_g = length(serial.bodies{1}.params.cg);
     
     % Useful generalized variables and their derivatives
     q = serial.generalized.q;
@@ -70,7 +70,7 @@ function eqdyn = eqdyn_serial(serial)
         Lpi = J*wpi_N + skew(w_i)*J*w_i;
         Lp = [Lp; Lpi];
         
-        M = blkdiag(M, m*eye(cardinality, cardinality));
+        M = blkdiag(M, m*eye(n_g, n_g));
         g = [g; m*serial.gravity];
         
         pv_circ = [pv_circ; simplify(vcg_i)];       
@@ -83,11 +83,11 @@ function eqdyn = eqdyn_serial(serial)
         uf = [uf; symsf];
         um = [um; symsm];
         
-        [F, Tau] = result_excitations(body.excitations, cardinality);
+        [F, Tau] = result_excitations(body.excitations, n_g);
         
         % Update actuation matrix
         if(isempty(symvar(norm(F))))
-            Ufnew = zeros(cardinality, 1);
+            Ufnew = zeros(n_g, 1);
             Uf = [Uf; Ufnew];
         else
             Uf_ = equationsToMatrix(F, symsf); 

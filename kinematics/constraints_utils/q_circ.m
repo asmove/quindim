@@ -1,4 +1,5 @@
 function [q_circ_, is_ws] = q_circ(mechanism, q0_circ, q_bullet)
+
     % User-provided q_circ calculation
     if(isfield(mechanism, 'q_circ_fun') && isfield(mechanism, 'is_ws_fun'))
         q_circ_ = mechanism.q_circ_fun(q_bullet);
@@ -13,8 +14,9 @@ function [q_circ_, is_ws] = q_circ(mechanism, q0_circ, q_bullet)
     end
 
     % Objective function
-    lconstraints = simplify(vpa(subs(constraints, mechanism.eqdyn.q_bullet, q_bullet)));
-
+    consts = subs(constraints, mechanism.eqdyn.q_bullet, q_bullet);
+    lconstraints = simplify(vpa(consts));
+    
     error = @(q_circ) double(subs(lconstraints, mechanism.eqdyn.q_circ, q_circ));
     objective_fun = @(q_circ) error(q_circ).'*error(q_circ);
 

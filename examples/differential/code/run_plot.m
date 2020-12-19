@@ -10,7 +10,7 @@ plot_info.ylabels = {'$x$', '$y$', '$\theta$', '$\beta$', ...
 
 plot_info.grid_size = [3, 3];
 
-hfigs_states = my_plot(t, x, plot_info);
+hfigs_states = my_plot(tspan, x, plot_info);
 
 % Angular speed and wheel radius
 R = sys.descrip.syms(6);
@@ -31,7 +31,7 @@ angspeeds = [];
 radii = [];
 qp_s = [];
 
-for i = 1:length(t)
+for i = 1:length(tspan)
     vals = [x(i, :).'; sys.descrip.model_params.'];
     
     qp_n = subs(sys.kin.C*sys.kin.p{end}, symbs, vals);
@@ -60,7 +60,7 @@ for i = 1:length(t)
     radii = [radii; radii_i];
     angspeeds = [angspeeds; rs_i];    
     
-    wb.update_waitbar(i, length(t));
+    wb.update_waitbar(i, length(tspan));
 end
 
 qp_s = double(qp_s);
@@ -75,7 +75,7 @@ plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]'};
 plot_info.ylabels = {'$\dot{x}$', '$\dot{y}$', '$\dot{\theta}$'};
 plot_info.grid_size = [1, 3];
 
-[hfigs_xyth, axs] = my_plot(t, qp_s(:, 1:3), plot_info);
+[hfigs_xyth, axs] = my_plot(tspan, qp_s(:, 1:3), plot_info);
 
 axs{1}{1}.FontSize = 25;
 axs{1}{2}.FontSize = 25;
@@ -90,7 +90,7 @@ plot_info.ylabels = {'$\dot{\beta}$', '$\dot{\phi_r}$', ...
 
 plot_info.grid_size = [2, 2];
 
-[hfigs_beta_rls, axs] = my_plot(t, qp_s(:, 4:7), plot_info);
+[hfigs_beta_rls, axs] = my_plot(tspan, qp_s(:, 4:7), plot_info);
 
 axs{1}{1}.FontSize = 25;
 axs{1}{2}.FontSize = 25;
@@ -108,7 +108,7 @@ plot_info.legends = {'$r_g$', '$r_r$', '$r_l$', '$r_s$'};
 plot_info.pos_multiplots = [1, 1, 1];
 plot_info.markers = {'b--', 'k--', 'm--', 'r--'};
 
-[hfigs_angspeed, axs] = my_plot(t, angspeeds_, plot_info);
+[hfigs_angspeed, axs] = my_plot(tspan, angspeeds_, plot_info);
 
 axs{1}{1}.FontSize = 25;
 axis square;
@@ -126,7 +126,7 @@ plot_info.legends = {'$R_g$', '$R_r$', '$R_l$', '$R_s$'};
 plot_info.pos_multiplots = [1, 1, 1];
 plot_info.markers = {'b--', 'k--', 'm--', 'r--'};
 
-[hfigs_radii, axs] = my_plot(t(idx_radii:end), radii_, plot_info);
+[hfigs_radii, axs] = my_plot(tspan(idx_radii:end), radii_, plot_info);
 
 axs{1}{1}.FontSize = 25;
 
@@ -141,12 +141,12 @@ plot_info.grid_size = [1, 1];
 axs{1}{1}.FontSize = 25;
 axis square;
 
-hfig_energies = plot_energies(sys, t, x);
+hfig_energies = plot_energies(sys, tspan, x);
 
 sys.descrip.latex_origs = {{'xpp'}, {'\mathrm{xp}'}, {'x_pos'}, ...
                            {'ypp'}, {'\mathrm{yp}'}, {'y_pos'}, ...
                            {'\mathrm{thpp}'}, {'\mathrm{thp}'}, {'\mathrm{th}'}, ...
-                           {'\mathrm{betapp}'}, {'\mathrm{betap}'}, {'\mathrm{beta_}'}, ...
+                           {'\mathrm{betapp}'}, {'\mathrm{betap}'}, {'\mathrm{beta\_}'}, ...
                            {'\mathrm{phipp}_{s}'}, {'\mathrm{phip}_{s}'}, {'\mathrm{phi}_{s}'}, ...
                            {'\mathrm{phipp}_{r}'}, {'\mathrm{phip}_{r}'}, {'\mathrm{phi}_{r}'}, ...
                            {'\mathrm{phipp}_{l}'}, {'\mathrm{phip}_{l}'}, {'\mathrm{phi}_{l}'}, ...
@@ -161,14 +161,15 @@ sys.descrip.latex_text = {'\ddot{x}', '\dot{x}', 'x', ...
                           '\ddot{\phi}_{l}', '\dot{\phi}_{l}', '\phi_{l}', ...
                           '\omega_1', 'p_2'};
 
-hfig_consts = plot_constraints(sys, t, x);
+hfig_consts = plot_constraints(sys, tspan, x);
 
-% Energies
-saveas(hfigs_angspeed, '../imgs/ang_speed', 'epsc');
+% Save images
+saveas(hfigs_states, '../imgs/states', 'epsc');
+
+saveas(hfigs_xyth, '../imgs/xyth', 'epsc');
+saveas(hfigs_beta_rls, '../imgs/beta_rls', 'epsc');
+
 saveas(hfigs_radii, '../imgs/radii', 'epsc');
-saveas(hfig_energies, '../imgs/energies', 'epsc');
 saveas(hfigs_angspeed, '../imgs/angspeed', 'epsc');
 
-for j = 1:length(hfigs_states)
-   saveas(hfigs_states(j), ['../imgs/states', num2str(i)], 'epsc'); 
-end
+saveas(hfig_energies, '../imgs/energies', 'epsc');

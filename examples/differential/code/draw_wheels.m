@@ -24,10 +24,13 @@ function [] = draw_wheels(hfig, sys, sim)
     th = sim.q(3);
     beta_ = sim.q(4);
     
+    wheel_width = 7;
+    wheel_s_width = 5;
+    
     % Wheels separately
-    wheels = [build_wheel(center_s, th + beta_, R_s, 10);
-              build_wheel(center_br, th, R, 10);
-              build_wheel(center_bl, th, R, 10)];
+    wheels = [build_wheel(center_s, th + beta_, R_s, wheel_s_width);
+              build_wheel(center_br, th, R, wheel_width);
+              build_wheel(center_bl, th, R, wheel_width)];
     
     t0 = tic();
     
@@ -56,6 +59,6 @@ function [] = draw_wheel(hfig, wheel)
     plot(head, tail, 'k', 'LineWidth', width);
     
     hold on;
-    plot(center(1), center(2), 'ro');
+    plot(center(1), center(2), 'r+');
     hold on;
 end

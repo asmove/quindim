@@ -30,6 +30,7 @@ for i = 1:length(filenames_code_)
     end
 end
 
+
 CLEAR_ALL = false;
 
 title = sprintf('Loading %d files...', length(filenames_code));
@@ -40,16 +41,15 @@ n = length(filenames_code);
 for i = 1:n
     t0 = tic;
     fname = filenames_code{i};
-    saved_progress = findstr(fname, 'slprj');
     
+    saved_progress = strfind(fname, 'slprj');
     split_fname = strsplit(filenames_code{i}, '/');
-    
     example_fname = split_fname{5};
     
     wb.change_title(example_fname);
     
-    if(isempty(saved_progress))
-        
+    % Run files with main file
+    if(isempty(saved_progress))        
         try
             run([fname, '/main.m']);
         catch error
