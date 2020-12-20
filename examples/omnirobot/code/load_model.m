@@ -8,7 +8,7 @@ close all
 clc
 
 % The 'real' statement on end is important for inner simplifications
-syms tau1 tau2 tau3 m_r m_R R r L g real;
+syms tau1 tau2 tau3 m_r m_R R_w R_c r L g real;
 syms Lg_x Lg_y b1 b2 b3 real;
 syms th1 th1p th1pp real;
 syms th2 th2p th2pp real;
@@ -17,12 +17,9 @@ syms x xp xpp real;
 syms y yp ypp real;
 syms th thp thpp real;
 
-sys.descrip.latex_origs = {{'\mathrm{xp}'}, {'\mathrm{yp}'}, ...
-                           {'\mathrm{thp}'}, {'\mathrm{th}'}, ...
-                           {'\mathrm{th3}'}, {'\mathrm{th3p}'}, ...
-                           {'\mathrm{th2}'}, {'\mathrm{th2p}'}, ...
-                           {'\mathrm{th1}'}, {'\mathrm{th1p}'}};
+q_qp = [sys.kin.qp; sys.kin.q];
 
+sys.descrip.latex_origs = latexify_vars(q_qp);
 sys.descrip.latex_text = {'\dot{x}', '\dot{y}', ...
                           '\dot{\theta}', '\theta', ...
                           '\dot{\theta}_3', '\theta_3', ...
@@ -37,7 +34,7 @@ is_diag2 = true;
 I_R = inertia_tensor('R', is_diag2);
 
 % Position relative to body coordinate system
-Lg_r = [0; 0; 0];
+Lg_r = [R_w; 0; 0];
 Lg_R = [0; 0; 0];
 
 % Bodies transformations
@@ -66,13 +63,13 @@ params_r2 = [m_r, diag(I_r)'];
 params_r3 = [m_r, diag(I_r)'];
 
 % Damper and springs
-damper1 = build_damper(b1, [0; 0; 0], [0; th1p; 0]);
-damper2 = build_damper(b2, [0; 0; 0], [0; th2p; 0]);
-damper3 = build_damper(b3, [0; 0; 0], [0; th3p; 0]);
+damper1 = build_damper(b1, [0; 0; 0], [th1p; 0; 0]);
+damper2 = build_damper(b2, [0; 0; 0], [th2p; 0; 0]);
+damper3 = build_damper(b3, [0; 0; 0], [th3p; 0; 0]);
 
-states_main = [x, y, th];
-speed_main = [xp, yp, thp];
-accel_main = [xpp, ypp, thpp];
+states_main = [x, y, th].';
+speed_main = [xp, yp, thp].';
+accel_main = [xpp, ypp, thpp].';
 
 params_R = [];
 
@@ -82,39 +79,42 @@ main_body = build_body(m_R, I_R, Ts_R, Lg_R, {}, {}, ...
 
 previous_r1 = main_body;
 
-states_main = th1;
-speed_main = th1p;
-accel_main = th1pp;
+states_main = [states_main; th1];
+speed_main = [speed_main; th1p];
+accel_main = [accel_main; th1pp];
 
 wheel_1 = build_body(m_r, I_r, Ts_r1, Lg_r, {damper1}, {}, ...
-                     th1, th1p, th1pp, previous_r1, params_r1);
+                     states_main, speed_main, accel_main, ...
+                     previous_r1, params_r1);
 
 previous_r2 = main_body;
 
-states_main = th2;
-speed_main = th2p;
-accel_main = th2pp;
+states_main = [states_main; th2];
+speed_main = [speed_main; th2p];
+accel_main = [accel_main; th2pp];
 
 wheel_2 = build_body(m_r, I_r, Ts_r2, Lg_r, {damper2}, {}, ...
-                     th2, th2p, th2pp, previous_r2, params_r2);
+                     states_main, speed_main, accel_main, ...
+                     previous_r2, params_r2);
                  
 previous_r3 = main_body;
 
-states_main = th3;
-speed_main = th3p;
-accel_main = th3pp;
+states_main = [states_main; th3];
+speed_main = [speed_main; th3p];
+accel_main = [accel_main; th3pp];
 
 wheel_3 = build_body(m_r, I_r, Ts_r3, Lg_r, {damper3}, {}, ...
-                     th3, th3p, th3pp, previous_r3, params_r3);
+                     states_main, speed_main, accel_main, ...
+                     previous_r3, params_r3);
               
 rho = 1050e-3;
 ell = 86e-3;
 h = 9e-3;
-R_n = 86e-3;
+R_w_n = 86e-3;
 r_n = 55e-3;
 m_r_n = 74e-3;
 m_R_n = 200e-3;
-L_n = 86e-3;
+L_n = 25e-2;
 I0_1_n = 0;
 I0_2_n = 0;
 I0_3_n = (rho*ell^4)*(9*sqrt(3)/32)*h;
@@ -130,12 +130,12 @@ g_n = 9.8;
                  
 sys.descrip.syms = [m_r, L, Lg_x, Lg_y, ...
                     m_R, diag(I_r).', diag(I_R).', ...
-                    b1, b2, b3, g, R, r];
+                    b1, b2, b3, g, R_w, r];
 
 sys.descrip.model_params = [m_r_n, L_n, Lg_x_n, Lg_y_n, ...
                             m_R_n, I0_1_n, I0_2_n, I0_3_n, ...
                             I1_1_n, I1_2_n, I1_3_n, ...
-                            b1_n, b2_n, b3_n, g_n, R_n, r_n];
+                            b1_n, b2_n, b3_n, g_n, R_w_n, r_n];
 
 sys.descrip.gravity = [0; 0; -g];
 sys.descrip.g = g;
