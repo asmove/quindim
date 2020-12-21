@@ -46,33 +46,32 @@ function [] = gen_scripts(sys, model_name)
     nchar = 100000;
 
     open_system(model_name);
-
     sf = Simulink.Root;
 
     for i = 1:length(paths)
-        block = sf.find('Path', paths{i}, '-isa','Stateflow.EMChart');
+        block = sf.find('Path', paths{i}, '-isa', 'Stateflow.EMChart');
         
         expr_sym = expr_syms{i};
         output = Outputs{i};
         vars_i = vars{i};
         fun_name = fun_names{i};
-        
         expr_sym = subs(expr_sym, symbs, vals);
+        matlabFunction(expr_sym, 'File', fun_name, ...
+                                 'Vars', vars_i, ...
+                                 'Outputs', output);
         
-        matlabFunction(expr_sym, 'File', fun_name, 'Vars', vars_i, 'Outputs', output);
-
         fname = [fun_name, '.m'];
         file_handle = fopen(fname, 'r');
 
         f_call = fgets(file_handle, nchar);
         script_body = f_call;
-    
+        
         tline = fgets(file_handle, nchar);
-
+        
         while(strcmp(tline(1), '%'))
             tline = fgets(file_handle, nchar);
         end
-
+        
         tline = fgets(file_handle, nchar);
         while(tline ~= -1)
             script_body = [script_body newline tline];
@@ -83,7 +82,7 @@ function [] = gen_scripts(sys, model_name)
         
         fclose(file_handle);
         delete(fname);
-
+        
         file_handle = fopen(fname, 'w');
         fprintf(file_handle, '%s', script_body);    
         fclose(file_handle);

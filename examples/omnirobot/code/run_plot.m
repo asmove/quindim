@@ -1,4 +1,3 @@
-
 plot_info.titles = {'', '', '', '', '', '', '', '', ''};
 plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', ...
                      '$t$ [s]', '$t$ [s]', '$t$ [s]', ...
@@ -9,7 +8,7 @@ plot_info.ylabels = {'$x$', '$y$', '$\theta$', ...
 plot_info.grid_size = [3, 3];
 
 % States and energies plot
-hfigs_states = my_plot(t, x, plot_info);
+hfigs_states = my_plot(tspan, x, plot_info);
 hfig_energies = plot_energies(sys, t, x);
 hfig_constraints = plot_constraints(sys, t, x);
 
