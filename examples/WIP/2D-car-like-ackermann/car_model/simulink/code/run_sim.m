@@ -37,27 +37,21 @@ IS_OUT = 1;
 x0_on_boundary = (x0(4) >= MAX_DELTA - EPS_)||(x0(4) <= -MAX_DELTA + EPS_);
 curr_state0 = terop(x0_on_boundary, IS_IN, IS_OUT);
 
+model_name = 'car_model';
+
 tf = 20;
 dt = 0.01;
 
 % Model loading
-model = 'car_model';
-
-load_system(model);
-
-simMode = get_param(model, 'SimulationMode');
-set_param(model, 'SimulationMode', 'normal');
-
-cs = getActiveConfigSet(model);
-mdl_cs = cs.copy;
-set_param(mdl_cs,'SaveState','on','StateSaveName','xoutNew',...
-                 'SaveOutput','on','OutputSaveName','youtNew');
-
-save_system();
-              
-t0 = tic();
-simOut = sim(model, mdl_cs);
-toc(t0);
+abs_tol = '1e-6';
+rel_tol = '1e-6';
+         
+% Function loader
+simcode_gen = @(sys, model_name) load_simulink_model(model, paths, ...
+                                                     fun_names, Outputs, ...
+                                                     expr_syms, vars);
+simOut = sim_block_diagram(sys, model_name, simcode_gen, ...
+                           abs_tol, rel_tol);
 
 set_param(model, 'SimulationMode', simMode);
 

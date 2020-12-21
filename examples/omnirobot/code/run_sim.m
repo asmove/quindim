@@ -1,5 +1,12 @@
 % Initial conditions [m; m/s]
-x0 = [0; 0; 0; 0; 0; 0; 5; 5; 5];
+C13 = sys.kin.C(1:3, :);
+symbs = [th; sys.descrip.syms.'];
+vals = [0; sys.descrip.model_params.'];
+C13_val = double(subs(C13, symbs, vals));
+xythp = [1; 0; 0];
+omega0 = inv(C13_val)*xythp;
+
+x0 = [0; 0; 0; 0; 0; 0; omega0];
 u0 = [0; 0; 0];
 
 % Time [s]
@@ -7,24 +14,16 @@ tf = 5;
 
 % System modelling
 model_name = 'simple_model';
-gen_scripts(sys, model_name);
 
-load_system(model_name);
+script_generator = @(sys, model_name) ...
+                   gen_scripts(sys, model_name);
 
-simMode = get_param(model_name, 'SimulationMode');
-set_param(model_name, 'SimulationMode', 'normal');
+abs_tol = '1e-6';
+rel_tol = '1e-6';
 
-cs = getActiveConfigSet(model_name);
-mdl_cs = cs.copy;
-set_param(mdl_cs, 'SolverType','Variable-step', ...
-                  'SaveState','on','StateSaveName','xoutNew', ...
-                  'SaveOutput','on','OutputSaveName','youtNew');
-
-save_system();
-
-t0 = tic();
-simOut = sim(model_name, mdl_cs);
-toc(t0);
+simOut = sim_block_diagram(sys, model_name, ...
+                           script_generator, ...
+                           abs_tol, rel_tol);
 
 q = simOut.coordinates.signals.values;
 p = simOut.p_speeds.signals.values;

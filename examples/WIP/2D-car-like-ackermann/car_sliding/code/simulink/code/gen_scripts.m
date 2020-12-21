@@ -91,7 +91,7 @@ function [] = gen_scripts(sys, model_name)
         delete(fname);
     end
     
-    save_system(model_name);
+    save_system(model_name, [],'OverwriteIfChangedOnDisk',true);
     close_system(model_name);
 end
     

@@ -9,8 +9,19 @@ plot_info.grid_size = [3, 3];
 
 % States and energies plot
 hfigs_states = my_plot(tspan, x, plot_info);
-hfig_energies = plot_energies(sys, t, x);
-hfig_constraints = plot_constraints(sys, t, x);
+
+plot_info.titles = {''};
+plot_info.xlabels = {'$x$ [m]'};
+plot_info.ylabels = {'$y$ [m]'};
+plot_info.grid_size = [1, 1];
+
+% States and energies plot
+[hfigs_xy, axs] = my_plot(x(:, 1), x(:, 2), plot_info);
+
+axis square
+
+hfig_energies = plot_energies(sys, tspan, x);
+hfig_constraints = plot_constraints(sys, tspan, x);
 
 % Energies
 saveas(hfig_energies, '../imgs/energies', 'epsc');

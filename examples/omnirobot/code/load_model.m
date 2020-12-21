@@ -1,4 +1,3 @@
-
 % Omnirobot
 % @Author: Bruno Peixoto
 if(exist('CLEAR_ALL'))
@@ -183,6 +182,10 @@ R01 = R0*R1;
 R02 = R0*R2;
 R03 = R0*R3;
 
+i1 = R01(:, 1);
+i2 = R02(:, 1);
+i3 = R03(:, 1);
+
 j1 = R01(:, 2);
 j2 = R02(:, 2);
 j3 = R03(:, 2);
@@ -191,9 +194,17 @@ u1 = dvecdt(p1, q, qp);
 u2 = dvecdt(p2, q, qp);
 u3 = dvecdt(p3, q, qp);
 
-sys.descrip.unhol_constraints = [dot(u1, j1) - th1p*R; ...
-                                 dot(u2, j2) - th2p*R; ...
-                                 dot(u3, j3) - th3p*R];
+omega_1 = omega(R01, q, qp) + R01*[th1p; 0; 0];
+omega_2 = omega(R01, q, qp) + R02*[th2p; 0; 0];
+omega_3 = omega(R01, q, qp) + R03*[th3p; 0; 0];
+
+u_c1 = u1 + cross(omega_1, [0; 0; -R]);
+u_c2 = u2 + cross(omega_2, [0; 0; -R]);
+u_c3 = u3 + cross(omega_3, [0; 0; -R]);
+
+sys.descrip.unhol_constraints = simplify_([dot(u_c1, j1); ...
+                                           dot(u_c2, j2); ...
+                                           dot(u_c3, j3)]);
 
 % Kinematic and dynamic model
 sys = kinematic_model(sys);

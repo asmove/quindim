@@ -53,6 +53,3 @@ end
 fun_names = {'KinematicVector', 'EffortVector', 'ConstraintMatrix', ...
              'KinematicMatrix', 'dConstraintMatrix', 'Mass_matrix', ...
              'ConstrainedEffort'};
-
-% Function loader
-load_simulink_model('car_model', paths, fun_names, Outputs, expr_syms, vars);
