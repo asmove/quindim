@@ -1,8 +1,8 @@
-function draw_points(sys, sim)
-    n = length(sim.points);
-
+function draw_points(sys, sim_)
+    n = length(sim_.points);
+    
     for i = 1:n
-       coords = sim.points{i};
+       coords = sim_.points{i};
        marker = sys.points{i}.marker;
        color = sys.points{i}.color;
        

@@ -102,7 +102,8 @@ function hfig = plot_constraints(sys, time, states)
                 p_n_1_i = p_n_1(:, i);
                 q_n_1_i = q_n(:, i);
                 
-                consts = vpa(subs(A_num*p_n_1_i, q_s(idxs), q_n_1_i(idxs)));
+                A_p = simplify_(A_num*p_n_1_i);
+                consts = vpa(subs(A_p, q_s(idxs), q_n_1_i(idxs)));
 
                 unhol(i, acc + j) = double(consts(j));
             
@@ -126,21 +127,26 @@ function hfig = plot_constraints(sys, time, states)
         for j = 1:m
             idx = idx + 1;
             
-            const = simplify_(Aqps(idx));
-            constraint = latex(const);
+            const = Aqps(idx);
+            constraint = latex(simplify_(const));
             
             if(isfield(sys.descrip, 'latex_origs'))
                 latex_origs = sys.descrip.latex_origs;
                 latex_convert = sys.descrip.latex_text;
                 
-                constraint = str2latex(constraint, latex_origs, latex_convert);                           
+                constraint = str2latex(constraint, latex_origs, ...
+                                       latex_convert);
             end
             
             if(iscell(constraint))
                constraint = constraint{1}; 
             end
             
-            consts_label{end+1} = sprintf('Constraint %d - $%s$', idx, constraint);
+            try
+                consts_label{end+1} = sprintf('Constraint %d - $%s$', idx, constraint);
+            catch error
+                disp(error.message);
+            end
             
             xlabels{end+1} = '$t$ [s]';
         end

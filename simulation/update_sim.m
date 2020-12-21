@@ -38,7 +38,7 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
 
     q_sym = [mechanism.eqdyn.q_bullet; mechanism.eqdyn.q_circ];
     qp_sym = [mechanism.eqdyn.qp_bullet; mechanism.eqdyn.qp_circ];
-    p_sym = [mechanism.eqdyn.p_bullet; mechanism.eqdyn.p_circ];
+    p_sym = mechanism.eqdyn.p_bullet;
     
     q_num = q;
     qp_num = qp;
@@ -76,8 +76,7 @@ function sim_ = update_sim(i, sim, mechanism, trajectory)
     Mtilde = double(subs(mechanism.eqdyn.M_decoupled, q_sym, q_num));
     Utilde = double(subs(mechanism.eqdyn.U_decoupled, q_sym, q_num));
     nutilde = double(subs(mechanism.eqdyn.nu_decoupled, ...
-                          [q_sym, qp_sym, p_sym], ...
-                          [q_num, qp_num, p_num]));
+                          [q_sym; qp_sym; p_sym], [q_num; qp_num; p_num]));
     gtilde = double(subs(mechanism.eqdyn.g_decoupled, q_sym, q_num));
                                       
     M = double(Mtilde);

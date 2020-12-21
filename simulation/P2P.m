@@ -1,11 +1,11 @@
 function [t, tf, q, qp, qpp] = P2P(P0, P1, A_max, delta)
     
-    if((delta > 1) || (delta < 0))
-       error('alpha MUST be between 0 and 1!'); 
-    end
-    
     if(nargin == 3)
         delta = 0.25;
+    end
+
+    if((delta > 1) || (delta < 0))
+       error('alpha MUST be between 0 and 1!'); 
     end
     
     n_versor = (P1-P0)/norm(P1-P0);

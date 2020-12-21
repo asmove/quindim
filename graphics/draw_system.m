@@ -1,11 +1,13 @@
-function draw_system(sys, sim)       
+function draw_system(sys, sim)
     % End-effector
-    sys.draw_bodies(sys, sim);
+    sys.draw_bodies(sim, sys);
     hold on;
-    sys.draw_trajectory(sim);
+    sys.draw_endeffector(sim, sys);
     hold on;
     draw_points(sys, sim);
+    hold on;
+    sys.draw_generalized(sim);
     hold off;
     
-    axis square;
+    axis equal;
 end

@@ -1,5 +1,7 @@
 function idxs = find_elems(sym_list, elems)
-% Description: Find elements on a symbolic list
+% Description: Find elements on a symbolic list.
+% Generally, it comes from a symbolic vector
+% e.g. symvar(expr)
 % If elem belongs to sym_list, it returns the 
 % respective index. If not, returns 0
 % Input:
