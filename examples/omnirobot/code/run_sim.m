@@ -3,7 +3,7 @@ C13 = sys.kin.C(1:3, :);
 symbs = [th; sys.descrip.syms.'];
 vals = [0; sys.descrip.model_params.'];
 C13_val = double(subs(C13, symbs, vals));
-xythp = [1; 0; 0];
+xythp = [0; 1; 0];
 omega0 = inv(C13_val)*xythp;
 
 x0 = [0; 0; 0; 0; 0; 0; omega0];
