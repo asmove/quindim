@@ -1,8 +1,8 @@
-# Robotics4fun
+# Quindim
 
 ## Introduction
 
-This is a robotics library made using trustworthy literature on Robotics during the course "Multibody dynamics and its applications in Robotics and automobile Engineering". However, it is a WIP, though already advanced. Hence, contributions are welcome. In case you are interested on contributing with a comment, issue or pull request, report on the issue tab or make a pull request.
+The funny name for this library comes from the phonetic word-trick which emerges from prefix of words ´´kinematics" and ´´dynamics". In fact, this is a robotics library made using trustworthy literature on Robotics during the course "Multibody dynamics and its applications in Robotics and automobile Engineering". However, it is a WIP, though already advanced. Hence, contributions are welcome. In case you are interested on contributing with a comment, issue or pull request, report on the issue tab or make a pull request.
 
 In case you are interested on a more mature material, take a look at http://petercorke.com/wordpress/toolboxes/robotics-toolbox :) 
 
@@ -11,9 +11,9 @@ In case you are interested on a more mature material, take a look at http://pete
 If the reader is already familiar with github, skip the next steps. To clone this repository, type the following commands on linux:
 
 ```
-mkdir ~/rob4fun 
-cd ~/rob4fun
-git clone git@github.com:brunolnetto/Robotics4fun.git 
+mkdir ~/quindim
+cd ~/quindim
+git clone git@github.com:brunolnetto/quindim.git 
 ```
 
 ### Windows users
@@ -28,12 +28,12 @@ If you wish to use it, follow the instructions:
 2) Before calling the functions, type on MATLAB shell 
 
 ```
-addpath('$ROB4FUN_PATH')
-addpath(genpath('$ROB4FUN_PATH'))
+addpath('$QUINDIM_PATH')
+addpath(genpath('$QUINDIM_PATH'))
 savepath
 ``` 
 
-where ```$ROB4FUN_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$ROB4FUN_PATH```. If the reader followed the steps from previous section, the ```ROB4FUN_PATH``` corresponds to ```~/rob4fun```
+where ```$QUINDIM_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$QUINDIM_PATH```. If the reader followed the steps from previous section, the ```QUINDIM_PATH``` corresponds to ```~/quindim```
 
 3) Have fun.
 

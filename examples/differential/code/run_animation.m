@@ -41,7 +41,8 @@ x_max = scaler_xl*L_n + max(sols(:, 1));
 y_min = -scaler_yr*w_n/2 + min(sols(:, 2));
 y_max = scaler_yl*w_n/2 + max(sols(:, 2));
 
-draw_robot_func = @(hfig, sys, sim) draw_diff_robot(hfig, sys, sim);
+draw_robot_func = @(hfig, sys, sim) ...
+                  draw_diff_robot(hfig, sys, sim);
 
 n_t = length(t);
 

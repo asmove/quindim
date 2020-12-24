@@ -1,20 +1,12 @@
 function [] = draw_wheels(hfig, sys, sim)
     % Required parameters
-    R = sys.descrip.model_params(6);
-    R_s = sys.descrip.model_params(7);
-    L_c = sys.descrip.model_params(9);
-    w = sys.descrip.model_params(10);
-    L_f = sys.descrip.model_params(11);
-    L = sys.descrip.model_params(14);
+    R = sys.descrip.model_params(end-1);
     
     [~, centers] = chassi_points(sys, sim);
     
-    center_s = centers(1, :)';
-    center_fl = centers(2, :)';
-    center_fr = centers(3, :)';
-    center_br = centers(4, :)';
-    center_bl = centers(5, :)';
-    center_g = centers(6, :)';
+    center_1 = centers(1, :)';
+    center_2 = centers(2, :)';
+    center_3 = centers(3, :)';
     
     % Required states
     q = sim.q;
@@ -25,12 +17,11 @@ function [] = draw_wheels(hfig, sys, sim)
     beta_ = sim.q(4);
     
     wheel_width = 7;
-    wheel_s_width = 5;
     
     % Wheels separately
-    wheels = [build_wheel(center_s, th + beta_, R_s, wheel_s_width);
-              build_wheel(center_br, th, R, wheel_width);
-              build_wheel(center_bl, th, R, wheel_width)];
+    wheels = [build_wheel(center_1, th, R, wheel_width);
+              build_wheel(center_2, th + 2*pi/3, R, wheel_width);
+              build_wheel(center_3, th + 4*pi/3, R, wheel_width)];
     
     t0 = tic();
     
