@@ -16,6 +16,7 @@ function sys = lagrange_eqdyn(sys)
     % Kinetic, Potential, Lagrangian and Rayleigh of the bodies
     for i = 1:n
        [L, K, P] = lagrangian(bodies{i}, sys.descrip.gravity);
+       
        F = rayleigh_energy(bodies{i});
        
        % Required energy components
@@ -95,7 +96,7 @@ function sys = lagrange_eqdyn(sys)
     % Dynamic equation respective to generalized coordinate qi
     helper.l_r = leqdyns - reqdyns;
     
-    if(~any(elem_isnull(Fq)))
+    if(elem_isnull(Fq))
         sys.dyn.U = zeros(length(q), length(u));
     else
         sys.dyn.U = equationsToMatrix(Fq, u);

@@ -1,11 +1,22 @@
-plot_info.titles = {'$x_1$', '$\dot x_1$', '$x_2$', '$\dot x_2$'};
-plot_info.xlabels = {'$t$ [s]', '$t$ [s]', '$t$ [s]', '$t$ [s]'};
-plot_info.ylabels = {'$x_1$ $[m]$', '$\dot x_1$ $[m/s]$', ...
-                     '$x_2$ $[m]$', '$\dot x_2$ $[m/s]$'};
-plot_info.grid_size = [2, 2];
+plot_info.titles = {};
+plot_info.xlabels = {};
+plot_info.ylabels = {};
 
-% States and energies plot
+for i = 1:n_mbk
+    q_i = sys.kin.q(i);
+    plot_info.titles{2*i - 1} = '';
+    plot_info.titles{2*i} = '';
+    plot_info.xlabels{end+1} = '$t$ [s]';
+    plot_info.ylabels{2*(i - 1) + 1} = ['$', char(q_i),'$ $[m]$'];
+    plot_info.ylabels{2*(i - 1) + 2} = ['$\dot ', char(q_i),'$ $[\frac{m}{s}]$'];
+end
+
+plot_info.grid_size = [min(n_mbk, 5), 2];
+
+% States plot
 hfigs_states = my_plot(t, x, plot_info);
+
+% Energies plot
 hfig_energies = plot_energies(sys, t, x);
 
 % Energies

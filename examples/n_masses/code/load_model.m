@@ -7,24 +7,38 @@ end
 close all
 clc
 
-n_mbk = int(input('Insert the MBK size:'));
+syms g real;
+
+n_mbk = input('Insert the MBK size:');
 
 previous_i = struct('');
 
+Ts_prev = {};
+x_prev = [];
+xp_prev = [];
+xpp_prev = [];
+
+sys.descrip.syms = [];
+sys.descrip.model_params = [];
+sys.descrip.bodies = {};
+
 for i = 1:n_mbk
     % Body 1
-    syms m1 b1 k1 real;
-    syms x1 x1p x1pp real;
-
-    m_i = sym('m', 1);
-    b_i = sym('b', 1);
-    k_i = sym('k', 1);
-    x_i = sym('x_', 1);
-    xp_i = sym('xp_', 1);
-    xpp_i = sym('xpp_', 1);
+    m_i = sym(sprintf('m%d', i));
+    b_i = sym(sprintf('b%d', i));
+    k_i = sym(sprintf('k%d', i));
+    x_i = sym(sprintf('x_%d', i));
+    xp_i = sym(sprintf('xp_%d', i));
+    xpp_i = sym(sprintf('xpp_%d', i));
     I_i = sym(zeros(3, 3));
-
-    T1s = {T3d(0, [0; 0; 1], [x_i; 0; 0])};
+    
+    Ts_i = T3d(0, [0; 0; 1], [x_i; 0; 0]);
+    Ts_prev = [Ts_prev, {Ts_i}];
+    
+    x_prev = [x_prev; x_i];
+    xp_prev = [xp_prev; xp_i];
+    xpp_prev = [xpp_prev; xpp_i];
+    
     is_friction_linear1 = true;
 
     % Previous body - Inertial, in this case
@@ -32,46 +46,48 @@ for i = 1:n_mbk
     L_i = [0; 0; 0];
 
     % Bodies inertia
-    damper_i = build_damper(b1, [0; 0; 0], [x1p; 0; 0]);
-    spring_i = build_spring(k1, [0; 0; 0], [x1; 0; 0]);
-
-    body_i = build_body(m_i, I_i, Ts_i, L_i, {damper_i}, {spring_i}, ...
+    damper_i = build_damper(b_i, [0; 0; 0], [xp_i; 0; 0]);
+    spring_i = build_spring(k_i, [0; 0; 0], [x_i; 0; 0]);
+    
+    body_i = build_body(m_i, I_i, Ts_prev, L_i, {damper_i}, {spring_i}, ...
                         x_i, xp_i, xpp_i, previous_i, []);
     
     previous_i = body_i;
+    
+    % Symbolics of the system
+    sys.descrip.syms = [sys.descrip.syms, m_i, b_i, k_i];
+    
+    % Paramater of the system
+    sys.descrip.model_params = [sys.descrip.model_params, 1, 0.1, 1];
+    
+    sys.descrip.bodies{end+1} = body_i;
 end
 
-syms g u1;
-
-sys.descrip.syms = [m1, b1, k1, m2, b2, k2, g];
-
-% Paramater symbolics of the system
-sys.descrip.model_params = [1, 1, 9, 1, 1, 9, 9.8];
-
-sys.descrip.bodies = {body1, body2};
+sys.descrip.syms = [sys.descrip.syms, g];
+sys.descrip.model_params = [sys.descrip.model_params, 9.8];
 
 % Gravity utilities
 sys.descrip.gravity = [0; 0; -g];
 sys.descrip.g = g;
 
 % Generalized coordinates
-sys.kin.q = [x1; x2];
-sys.kin.qp = [x1p; x2p];
-sys.kin.qpp = [x1pp; x2pp];
+sys.kin.q = x_prev;
+sys.kin.qp = xp_prev;
+sys.kin.qpp = xpp_prev;
 
 % Quasi-velocities
-sys.kin.p = [x1p; x2p];
-sys.kin.pp = [x1pp; x2pp];
+sys.kin.p = xp_prev;
+sys.kin.pp = xpp_prev;
 
 % External excitations
-sys.descrip.Fq = [u1; 0];
-sys.descrip.u = u1;
+sys.descrip.Fq = zeros(n_mbk, 1);
+sys.descrip.u = [];
 
 % Sensors
-sys.descrip.y = [x1; x2];
+sys.descrip.y = x_prev;
 
 % State space representation
-sys.dyn.states = [x1; x2; x1p; x2p];
+sys.dyn.states = [x_prev; xp_prev];
 
 % Constraint condition
 sys.descrip.is_constrained = false;

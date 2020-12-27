@@ -1,13 +1,9 @@
 % Initia conditions [m; m/s]
-x0 = [0; 1; 0; 1];
+x0 = [];
 
-m_num = sys.descrip.model_params(1);
-k_num = sys.descrip.model_params(3);
-omega = sqrt(k_num/m_num);
-
-% Time [s]
-tf = 2*pi/omega;
-dt = tf/100;
+for i = 1:n_mbk
+    x0 = [x0; 1; 0];
+end
 
 [~, m] = size(sys.dyn.Z);
 

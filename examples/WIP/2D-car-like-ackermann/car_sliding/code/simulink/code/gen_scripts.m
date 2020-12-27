@@ -5,10 +5,6 @@ function [] = gen_scripts(sys, model_name)
     p = sys.kin.p{end};
     u = sys.descrip.u;
 
-    vars = {{[q; p]}, {[q; p]}, {[q; p]}, {[q; p], u}};
-
-    Q = sys.dyn.U*sys.descrip.u - sys.dyn.nu - sys.dyn.g - sys.dyn.f_b - sys.dyn.f_k;
-
     Z = sys.dyn.Z;
     u = sys.descrip.u;
     h = sys.dyn.h;
@@ -17,8 +13,18 @@ function [] = gen_scripts(sys, model_name)
     dA = dmatdt(A, q, C*p);
     dC = dmatdt(C, q, C*p);
     M = sys.dyn.M;
-
-    expr_syms = {C*p; C; M; Z*u - h};
+    
+    if(elem_isnull(sys.descrip.Fq))
+        Q = - sys.dyn.nu - sys.dyn.g - sys.dyn.f_b - sys.dyn.f_k; 
+        expr_syms = {C*p; C; M; - h};
+        vars = {{[q; p]}, {[q; p]}, {[q; p]}, {[q; p]}};
+    else
+        Q = sys.dyn.U*sys.descrip.u - sys.dyn.nu - sys.dyn.g - sys.dyn.f_b - sys.dyn.f_k; 
+        expr_syms = {C*p; C; M; Z*u - h};
+        
+        vars = {{[q; p]}, {[q; p]}, {[q; p]}, {[q; p], u}};
+    end
+    
     
     for j = 1:length(expr_syms)
         
@@ -56,6 +62,7 @@ function [] = gen_scripts(sys, model_name)
         vars_i = vars{i};
         fun_name = fun_names{i};
         expr_sym = subs(expr_sym, symbs, vals);
+        
         matlabFunction(expr_sym, 'File', fun_name, ...
                                  'Vars', vars_i, ...
                                  'Outputs', output);
