@@ -4,11 +4,15 @@ plot_info.ylabels = {};
 
 for i = 1:n_mbk
     q_i = sys.kin.q(i);
-    plot_info.titles{2*i - 1} = '';
-    plot_info.titles{2*i} = '';
-    plot_info.xlabels{end+1} = '$t$ [s]';
-    plot_info.ylabels{2*(i - 1) + 1} = ['$', char(q_i),'$ $[m]$'];
-    plot_info.ylabels{2*(i - 1) + 2} = ['$\dot ', char(q_i),'$ $[\frac{m}{s}]$'];
+    idx1 = 2*i - 1;
+    idx2 = 2*i;
+    
+    plot_info.titles{idx1} = '';
+    plot_info.titles{idx2} = '';
+    plot_info.xlabels{idx1} = '$t$ [s]';
+    plot_info.xlabels{idx2} = '$t$ [s]';
+    plot_info.ylabels{idx1} = ['$', char(q_i),'$ $[m]$'];
+    plot_info.ylabels{idx2} = ['$\dot ', char(q_i),'$ $[\frac{m}{s}]$'];
 end
 
 plot_info.grid_size = [min(n_mbk, 5), 2];

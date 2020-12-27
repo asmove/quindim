@@ -9,6 +9,12 @@ end
 
 u_func = @(t, x) zeros(m, 1);
 
+plant = [sys.kin.C*sys.kin.p{end}; -inv(sys.dyn.H)*sys.dyn.h];
+plant_subs = equationsToMatrix(plant, [sys.kin.q; sys.kin.p{end}]);
+A = subs(plant_subs, sys.descrip.syms, sys.descrip.model_params);
+disp('The system eigenvalues are:');
+ews = eig(A)
+
 % Initial conditions [m; m/s]
 
 % Model loading
