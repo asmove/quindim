@@ -52,12 +52,10 @@ function reldeg_struct = nreldegs(f, G, y, x)
             end
             
             if(~isempty(symvar(lie_G)))
-                disp('Oi');
                 Delta = [Delta; lie_G];
                 deltas(end+1) = j;
                 break;
             elseif(all(all(double(lie_G))))
-                disp('Oi');
                 Delta = [Delta; lie_G];
                 deltas(end+1) = j;
                 break;

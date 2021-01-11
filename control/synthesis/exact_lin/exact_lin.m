@@ -27,14 +27,39 @@ function out = exact_lin(f, G, y, x)
     reldeg_struct = nreldegs(f, G, y, x);
     
     % Relative degree structure
-    deltas = reldeg_struct.deltas; 
+    deltas = reldeg_struct.deltas;
     transfs = reldeg_struct.transfs;
     phis = reldeg_struct.phis;
     Delta = reldeg_struct.Delta;
     
-    % Coordinate transformations
-    z = transfs;
+    y_refs = {};
+    y_pps = [];
     
+    % Coordinate transformations
+    for i = 1:length(deltas)
+        diff_n = '';
+        
+        y_refs_ = [];
+        for j = 1:deltas(i)
+            output_ij = ['y', diff_n, num2str(i), '_ref'];
+            
+            y_refs_ = [y_refs_; sym(output_ij)];
+            diff_n = [diff_n, 'p'];
+        end
+        
+        y_refs{end+1} = y_refs_;
+        
+        output_ij = ['y', diff_n, num2str(i), '_ref'];
+        
+        y_pps = [y_pps; sym(output_ij)];
+    end
+    
+    ref_vals = [];
+    for i = 1:length(y_refs)
+        ref_vals = [ref_vals; y_refs{i}];
+    end
+    
+    z_tilde = transfs - ref_vals;
     poles = request_poles_deltas(deltas);
     
     % Linear dynamic
@@ -58,18 +83,20 @@ function out = exact_lin(f, G, y, x)
         
         while(~is_ctrb(Ai, Bi))
             bi = canon_Rn(n, i);
-            Bi = [zeros(delta_i-1, m); bi];
+            Bi = [zeros(delta_i-1, 1); bi];
         end
         
         A_delta = direct_sum({A_delta, coeffs});
         B_delta = [B_delta; bi];
         
         As = direct_sum({As, Ai});
-        Bs = [Bs; Bi];
+        Bs = direct_sum({Bs, Bi});
     end
     
-    Delta_inv = vpa(Delta\eye(length(Delta)));
-    u = simplify_(Delta_inv*(-A_delta*z - phis + B_delta*v));
+    I_n = eye(length(Delta));
+    Delta_inv = vpa(Delta\I_n);
+    
+    u = simplify_(Delta_inv*(-A_delta*z_tilde + B_delta*v - phis + y_pps));
     
     % System does not have zero dynamics
     if(sum(deltas) == n)
@@ -81,10 +108,6 @@ function out = exact_lin(f, G, y, x)
     else
         transfs_1_values = [];
     end
-        
-    % Exact linearization struct
-    out.ctrb_matrix = ctrb_nlin(f, G, x);
-    out.obsv_matrix = obsv_nlin(f, y, x);
     
     % Output function and new input
     out.u = simplify_(u);
