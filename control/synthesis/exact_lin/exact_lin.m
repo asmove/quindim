@@ -130,6 +130,16 @@ function out = exact_lin(f, G, y, x)
     % Closed loop matrices
     out.As = As; 
     out.Bs = Bs;
+    
     out.A_delta = A_delta; 
     out.B_delta = B_delta;
+    
+    refs = [];
+    for i = 1:length(y_refs)
+        y_refs{i} = [y_refs{i}; y_pps(i)];
+        refs = [refs; y_refs{i}];
+    end
+    
+    out.y_ref_sym = refs;
+    out.z_tilde = z_tilde;
 end

@@ -1,5 +1,5 @@
 function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
-                           q, qp, qpp, previous, params)
+                           q, qp, qpp, previous, symbs)
     
     if(nargin == 0)
        body.m = 0;
@@ -32,9 +32,6 @@ function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
     body.R = body.T(1:3, 1:3);
     body.d = body.T(1:3, 1);
     
-    q
-    qp
-    
     body.omega = omega(body.R, q, qp);
     
     body.omega
@@ -45,5 +42,5 @@ function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
     % Center of mass
     body.p_cg = p_cg;
     
-    body.params = params;
+    body.symbs = symbs;
 end

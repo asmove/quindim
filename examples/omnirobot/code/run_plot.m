@@ -10,6 +10,7 @@ plot_info.grid_size = [3, 3];
 % States and energies plot
 hfigs_states = my_plot(tspan, x, plot_info);
 
+
 plot_info.titles = {''};
 plot_info.xlabels = {'$x$ [m]'};
 plot_info.ylabels = {'$y$ [m]'};

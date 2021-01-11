@@ -1,7 +1,7 @@
 % Initial conditions [m; m/s]
 
 % Linear velocity in x, y and/or theta
-x0 = [0; 0; 0; 0; 0; 0; 0; 0; 1];
+x0 = [0; 0; 0; 0; 0; 0; 1; 1; 1];
 u0 = [0; 0; 0];
 
 % Time [s]

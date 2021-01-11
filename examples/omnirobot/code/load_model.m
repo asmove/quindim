@@ -202,6 +202,7 @@ u_c1 = u1 + cross(omega_1, [0; 0; -R]);
 u_c2 = u2 + cross(omega_2, [0; 0; -R]);
 u_c3 = u3 + cross(omega_3, [0; 0; -R]);
 
+
 sys.descrip.unhol_constraints = simplify_([dot(u_c1, j1); ...
                                            dot(u_c2, j2); ...
                                            dot(u_c3, j3)]);

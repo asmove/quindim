@@ -3,33 +3,23 @@ function sim = gen_sim(sys, q_p, u, n)
     persistent H C Cp h Z;
     
     if(isempty(H))
-        H = subs(sys.dyn.H, ...
-                 sys.descrip.syms, ...
-                 sys.descrip.model_params);
+        H = my_subs(sys.dyn.H, sys.descrip.syms, sys.descrip.model_params);
     end
     
     if(isempty(C))
-        C = subs(sys.kin.C, ...
-                 sys.descrip.syms, ...
-                 sys.descrip.model_params);
+        C = my_subs(sys.kin.C, sys.descrip.syms, sys.descrip.model_params);
     end
     
     if(isempty(Cp))
-        Cp = subs(sys.kin.Cp, ...
-                  sys.descrip.syms, ...
-                  sys.descrip.model_params);
+        Cp = my_subs(sys.kin.Cp, sys.descrip.syms, sys.descrip.model_params);
     end
     
     if(isempty(h))
-        h = subs(sys.dyn.h, ...
-                  sys.descrip.syms, ...
-                  sys.descrip.model_params);
+        h = my_subs(sys.dyn.h, sys.descrip.syms, sys.descrip.model_params);
     end
     
     if(isempty(Z))
-        Z = subs(sys.dyn.Z, ...
-                  sys.descrip.syms, ...
-                  sys.descrip.model_params);
+        Z = my_subs(sys.dyn.Z, sys.descrip.syms, sys.descrip.model_params);
     end
 
     q = q_p(1:n);
@@ -38,15 +28,16 @@ function sim = gen_sim(sys, q_p, u, n)
     C = sys.kin.C;
     Cp = sys.kin.Cp;
     
-    H = subs(H, [sys.kin.q; sys.kin.p], q_p);
-    h = subs(h, [sys.kin.q; sys.kin.p], q_p);
-    
     qp_sym = [sys.kin.q; sys.kin.p{end}];
     
-    pp = subs(inv(H)*(-h + Z*u), qp_sym, q_p);
+    H = my_subs(H, [sys.kin.q; sys.kin.p], q_p);
+    h = my_subs(h, [sys.kin.q; sys.kin.p], q_p);
+    
+    H_num = my_subs(H, qp_sym, q_p);
+    pp = my_subs(inv(H_num)*(-h + Z*u), qp_sym, q_p);
     
     sim.q = q;
-    sim.qp = subs(C*p, [sys.kin.q; sys.kin.p], q_p);
+    sim.qp = my_subs(C*p, [sys.kin.q; sys.kin.p], q_p);
     sim.qpp = Cp*p + C*pp; 
     
     sim.p = p;

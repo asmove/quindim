@@ -1,5 +1,6 @@
 function expr_subs = my_subs(expr, symbs, vals)
-    idxs = find_elems(symvar(expr), symbs);
+    idxs = find_elems(symvar(sym(expr)), symbs);
+    
     idxs = idxs(idxs~= 0);
     expr_subs = subs(expr, symbs(idxs), vals(idxs));
     
