@@ -15,7 +15,8 @@ function isnonnull_buffer = elem_isnonnull(A)
         if(is_symvar)
             isnonnull_elem = true;
         else
-            expr_null= 42*A_flatten(k) == 0;
+            expr_null = 42*A_flatten(k) == 0;
+            expr_null = eval(expr_null);
             isnonnull_elem = ~boolean(expr_null);
         end
         

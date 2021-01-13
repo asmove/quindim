@@ -41,43 +41,47 @@ function reldeg_struct = nreldegs(f, G, y, x)
             % Iteration relative degree
             j = j + 1;
             transfs = [transfs; lie_i_f_hi];
-
+            
             % Lie of (i-th Lie derivative of hi  respective f) respective to G
             lie_G = sym([]);
-
+            
             for k = 1:m
-                gk = G_tilde(:, k);
-                lie_gk = simplify_(lie_diff(gk, lie_i_f_hi, states_tilde));
+                gk = G_tilde(:, k);    
+                lie_gk = lie_diff(gk, lie_i_f_hi, states_tilde);
+                
                 lie_G(end+1) = lie_gk;
             end
             
+            % 
             if(~isempty(symvar(lie_G)))
                 Delta = [Delta; lie_G];
                 deltas(end+1) = j;
+                
                 break;
+            
+            % Empty G vector
             elseif(all(all(double(lie_G))))
                 Delta = [Delta; lie_G];
                 deltas(end+1) = j;
+                
                 break;
             end
-
-            lie_i_f_hi = simplify_(lie_diff(f_tilde, lie_i_f_hi, states_tilde));
+            
+            lie_i_f_hi = lie_diff(f_tilde, lie_i_f_hi, states_tilde);
         end
 
         % Vector with Lie derivative
         lie_delta_f_hi = lie_diff(f_tilde, lie_i_f_hi, states_tilde);
         phis = [phis; lie_delta_f_hi];
-        
     end
 
-    rank_Delta = rank(Delta);
-    is_fullrank = rank_Delta == min(m, sum(deltas));
-    
-%     while(~is_fullrank)  
+%     rank_Delta = rank(Delta);
+%     is_fullrank = rank_Delta == min(m, sum(deltas));
+%     
+%     while(~is_fullrank)
 %         rank_Delta = rank(Delta);        
 %         if(rank_Delta == p)
-%             msg = sprintf("The system has total relative degree %d", ...
-%                           sum(deltas));
+%             msg = sprintf("The system has total relative degree %d", sum(deltas));
 %             disp(msg);
 %             break;
 %         
@@ -112,9 +116,6 @@ function reldeg_struct = nreldegs(f, G, y, x)
 %             Delta = [];
 %         end
 %     end
-    
-    Delta = simplify_(Delta);
-    phis = simplify_(phis);
     
     reldeg_struct.deltas = deltas;
     reldeg_struct.transfs = transfs;

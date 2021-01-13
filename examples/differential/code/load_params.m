@@ -53,8 +53,8 @@ sys.kin.p = sym('p', [2, 1]);
 sys.kin.pp = sym('pp', [2, 1]);
 
 % External excitations
-sys.descrip.Fq = [0; 0; 0; tau_r; tau_l; 0; 0];
-sys.descrip.u = [tau_r; tau_l];
+sys.descrip.Fq = [0; 0; 0; tau_f; tau_r; tau_l; 0];
+sys.descrip.u = [tau_f; tau_r; tau_l];
 
 % Constraint condition
 sys.descrip.is_constrained = true;

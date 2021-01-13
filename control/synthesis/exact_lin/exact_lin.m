@@ -63,59 +63,39 @@ function out = exact_lin(f, G, y, x)
     poles = request_poles_deltas(deltas);
     
     % Linear dynamic
-    A_delta = [];
-    B_delta = [];
-    As = [];
-    Bs = [];
-
-    i = 1;
-    for poles_ = poles
-        poles_ = poles_{1};
-        coeffs = ctrb_coeffs(poles_);
-        
-        delta_i = deltas(i);
-        
-        % Unitary matrices
-        Ai = ctrb_canon(poles_);
-        
-        bi = canon_Rn(m, i).';
-        Bi = [zeros(delta_i-1, m); bi];
-        
-        while(~is_ctrb(Ai, Bi))
-            bi = canon_Rn(n, i);
-            Bi = [zeros(delta_i-1, 1); bi];
-        end
-        
-        A_delta = direct_sum({A_delta, coeffs});
-        B_delta = [B_delta; bi];
-        
-        As = direct_sum({As, Ai});
-        Bs = direct_sum({Bs, Bi});
-    end
+    [As, Bs, A_delta, B_delta] = lindyn(poles);
+    
+    n_D = length(Delta);
     
     I_n = eye(length(Delta));
-    Delta_inv = vpa(Delta\I_n);
+    Delta_sym = sym('D_', size(Delta));
+    inv_Delta_sym = inv(Delta_sym);
     
-    u = simplify_(Delta_inv*(-A_delta*z_tilde + B_delta*v - phis + y_pps));
+    Delta_sym_flatten = reshape(Delta_sym, [n_D^2, 1]);
+    Delta_flatten = reshape(Delta, [n_D^2, 1]);
+    
+    Delta_inv = subs(inv_Delta_sym, Delta_sym_flatten, Delta_flatten);
+    
+    u = Delta_inv*(-A_delta*z_tilde + B_delta*v - phis + y_pps);
     
     % System does not have zero dynamics
     if(sum(deltas) == n)
         transfs_1_values = invfunc(transfs, x);
         
-        out.zp_x = simplify_(jacobian(transfs, x)*(f + G*u));
-        out.zp_z = simplify_(subs(out.zp_x, x, transfs_1_values));
+        out.zp_x = jacobian(transfs, x)*(f + G*u);
+        out.zp_z = subs(out.zp_x, x, transfs_1_values);
 
     else
         transfs_1_values = [];
     end
     
     % Output function and new input
-    out.u = simplify_(u);
+    out.u = u;
     out.v = v; 
     
     % Exact linearization 
-    out.Delta = simplify_(Delta); 
-    out.phis = simplify_(phis);
+    out.Delta = Delta; 
+    out.phis = phis;
     
     % Transformations forward and inverse for linearization
     out.transfs = transfs;
