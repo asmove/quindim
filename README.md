@@ -33,7 +33,7 @@ addpath(genpath('$QUINDIM_PATH'))
 savepath
 ``` 
 
-where ```$QUINDIM_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$QUINDIM_PATH```. If the reader followed the steps from previous section, the ```QUINDIM_PATH``` corresponds to ```~/quindim```
+where ```$QUINDIM_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$QUINDIM_PATH```. If the reader followed the steps from previous section, the ```QUINDIM_PATH``` corresponds to ```~/quindim```.
 
 3) Have fun.
 
