@@ -35,16 +35,16 @@ savepath
 
 where ```$QUINDIM_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$QUINDIM_PATH```. If the reader followed the steps from previous section, the ```QUINDIM_PATH``` corresponds to ```~/quindim```.
 
-3) Have fun.
+3) Go to folder ```$QUINDIM_PATH/examples```, choose one of them, open the folder ```code``` and type ```main``` on MATLAB terminal line.
 
 ## Additional libraries
 
-There are several utilitaries for the current library, which are not on it to avoid a greater library than it is already. Follow the instructions below:
+There are two utilitaries for the current library, which are not on it to avoid a greater library than it is already. Follow the instructions below:
 
 1) Clone the repositories below in the same manner as in the "Introduction" section:
     - ```math-utils```: ```https://github.com/brunolnetto/matlab-utils```;
     - ```baryopt```  : ```https://github.com/brunolnetto/baryopt```.
-2) Add the repositories to MatLab path as on "Installation" section.
+2) Add the repositories to MATLAB path as on "Installation" section.
 
 ## Documentation
 It is still small, but take a look at wiki: https://github.com/brunolnetto/Robotics4fun/wiki
