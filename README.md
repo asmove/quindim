@@ -18,24 +18,15 @@ git clone git@github.com:brunolnetto/quindim.git
 
 ### Windows users
 
-Most likely, the reader may use Windows. For such, the author recommends either the [Git bash](https://gitforwindows.org/) or [Tortoise Git](https://tortoisegit.org/) as source management software. Git bash is a terminal and the copy-paste of above commands works the same manner as for linux terminal. Typically the home path given by tilde '~' lays on ```$PROGRAM_FILES/Users```
+Most likely, the reader may use Windows. For such, the author recommends either the [Git bash](https://gitforwindows.org/) or [Tortoise Git](https://tortoisegit.org/) as source management software. Git bash is a terminal and the copy-paste of above commands works the same manner as for linux terminal. Typically the home path given by tilde '~' lays on ```$PROGRAM_FILES/Users```.
 
 ## Installation
 
 If you wish to use it, follow the instructions:
 
 1) Open Matlab up to the version 2017x, x = a, b;
-2) Before calling the functions, type on MATLAB shell 
-
-```
-addpath('$QUINDIM_PATH')
-addpath(genpath('$QUINDIM_PATH'))
-savepath
-``` 
-
-where ```$QUINDIM_PATH``` stands for the path where you cloned the repository, ```addpath``` add the provided path to ```MATLABPATH``` and ```genpath``` generate all paths of subfolders within ```$QUINDIM_PATH```. If the reader followed the steps from previous section, the ```QUINDIM_PATH``` corresponds to ```~/quindim```.
-
-3) Go to folder ```$QUINDIM_PATH/examples```, choose one of them, open the folder ```code``` and type ```main``` on MATLAB terminal line.
+2) Change directory with ```cd ~/quindim/```;
+3) Type "loadlib.m", without quotes.
 
 ## Additional libraries
 
@@ -45,6 +36,10 @@ There are two utilitaries for the current library, which are not on it to avoid 
     - ```math-utils```: ```https://github.com/brunolnetto/matlab-utils```;
     - ```baryopt```  : ```https://github.com/brunolnetto/baryopt```.
 2) Add the repositories to MATLAB path as on "Installation" section.
+
+## Reproduce an example
+
+Go to folder ```$QUINDIM_PATH/examples```, choose one of them, open the folder ```code``` and type ```main``` on MATLAB terminal line.
 
 ## Documentation
 It is still small, but take a look at wiki: https://github.com/brunolnetto/Robotics4fun/wiki
