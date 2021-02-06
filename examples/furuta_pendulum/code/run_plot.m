@@ -11,8 +11,8 @@ hfigs_states = my_plot(t, x, plot_info);
 hfig_energies = plot_energies(sys, t, x);
 
 % Energies
-saveas(hfig_energies, '../images/energies', 'epsc');
+saveas(hfig_energies, '../imgs/energies', 'epsc');
 
 for j = 1:length(hfigs_states)
-   saveas(hfigs_states(j), ['../images/states', num2str(i)], 'epsc'); 
+   saveas(hfigs_states(j), ['../imgs/states', num2str(i)], 'epsc'); 
 end
