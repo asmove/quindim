@@ -25,4 +25,6 @@ function simOut = sim_block_diagram(model_name, x0, options)
                              'SaveOutput','on','OutputSaveName','youtNew');
     toc(t0);
 
+    close_system(model_name);
+
 end

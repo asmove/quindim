@@ -50,12 +50,14 @@ function [] = gen_scripts(sys, model_name)
 
     % Read buffer
     nchar = 100000;
-
+    
     open_system(model_name);
     sf = Simulink.Root;
 
     for i = 1:length(paths)
-        block = sf.find('Path', paths{i}, '-isa', 'Stateflow.EMChart');
+        paths_i = paths{i};
+        
+        block = sf.find('Path', paths_i, '-isa', 'Stateflow.EMChart');
         
         expr_sym = expr_syms{i};
         output = Outputs{i};
