@@ -1,4 +1,4 @@
- % Double Single example
+ % Furuta pendulum example
 % @Author: Bruno Peixoto
 
 run('./load_model.m');

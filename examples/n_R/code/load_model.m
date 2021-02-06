@@ -104,8 +104,10 @@ sys.kin.p = xp_prev;
 sys.kin.pp = xpp_prev;
 
 % External excitations
-sys.descrip.Fq = zeros(n_R, 1);
-sys.descrip.u = [];
+n_q = length(sys.kin.q);
+tau_sym = sym('tau_', [n_R, 1]);
+sys.descrip.Fq = tau_sym;
+sys.descrip.u = tau_sym;
 
 % Sensors
 sys.descrip.y = x_prev;

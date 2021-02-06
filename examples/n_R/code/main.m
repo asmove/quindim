@@ -7,9 +7,9 @@ run('./load_model.m');
 % Run simulation
 run('./run_sim.m');
 
-% Run plot script
-run('./run_plot.m');
-
-% Run robot animation
-run('./run_animation.m');
+% % Run plot script
+% run('./run_plot.m');
+% 
+% % Run robot animation
+% run('./run_animation.m');
 

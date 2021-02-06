@@ -5,6 +5,8 @@ for i = 1:n_R
     x0 = [x0; 0; 0];
 end
 
+tf = 10;
+
 % Initial conditions [m; m/s]
 
 % Model loading
