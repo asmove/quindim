@@ -26,7 +26,7 @@ If you wish to use it, follow the instructions:
 
 1) Open Matlab up to the version 2017x, x = a, b;
 2) Change directory with ```cd ~/quindim/```;
-3) Type "loadlib.m", without quotes.
+3) Type "loadlibs.m", without quotes.
 
 ## Additional libraries
 
