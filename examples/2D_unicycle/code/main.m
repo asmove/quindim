@@ -4,9 +4,15 @@
 % Load model
 run('./load_model.m');
 
+<<<<<<< HEAD
 % % Run simulation
 % run('./run_sim.m');
 % 
+=======
+% Run simulation
+run('./run_sim.m');
+
+>>>>>>> master
 % % Run plot script
 % run('./run_plot.m');
 % 
