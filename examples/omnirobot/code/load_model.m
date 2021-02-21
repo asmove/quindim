@@ -12,15 +12,10 @@ clc
 % The 'real' statement on end is important for inner simplifications
 syms tau1 tau2 tau3 m_r m_R R r L g real;
 syms Lg_x Lg_y b1 b2 b3 real;
-<<<<<<< HEAD
 syms phi1 phi1p phi1pp real;
 syms phi2 phi2p phi2pp real;
 syms phi3 phi3p phi3pp real;
-=======
-syms th1 th1p th1pp real;
-syms th2 th2p th2pp real;
-syms th3 th3p th3pp real;
->>>>>>> master
+
 syms x xp xpp real;
 syms y yp ypp real;
 syms th thp thpp real;
@@ -39,7 +34,6 @@ Lg_R = [0; 0; 0];
 % Bodies transformations
 T0 = T3d(th, [0; 0; 1], [x; y; 0]);
 
-<<<<<<< HEAD
 T1 = T3d(phi1, [1; 0; 0], [L; 0; 0]);
 
 T2 = T3d(2*pi/3, [0; 0; 1], [0; 0; 0]);
@@ -47,15 +41,6 @@ T3 = T3d(phi2, [1; 0; 0], [L; 0; 0]);
 
 T4 = T3d(4*pi/3, [0; 0; 1], [0; 0; 0]);
 T5 = T3d(phi3, [1; 0; 0], [L; 0; 0]);
-=======
-T1 = T3d(th1, [1; 0; 0], [L; 0; 0]);
-
-T2 = T3d(2*pi/3, [0; 0; 1], [0; 0; 0]);
-T3 = T3d(th2, [1; 0; 0], [L; 0; 0]);
-
-T4 = T3d(4*pi/3, [0; 0; 1], [0; 0; 0]);
-T5 = T3d(th3, [1; 0; 0], [L; 0; 0]);
->>>>>>> master
 
 % Body 1 and 2 related transformation matrices
 Ts_R = {T0};
@@ -72,15 +57,9 @@ params_r2 = [m_r, diag(I_r)'];
 params_r3 = [m_r, diag(I_r)'];
 
 % Damper and springs
-<<<<<<< HEAD
 damper1 = build_damper(b1, [0; 0; 0], [phi1p; 0; 0]);
 damper2 = build_damper(b2, [0; 0; 0], [phi2p; 0; 0]);
 damper3 = build_damper(b3, [0; 0; 0], [phi3p; 0; 0]);
-=======
-damper1 = build_damper(b1, [0; 0; 0], [th1p; 0; 0]);
-damper2 = build_damper(b2, [0; 0; 0], [th2p; 0; 0]);
-damper3 = build_damper(b3, [0; 0; 0], [th3p; 0; 0]);
->>>>>>> master
 
 states_main = [x, y, th].';
 speed_main = [xp, yp, thp].';
@@ -94,15 +73,9 @@ main_body = build_body(m_R, I_R, Ts_R, Lg_R, {}, {}, ...
 
 previous_r1 = main_body;
 
-<<<<<<< HEAD
 states_main = [states_main; phi1];
 speed_main = [speed_main; phi1p];
 accel_main = [accel_main; phi1pp];
-=======
-states_main = [states_main; th1];
-speed_main = [speed_main; th1p];
-accel_main = [accel_main; th1pp];
->>>>>>> master
 
 wheel_1 = build_body(m_r, I_r, Ts_r1, Lg_r, {damper1}, {}, ...
                      states_main, speed_main, accel_main, ...
@@ -110,15 +83,9 @@ wheel_1 = build_body(m_r, I_r, Ts_r1, Lg_r, {damper1}, {}, ...
 
 previous_r2 = main_body;
 
-<<<<<<< HEAD
 states_main = [states_main; phi2];
 speed_main = [speed_main; phi2p];
 accel_main = [accel_main; phi2pp];
-=======
-states_main = [states_main; th2];
-speed_main = [speed_main; th2p];
-accel_main = [accel_main; th2pp];
->>>>>>> master
 
 wheel_2 = build_body(m_r, I_r, Ts_r2, Lg_r, {damper2}, {}, ...
                      states_main, speed_main, accel_main, ...
@@ -126,15 +93,9 @@ wheel_2 = build_body(m_r, I_r, Ts_r2, Lg_r, {damper2}, {}, ...
                  
 previous_r3 = main_body;
 
-<<<<<<< HEAD
 states_main = [states_main; phi3];
 speed_main = [speed_main; phi3p];
 accel_main = [accel_main; phi3pp];
-=======
-states_main = [states_main; th3];
-speed_main = [speed_main; th3p];
-accel_main = [accel_main; th3pp];
->>>>>>> master
 
 wheel_3 = build_body(m_r, I_r, Ts_r3, Lg_r, {damper3}, {}, ...
                      states_main, speed_main, accel_main, ...
@@ -176,7 +137,6 @@ sys.descrip.g = g;
 sys.descrip.bodies = {main_body, wheel_1, wheel_2, wheel_3};
 
 % Generalized coordinates
-<<<<<<< HEAD
 sys.kin.q = [x; y; th; phi1; phi2; phi3];
 sys.kin.qp = [xp; yp; thp; phi1p; phi2p; phi3p];
 sys.kin.qpp = [xpp; ypp; thpp; phi1pp; phi2pp; phi3pp];
@@ -184,15 +144,6 @@ sys.kin.qpp = [xpp; ypp; thpp; phi1pp; phi2pp; phi3pp];
 % Generalized coordinates
 sys.kin.p = [xp; yp; thp; phi1p; phi2p; phi3p];
 sys.kin.pp = [xpp; ypp; th; phi1pp; phi2pp; phi3pp];
-=======
-sys.kin.q = [x; y; th; th1; th2; th3];
-sys.kin.qp = [xp; yp; thp; th1p; th2p; th3p];
-sys.kin.qpp = [xpp; ypp; thpp; th1pp; th2pp; th3pp];
-
-% Generalized coordinates
-sys.kin.p = [xp; yp; thp; th1p; th2p; th3p];
-sys.kin.pp = [xpp; ypp; thpp; th1pp; th2pp; th3pp];
->>>>>>> master
 
 % External excitations
 sys.descrip.Fq = [0; 0; 0; tau1; tau2; tau3];
@@ -202,11 +153,7 @@ sys.descrip.u = [tau1; tau2; tau3];
 sys.descrip.is_constrained = true;
 
 % Sensors
-<<<<<<< HEAD
 sys.descrip.y = [phi1; phi2; phi3];
-=======
-sys.descrip.y = [th1; th2; th3];
->>>>>>> master
 
 % State space representation
 sys.descrip.states = [sys.kin.q; sys.kin.p];
@@ -248,15 +195,9 @@ u1 = dvecdt(p1, q, qp);
 u2 = dvecdt(p2, q, qp);
 u3 = dvecdt(p3, q, qp);
 
-<<<<<<< HEAD
 omega_1 = omega(R01, q, qp) + R01*[phi1p; 0; 0];
 omega_2 = omega(R01, q, qp) + R02*[phi2p; 0; 0];
 omega_3 = omega(R01, q, qp) + R03*[phi3p; 0; 0];
-=======
-omega_1 = omega(R01, q, qp) + R01*[th1p; 0; 0];
-omega_2 = omega(R01, q, qp) + R02*[th2p; 0; 0];
-omega_3 = omega(R01, q, qp) + R03*[th3p; 0; 0];
->>>>>>> master
 
 u_c1 = u1 + cross(omega_1, [0; 0; -R]);
 u_c2 = u2 + cross(omega_2, [0; 0; -R]);

@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 function [] = gen_plant_scripts(sys, model_name)
-=======
-function [] = gen_scripts(sys, model_name)
->>>>>>> master
-
     q = sys.kin.q;
     qp = sys.kin.qp;
     p = sys.kin.p{end};
@@ -29,10 +24,7 @@ function [] = gen_scripts(sys, model_name)
         vars = {{[q; p]}, {[q; p]}, {[q; p]}, {[q; p], u}};
     end
     
-<<<<<<< HEAD
     expr_syms{1}
-=======
->>>>>>> master
     
     for j = 1:length(expr_syms)
         
@@ -73,13 +65,10 @@ function [] = gen_scripts(sys, model_name)
         fun_name = fun_names{i};
         expr_sym = subs(expr_sym, symbs, vals);
         
-<<<<<<< HEAD
-=======
         vars_i{1}
         fun_name
         symvar(expr_sym)
         
->>>>>>> master
         matlabFunction(expr_sym, 'File', fun_name, ...
                                  'Vars', vars_i, ...
                                  'Outputs', output);

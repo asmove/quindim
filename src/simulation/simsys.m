@@ -1,9 +1,5 @@
 function simOut = simsys(model_name, sys, x0, tf)
-<<<<<<< HEAD
-    gen_plant_scripts(sys, model_name);
-=======
     gen_scripts(sys, model_name);
->>>>>>> master
     
     load_system(model_name);
     
