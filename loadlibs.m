@@ -1,4 +1,4 @@
-PATHS = {'Robotics4fun', 'matlab-utils', 'baryopt'};
+PATHS = {'source_seek', 'quindim', 'matlab-utils', 'baryopt'};
 
 GITPATH = '~/github/';
 

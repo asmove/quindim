@@ -1,8 +1,9 @@
 function [] = load_simblock(model_name, paths_i, fun_name, ...
                             expr_sym, vars_i, output)
+                        
     open_system(model_name);
-    sf = Simulink.Root;
-
+    sf = slroot;
+    
     block = sf.find('Path', paths_i, '-isa', 'Stateflow.EMChart');
     
     matlabFunction(expr_sym, ...

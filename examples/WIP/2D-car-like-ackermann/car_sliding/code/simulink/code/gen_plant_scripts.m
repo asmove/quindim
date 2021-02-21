@@ -1,5 +1,4 @@
 function [] = gen_plant_scripts(sys, model_name)
-
     q = sys.kin.q;
     qp = sys.kin.qp;
     p = sys.kin.p{end};
@@ -25,8 +24,6 @@ function [] = gen_plant_scripts(sys, model_name)
         vars = {{[q; p]}, {[q; p]}, {[q; p]}, {[q; p], u}};
     end
     
-    expr_syms{1}
-    
     for j = 1:length(expr_syms)
         
         expr_sym = expr_syms(j);
@@ -43,7 +40,7 @@ function [] = gen_plant_scripts(sys, model_name)
              [model_name, '/Plant/Dynamic system/Auxiliary_matrices/C_matrix'], ...
              [model_name, '/Plant/Dynamic system/Mass_block/mass_tensor'], ...
              [model_name, '/Plant/Dynamic system/Efforts/Constrained_efforts']};
-    
+         
     fun_names = {'KinematicVector', 'ConstraintMatrix', 'Mass_matrix', 'ConstrainedEffort'};
 
     symbs = sys.descrip.syms;
@@ -53,18 +50,23 @@ function [] = gen_plant_scripts(sys, model_name)
     nchar = 100000;
     
     open_system(model_name);
-    sf = Simulink.Root;
-
+    sf = slroot;
+    
     for i = 1:length(paths)
         paths_i = paths{i};
         
+        paths_i
+        
+        % block = get_param(paths_i, 'MATLABFunctionConfiguration');
         block = sf.find('Path', paths_i, '-isa', 'Stateflow.EMChart');
+        
+        block
         
         expr_sym = expr_syms{i};
         output = Outputs{i};
         vars_i = vars{i};
         fun_name = fun_names{i};
-        expr_sym = subs(expr_sym, symbs, vals);
+        expr_sym = vpa(expand(subs(expr_sym, symbs, vals)));
         
         matlabFunction(expr_sym, 'File', fun_name, ...
                                  'Vars', vars_i, ...

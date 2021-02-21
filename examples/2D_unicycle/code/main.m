@@ -4,9 +4,9 @@
 % Load model
 run('./load_model.m');
 
-% Run simulation
-run('./run_sim.m');
-
+% % Run simulation
+% run('./run_sim.m');
+% 
 % % Run plot script
 % run('./run_plot.m');
 % 
