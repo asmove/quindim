@@ -69,7 +69,7 @@ G = c_torque*inv(s*eye(n) - A)*B;
 u_num = [-Vcc; Vcc];
 
 % Duty cycle [%/100]
-alpha_ref = 0.25;
+alpha_ref = 0.1;
 
 % PWM and sampling periods
 Tpwm_val = 1e-3;

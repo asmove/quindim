@@ -39,5 +39,8 @@ p_d_k = exp(Ts_val*p_c_k);
 % Controller project
 K_aug = acker(Phi_aug, Gamma_aug, p_d_k);
 
-params.Kp = K_aug(:, 1:n_aug-1);
-params.Ki = -K_aug(:, n_aug);
+Kp = K_aug(:, 1:n_aug-1);
+Ki = -K_aug(:, n_aug);
+
+params.Kp = Kp;
+params.Ki = Ki;
