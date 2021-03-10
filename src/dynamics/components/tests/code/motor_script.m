@@ -78,7 +78,8 @@ function [yr_n, x_n, ...
         u_i = Ki*v_n;
         
         % Duty cycle
-        alpha_n = u_i + u_p;
+        alpha = u_i + u_p;
+        alpha_n = terop(abs(alpha) <= 1, alpha, sign(alpha));
         
         yr_n = Ctilde_d*x_n;
         

@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-run('./tests/utils/load_pwm_delayed_pred_noised_controller.m');
+run('./tests/utils/load_plant_and_controller.m');
 
 step_ref = torque_ref;
 

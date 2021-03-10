@@ -3,7 +3,7 @@ close all
 clc
 
 % Load parameters
-run('./utils/load_pwm_delayed_pred_noised_controller.m');
+run('./utils/load_plant_and_controller.m');
 
 run('./load_structs.m');
 run('run_sim.m');

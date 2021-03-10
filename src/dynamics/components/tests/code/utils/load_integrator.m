@@ -44,3 +44,5 @@ Ki = -K_aug(:, n_aug);
 
 params.Kp = Kp;
 params.Ki = Ki;
+
+Ctilde = Ctilde(1, 1:2);

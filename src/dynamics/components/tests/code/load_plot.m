@@ -16,7 +16,7 @@ plot_config.legends = {{'$\tau(t)$', '$\tau^{\star}(t)$'}, ...
                        {'$\omega(t)$', '$\hat{\omega}(t)$'}, ...
                        {'$i(t)$', '$\hat{i}(t)$'}};
 plot_config.plot_type = 'stairs';
-plot_config.grid_size = [3, 1];
+plot_config.grid_size = [1, 3];
 plot_config.pos_multiplots = [1, 2, 3];
 plot_config.markers = {markers, markers, markers};
 
@@ -25,6 +25,10 @@ plot_config.markers = {markers, markers, markers};
 axs{1}{1}.FontSize = 25;
 axs{1}{2}.FontSize = 25;
 axs{1}{3}.FontSize = 25;
+
+axis(axs{1}{1}, 'square');
+axis(axs{1}{2}, 'square');
+axis(axs{1}{3}, 'square');
 
 plot_config.titles = {''};
 plot_config.xlabels = {'t [s]'};
@@ -35,6 +39,7 @@ plot_config.grid_size = [1, 1];
 [hfig_u, axs] = my_plot(tspan, us, plot_config);
 
 axs{1}{1}.FontSize = 25;
+axis(gca, 'square');
 
 plot_config.titles = {''};
 plot_config.xlabels = {'t [s]'};
@@ -50,6 +55,11 @@ alphas_ref = alpha_ref*ones(n_t, 1);
 
 ys = {alphas_ref, alphas};
 
-[hfig_u, axs] = my_plot(tspan, ys, plot_config);
+[hfig_alpha, axs] = my_plot(tspan, ys, plot_config);
 
 axs{1}{1}.FontSize = 25;
+axis(gca, 'square');
+
+saveas(hfig_x, '../imgs/states', 'epsc');
+saveas(hfig_u, '../imgs/input', 'epsc');
+saveas(hfig_alpha, '../imgs/alpha', 'epsc');

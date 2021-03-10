@@ -36,4 +36,4 @@ x0 = [x0; zeros(nds_i + nds_o)];
 params_plant.x0 = x0;
 
 dt = 1e-4;
-tf = 1;
+tf = 0.5;
