@@ -33,7 +33,7 @@ If you wish to use it, follow the instructions:
 There are two utilitaries for the current library, which are not on it to avoid a greater library than it is already. Follow the instructions below:
 
 1) Clone the repositories below in the same manner as in the "Introduction" section:
-    - ```math-utils```: ```https://github.com/brunolnetto/matlab-utils```;
+    - ```matlab-utils```: ```https://github.com/brunolnetto/matlab-utils```;
     - ```baryopt```  : ```https://github.com/brunolnetto/baryopt```.
 2) Add the repositories to MATLAB path as on "Installation" section.
 
