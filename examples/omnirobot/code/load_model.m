@@ -7,7 +7,6 @@ if(exist('CLEAR_ALL'))
 end
 
 close all
-clc
 
 % The 'real' statement on end is important for inner simplifications
 syms tau1 tau2 tau3 m_r m_R R r L g real;
@@ -70,7 +69,7 @@ params_R = [];
 main_body = build_body(m_R, I_R, Ts_R, Lg_R, {}, {}, ...
                        states_main, speed_main, accel_main, ...
                        previous_R, params_R);
-
+                   
 previous_r1 = main_body;
 
 states_main = [states_main; phi1];
@@ -162,10 +161,10 @@ q_qp = [sys.kin.qp; sys.kin.q];
 
 sys.descrip.latex_origs = latexify_vars(q_qp);
 sys.descrip.latex_text = {'\dot{x}', '\dot{y}', ...
-                          '\dot{\theta}', '\dot{\theta}_1', ...
-                          '\dot{\theta}_2', '\dot{\theta}_3', ...
-                          'x', 'y', '\theta', '\theta_1', ...
-                          '\theta_2', '\theta_1'};
+                          '\dot{\theta}', '\dot{\phi}_1', ...
+                          '\dot{\phi}_2', '\dot{\phi}_3', ...
+                          'x', 'y', '\phi', '\phi_1', ...
+                          '\phi_2', '\phi_1'};
 
 q = sys.kin.q;
 qp = sys.kin.qp;

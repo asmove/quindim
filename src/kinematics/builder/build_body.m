@@ -34,8 +34,6 @@ function body = build_body(m, inertia, Ts, p_cg, dampers, springs, ...
     
     body.omega = omega(body.R, q, qp);
     
-    body.omega
-    
     body.dampers = dampers;
     body.springs = springs;
     
