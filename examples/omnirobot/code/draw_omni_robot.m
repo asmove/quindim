@@ -36,7 +36,3 @@ function [] = draw_omni_robot(hfig, sys, sim)
     hold off;
 end
 
-
-
-
-
