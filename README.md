@@ -39,7 +39,7 @@ If you wish to use it, follow the instructions:
 
 ## Reproduce an example
 
-Go to folder ```$QUINDIM_PATH/examples```, choose one of them, open the folder ```code``` and type ```main``` on MATLAB terminal line.
+Go to folder ```$QUINDIM_PATH/examples```, choose one of them, open the folder ```code``` and run ```main``` command on MATLAB terminal line.
 
 ## Documentation
 It is still small, but take a look at wiki: https://github.com/asmovi/quindim/wiki
