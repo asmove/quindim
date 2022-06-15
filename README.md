@@ -42,7 +42,7 @@ There are two utilitaries for the current library, which are not on it to avoid 
 Go to folder ```$QUINDIM_PATH/examples```, choose one of them, open the folder ```code``` and type ```main``` on MATLAB terminal line.
 
 ## Documentation
-It is still small, but take a look at wiki: https://github.com/brunolnetto/Robotics4fun/wiki
+It is still small, but take a look at wiki: https://github.com/asmovi/quindim/wiki
 
 ## Reference
 
