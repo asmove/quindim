@@ -11,8 +11,8 @@ In case you are interested on a more mature material, take a look at http://pete
 If the reader is already familiar with github, skip the next steps. To clone this repository, type the following commands on linux:
 
 ```
-mkdir ~/quindim
-cd ~/quindim
+mkdir ~/github
+cd ~/github
 git clone git@github.com:brunolnetto/quindim.git 
 ```
 
