@@ -25,7 +25,7 @@ Most likely, the reader may use Windows. For such, the author recommends either 
 There are two utilitaries for the current library, which are not on it to avoid a greater library than it is already. Follow the instructions below:
 
 1) Clone the repositories below in the same manner as in the "Introduction" section:
-    - ```matlab-utils```: ```https://github.com/brunolnetto/matlab-utils```;
+    - ```matlab-utils```: ```https://github.com/brunolnetto/matils```;
     
 2) Add the repositories to MATLAB path as on "Installation" section.
 
@@ -42,7 +42,7 @@ If you wish to use it, follow the instructions:
 Go to folder ```$QUINDIM_PATH/examples```, choose one of them, open the folder ```code``` and run ```main``` command on MATLAB terminal line.
 
 ## Documentation
-It is still small, but take a look at wiki: https://github.com/asmovi/quindim/wiki
+It is still small, but take a look at wiki: https://github.com/asmove/quindim/wiki
 
 ## Reference
 
