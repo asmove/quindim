@@ -1,6 +1,6 @@
 which -all pathdef.m
 
-PATHS = {'source_seek', 'quindim', 'matlab-utils', 'baryopt'};
+PATHS = {'sseek', 'quindim', 'matils', 'baryopt'};
 
 GITPATH = '/home/brunolnetto/github/';
 
